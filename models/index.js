@@ -1,12 +1,5 @@
-var mongoose = require('mongoose'),
+/*var mysql = require('mysql'),
 	config= require('../config').config;
-	
-mongoose.connect(config.db, function(err){
-	if(err){
-		console.log('connect to db error: ' + err.message);
-		process.exit(1);
-	}
-});
 
 // models
 require('./tag');
@@ -28,3 +21,4 @@ exports.TopicCollect = mongoose.model('TopicCollect');
 exports.TagCollect = mongoose.model('TagCollect');
 exports.Relation = mongoose.model('Relation');
 exports.Message = mongoose.model('Message');
+*/

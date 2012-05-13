@@ -1,6 +1,6 @@
-# nodeclub
+# expro future
 
-基于nodejs的社区系统
+基于nodejs的销售管理系统，基于node club
 
 ## 介绍
 

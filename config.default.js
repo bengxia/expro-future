@@ -19,10 +19,17 @@ exports.config = {
 	],
 	site_static_host: '', // 静态文件存储域名
 
-	db: 'mongodb://127.0.0.1/node_club',
-	session_secret: 'node_club',
-	auth_cookie_name: 'node_club',
-	port: 80,
+        , mysql: {
+              host: 'exprofuture.mysql.aliyun.com'
+            , port:3306
+            , user: 'exprofuture'
+            , password: '123456'
+            , database:'exprofuture'
+            , timezone:'Asia/Shanghai'
+        }
+	session_secret: 'expro_future',
+	auth_cookie_name: 'expro_future',
+	port: 10080,
 
 	// 话题列表显示的话题数量
 	list_topic_count: 20,

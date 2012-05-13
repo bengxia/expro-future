@@ -3,5 +3,6 @@ node_modules
 .naeindex
 public/user_data
 
+.npmignore
 .monitor
 .nide

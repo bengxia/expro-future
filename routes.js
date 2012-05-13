@@ -7,7 +7,7 @@
 /**
  * Module dependencies.
  */
-
+/*
 var sign = require('./controllers/sign');
 var site = require('./controllers/site');
 var user = require('./controllers/user');
@@ -18,9 +18,16 @@ var reply = require('./controllers/reply');
 var upload = require('./controllers/upload');
 var static = require('./controllers/static');
 var tools =require('./controllers/tools');
+*/
 
 exports = module.exports = function(app) {
-  // home page
+  app.get('/signin', function(req, res) {
+      res.render('sign/signin');
+  });
+  app.get('/', function(req, res) {
+      res.redirect('/signin');
+  });
+/*  // home page
   app.get('/', site.index);
 
   // sign up, login, logout
@@ -92,5 +99,5 @@ exports = module.exports = function(app) {
 
   // static
   app.get('/about', static.about);
-  app.get('/faq', static.faq);
+  app.get('/faq', static.faq);*/
 };

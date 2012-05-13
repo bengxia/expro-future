@@ -24,7 +24,7 @@ app.configure(function() {
 		secret: config.session_secret,
 	}));
 	// custom middleware
-	app.use(require('./controllers/sign').auth_user);
+//	app.use(require('./controllers/sign').auth_user);
 	app.use(express.csrf());
 
 	// plugins

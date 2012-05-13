@@ -1,125 +1,40 @@
-!!! transitional
-html(xmlns='http://www.w3.org/1999/xhtml')
-  head
-    //
-       meta 
-    meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
-    meta(name='description', content='CNode：Node.js专业中文社区')
-    meta(name='author', content='EDP@TaoBao')
-    meta(property='wb:webmaster', content='617be6bd946c6b96')
-    link(title='RSS', type='application/rss+xml', rel='alternate', href='/rss')
-    //
-       style 
-    link(rel='stylesheet', type='text/css', href='/libs/bootstrap/css/bootstrap.css', media='screen')
-    link(rel='stylesheet', type='text/css', href='/stylesheets/style.css', media='screen')
-    //
-       script 
-    script(type='text/javascript', src='/libs/jquery/jquery.js')
-    script(type='text/javascript', src='/libs/bootstrap/js/bootstrap.js')
-    script(type='text/javascript', src='/javascripts/main.js')
-    title CNode：Node.js专业中文社区
-  body
-    //
-       navbar 
-    .navbar
-      .navbar-inner
-        .container
-          a.brand(href='/')
-            img(src='/images/logo.png', title='Node.js专业中文社区')
-          form#search_form.navbar-search(action='/')
-            input#q.search-query.span3(type='text', name='q', value='')
-          ul.nav.pull-right
+#wrapper
+  #main
+    #sidebar
+      .panel
+        .header
+          span.col_fade 关于
+        .inner
+          p CNode：Node.js专业中文社区
+          p 在这里你可以：
+          ul
+            li 向别人提出你遇到的问题
+            li 帮助遇到问题的人
+            li 分享自己的知识
+            li 和其它人一起进步
+    #content
+      .panel
+        .header
+          ul.breadcrumb
             li
-              a(href='/') 首页
-            li
-              a(href='/tag/社区活动', target='') 社区活动
-            li
-              a(href='http://cnodejs.net/', target='_blank') NAE
-            li
-              a(href='/topic/4f17948d9f40a8335200518e', target='') 志愿者
-            li
-              a(href='http://nodejob.cnodejs.net/', target='_blank') 工作机会
-            li
-              a(href='/about', target='') 关于我们
-            li.divider-vertical
-            li
-              a(href='/signup') 注册
-            li
-              a(href='/signin') 登录
-    //
-       wrapper 
-    #wrapper
-      #main
-        #sidebar
-          .panel
-            .header
-              span.col_fade 关于
-            .inner
-              p CNode：Node.js专业中文社区
-              p 在这里你可以：
-              ul
-                li 向别人提出你遇到的问题
-                li 帮助遇到问题的人
-                li 分享自己的知识
-                li 和其它人一起进步
-        #content
-          .panel
-            .header
-              ul.breadcrumb
-                li
-                  a(href='/') 主页
-                  span.divider /
-                li.active 登录
-            .inner
-              .sep10
-              .sep10
-              form#signin_form.form-horizontal(action='/signin', method='post')
-                .control-group
-                  label.control-label(for='name') 用户名
-                  .controls
-                    input#name.input-xlarge(name='name', size='30', type='text')
-                .control-group
-                  label.control-label(for='pass') 密码
-                  .controls
-                    input#pass.input-xlarge(name='pass', size='30', type='password')
-                    p.help-block
-                      a(href='/search_pass') 我忘记了密码
-                input(type='hidden', name='_csrf', value='z7V7SNkQMYLSTFInFPNPyKzR')
-                .form-actions
-                  input.btn(type='submit', value='登录')
-      .cl.cr
-    #backtotop 回到顶部
-    a(href='https://github.com/muyuan/nodeclub')
-      img(style='position: absolute; top: 0; right: 0; border: 0;', src='https://a248.e.akamai.net/assets.github.com/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67', alt='Fork me on GitHub')
-    //
-       footer 
-    #footer
-      #footer_main
-        .fr
-        div
-          strong
-            a.dark(href='/about') 关于
-          | |
-          strong
-            a.dark(href='/faq') FAQ
-          | |
-          strong
-            a.dark(href='https://github.com/muyuan/nodeclub/', target='_blank') Github
-          | |
-          strong
-            a.dark(href='/rss', target='_blank') RSS
-        .sep10
-        .col_fade
-          | © 2012
-          br
-          | 本社区为开源系统，版本: 0.2.1 ，欢迎贡献代码
-          br
-          | 由
-          a(href='http://cnodejs.net', target='_blank')  NAE 
-          | 为 CNode 提供动力
-    script(type='text/javascript')
-      (function() {
-      var c = document.createElement('script'); c.type = 'text/javascript'; c.async = true;
-      c.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'www.clicki.cn/boot/44998';
-      var h = document.getElementsByTagName('head')[0]; h.appendChild(c);
-      })();
+              a(href='/') 主页
+              span.divider /
+            li.active 登录
+        .inner
+          .sep10
+          .sep10
+          form#signin_form.form-horizontal(action='/signin', method='post')
+            .control-group
+              label.control-label(for='name') 用户名
+              .controls
+                input#name.input-xlarge(name='name', size='30', type='text')
+            .control-group
+              label.control-label(for='pass') 密码
+              .controls
+                input#pass.input-xlarge(name='pass', size='30', type='password')
+                p.help-block
+                  a(href='/search_pass') 我忘记了密码
+            input(type='hidden', name='_csrf', value='z7V7SNkQMYLSTFInFPNPyKzR')
+            .form-actions
+              input.btn(type='submit', value='登录')
+  .cl.cr

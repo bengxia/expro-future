@@ -16,9 +16,8 @@ var app = express.createServer();
 // configuration in all env
 app.configure(function() {
 	var viewsRoot = path.join(__dirname, 'views');
-	app.set('view engine', 'html');
+        app.set('view engine', 'jade');
 	app.set('views', viewsRoot);
-	app.register('.html', require('ejs'));
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({
@@ -63,6 +62,6 @@ app.configure('production', function(){
 routes(app);
 
 app.listen(config.port);
-console.log("NodeClub listening on port %d in %s mode", app.address().port, app.settings.env);
+console.log("ExproFutur listening on port %d in %s mode", app.address().port, app.settings.env);
 console.log("God bless love....");
 console.log("You can debug your app with http://localhost:"+app.address().port);

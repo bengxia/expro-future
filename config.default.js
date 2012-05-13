@@ -3,9 +3,9 @@
  */
 
 exports.config = {
-	name: 'Node Club',
-	description: 'Node Club 是用Node.js开发的社区软件',
-	version: '0.2.2',
+	name: 'Expro Future',
+	description: 'Expro Future是用Node.js开发的销售软件,基于Node Club框架发展而来',
+	version: '0.0.1',
 
 	// site settings
 	site_headers: [
@@ -26,17 +26,6 @@ exports.config = {
 
 	// 话题列表显示的话题数量
 	list_topic_count: 20,
-
-	// RSS
-	rss: {
-		title: 'CNode：Node.js专业中文社区',
-		link: 'http://cnodejs.org',
-		language: 'zh-cn',
-		description: 'CNode：Node.js专业中文社区',
-
-		//最多获取的RSS Item数量
-		max_rss_items: 50
-	},
 
 	// mail SMTP
 	mail_port: 25,

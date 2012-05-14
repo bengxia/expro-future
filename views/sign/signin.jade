@@ -23,6 +23,11 @@
         .inner
           .sep10
           .sep10
+          - if(locals.error) {
+          .alert.alert-error
+            !{'<a class="close" data-dismiss="alert" href="#">&times;</a>'}
+            strong #{error}
+          - }
           form#signin_form.form-horizontal(action='/signin', method='post')
             .control-group
               label.control-label(for='name') 用户名
@@ -34,7 +39,7 @@
                 input#pass.input-xlarge(name='pass', size='30', type='password')
                 p.help-block
                   a(href='/search_pass') 我忘记了密码
-            input(type='hidden', name='_csrf', value='z7V7SNkQMYLSTFInFPNPyKzR')
+            input(type='hidden', name='_csrf', value='#{csrf}')
             .form-actions
               input.btn(type='submit', value='登录')
   .cl.cr

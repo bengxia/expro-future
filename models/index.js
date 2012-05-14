@@ -1,9 +1,8 @@
-/*var mysql = require('mysql'),
-	config= require('../config').config;
 
 // models
-require('./tag');
-require('./user');
+//var User = require('./user');
+exports.User = require('./user')();
+/*require('./tag');
 require('./topic');
 require('./topic_tag');
 require('./reply');

@@ -1,17 +1,15 @@
-# expro future
+# Expro Future 泛盈商惠
 
 基于nodejs的销售管理系统，基于node club
 
 ## 介绍
 
-Node Club 是用 **Node.js** 和 **MongoDb** 开发的新型社区软件，界面优雅，功能丰富，小巧迅速，
-已在Node.js 中文技术社区 [CNode](http://cnodejs.org) 得到应用，但你完全可以用它搭建自己的社区。
+Expro Future 是用 **Node.js** 和 **MySQL** 开发的销售管理平台。
 
 ## 安装部署
 
 ```bash
-// install node npm mongodb  
-// run mongod
+// create ace project  
 cd nodeclub
 npm install ./
 cp config.default.js config.js
@@ -54,17 +52,5 @@ if (req.body && req.body.user_action === 'upload_image') return next();
 Below is the output from `git-summary`.
 
 ```
- project: nodeclub
- commits: 53
- files  : 244
- authors: 
-    25  fengmk2                 47.2%
-     9  muyuan                  17.0%
-     8  dead-horse              15.1%
-     4  ericzhang               7.5%
-     3  Kenny Zhao              5.7%
-     1  LeToNode                1.9%
-     1  roymax                  1.9%
-     1  thebrecht               1.9%
-     1  张洋                  1.9%
+
 ```

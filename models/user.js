@@ -1,3 +1,24 @@
+var mysql = require('../libs/mysql.js');
+
+function createUser() {
+    return new User();
+};
+
+function User() {
+    this.table = '`ef_user`';
+};
+
+User.prototype.findOne = function(opt, cb) {
+    var sql = "SELECT * FROM `ef_user` WHERE `email` LIKE '"+opt.loginname+"'";
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs[0]);
+    });
+};
+
+exports = module.exports = createUser;
+
 /*var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 	

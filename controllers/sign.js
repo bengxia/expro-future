@@ -6,7 +6,7 @@ var check = require('validator').check,
 
 var crypto = require('crypto');
 var config = require('../config').config;
-
+/*
 var message_ctrl = require('./message');
 var mail_ctrl = require('./mail');
 
@@ -89,7 +89,7 @@ exports.signup = function(req,res,next){
 		});
 	}
 };
-
+*/
 /**
  * Show user login page.
  * 
@@ -121,6 +121,7 @@ exports.login = function(req, res, next) {
 	var loginname = sanitize(req.body.name).trim().toLowerCase();
 	var pass = sanitize(req.body.pass).trim();
 	
+                console.log(loginname);
 	if (!loginname || !pass) {
 		return res.render('sign/signin', { error: '信息不完整。' });
 	}
@@ -131,7 +132,7 @@ exports.login = function(req, res, next) {
 			return res.render('sign/signin', { error:'这个用户不存在。' });
 		}
 		pass = md5(pass);
-		if (pass !== user.pass) {
+		if (pass !== user.password) {
 			return res.render('sign/signin', { error:'密码错误。' });
 		}
 		if (!user.active) {
@@ -140,14 +141,14 @@ exports.login = function(req, res, next) {
 		}
 		// store session cookie
 		gen_session(user, res);
-    //check at some page just jump to home page 
-    var refer = req.session._loginReferer || 'home';
-    for (var i=0, len=notJump.length; i!=len; ++i) {
-      if (refer.indexOf(notJump[i]) >= 0) {
-        refer = 'home';
-        break;
-      }
-    }
+                //check at some page just jump to home page 
+                var refer = req.session._loginReferer || 'home';
+                for (var i=0, len=notJump.length; i!=len; ++i) {
+                  if (refer.indexOf(notJump[i]) >= 0) {
+                    refer = 'home';
+                    break;
+                  }
+                }
 		res.redirect(refer);
 	});
 };
@@ -158,7 +159,7 @@ exports.signout = function(req, res, next) {
 	res.clearCookie(config.auth_cookie_name, { path: '/' });
 	res.redirect(req.headers.referer || 'home');
 };
-
+/*
 exports.active_account = function(req,res,next) {
 	var key = req.query.key;
 	var name = req.query.name;
@@ -225,7 +226,7 @@ exports.search_pass = function(req,res,next){
  * @param  {http.req}   req  
  * @param  {http.res}   res 
  * @param  {Function} next 
- */
+ *
 exports.reset_pass = function(req,res,next) {
   var method = req.method.toLowerCase();
   if(method === 'get') {
@@ -305,11 +306,12 @@ exports.auth_user = function(req,res,next){
 		});	
 	}
 };
-
+*/
 // private
 function gen_session(user,res) {
-	var auth_token = encrypt(user._id + '\t'+user.name + '\t' + user.pass +'\t' + user.email, config.session_secret);
-	res.cookie(config.auth_cookie_name, auth_token, {path: '/',maxAge: 1000*60*60*24*30}); //cookie 有效期30天			
+	var auth_token = encrypt(user.gid + '\t'+user.username + '\t' + user.password +'\t' + user.email, config.session_secret);
+	res.cookie(config.auth_cookie_name, auth_token, {path: '/',maxAge: 1000*60*60*24*30}); //cookie 有效期30天	
+        res.local('current_user', user);
 }
 function encrypt(str,secret) {
    var cipher = crypto.createCipher('aes192', secret);

@@ -7,9 +7,9 @@
 /**
  * Module dependencies.
  */
-/*
 var sign = require('./controllers/sign');
 var site = require('./controllers/site');
+/*
 var user = require('./controllers/user');
 var message = require('./controllers/message');
 var tag = require('./controllers/tag');
@@ -21,25 +21,15 @@ var tools =require('./controllers/tools');
 */
 
 exports = module.exports = function(app) {
-  app.get('/signin', function(req, res) {
-      try {
-      res.render('sign/signin');
-      } catch(e) {
-          console.log(e.stack);
-      }
-  });
-  app.get('/', function(req, res) {
-      res.redirect('/signin');
-  });
-/*  // home page
+  // home page
   app.get('/', site.index);
 
   // sign up, login, logout
-  app.get('/signup', sign.signup);
-  app.post('/signup', sign.signup);
-  app.get('/signout', sign.signout);
   app.get('/signin', sign.showLogin);
   app.post('/signin', sign.login);
+/*  app.get('/signup', sign.signup);
+  app.post('/signup', sign.signup);
+  app.get('/signout', sign.signout);
   app.get('/active_account', sign.active_account);
 
   // password

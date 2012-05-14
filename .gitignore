@@ -6,3 +6,5 @@ public/user_data
 .npmignore
 .monitor
 .nide
+
+.DS_Store

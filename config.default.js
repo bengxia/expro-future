@@ -4,29 +4,29 @@
 
 exports.config = {
 	name: 'Expro Future',
-	description: 'Expro Future是用Node.js开发的销售软件,基于Node Club框架发展而来',
+	description: 'Expro Future:泛盈商惠平台',
 	version: '0.0.1',
 
 	// site settings
 	site_headers: [
-		'<meta name="author" content="EDP@TAOBAO" />',
+		'<meta name="author" content="gbo@expro" />',
 	],
 	host: 'http://127.0.0.1', // host 结尾不要添加'/'
-	site_logo: '', // default is `name`
+	site_logo: '/images/logo.png', // default is `name`
 	site_navs: [
 		// [ path, title, [target=''] ]
 		[ '/about', '关于' ],
 	],
 	site_static_host: '', // 静态文件存储域名
 
-        , mysql: {
+        mysql: {
               host: 'exprofuture.mysql.aliyun.com'
             , port:3306
             , user: 'exprofuture'
             , password: '123456'
             , database:'exprofuture'
             , timezone:'Asia/Shanghai'
-        }
+        },
 	session_secret: 'expro_future',
 	auth_cookie_name: 'expro_future',
 	port: 10080,

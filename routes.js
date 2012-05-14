@@ -22,7 +22,11 @@ var tools =require('./controllers/tools');
 
 exports = module.exports = function(app) {
   app.get('/signin', function(req, res) {
+      try {
       res.render('sign/signin');
+      } catch(e) {
+          console.log(e.stack);
+      }
   });
   app.get('/', function(req, res) {
       res.redirect('/signin');

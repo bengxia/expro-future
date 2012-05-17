@@ -27,6 +27,9 @@ exports.config = {
             , database:'exprofuture'
             , timezone:'Asia/Shanghai'
         },
+        message_queue: {
+            port: 1900
+        },
 	session_secret: 'expro_future',
 	auth_cookie_name: 'expro_future',
 	port: 10080,

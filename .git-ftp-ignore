@@ -2,7 +2,6 @@ test
 config.default.js
 node_modules/express
 node_modules/jade
-.git
 .gitignore
 .nide
 .npmignore

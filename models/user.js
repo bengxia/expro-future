@@ -9,7 +9,7 @@ function User() {
 };
 
 User.prototype.findOne = function(opt, cb) {
-    var sql = "SELECT * FROM `ef_user` WHERE `email` LIKE '"+opt.loginname+"'";
+    var sql = "SELECT * FROM `ef_user` WHERE `cellphone` LIKE '"+opt.loginname+"'";
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);

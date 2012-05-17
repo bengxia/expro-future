@@ -28,7 +28,8 @@ exports.config = {
             , timezone:'Asia/Shanghai'
         },
         message_queue: {
-            port: 1900
+            port: 1900,
+            host: 127.0.0.1
         },
 	session_secret: 'expro_future',
 	auth_cookie_name: 'expro_future',

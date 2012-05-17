@@ -8,5 +8,6 @@ var sanitize = require('validator').sanitize;
 */
 
 exports.index = function(req,res,next){
-    res.redirect('/signin');
+    res.render('index');
+//    res.redirect('/signin');
 };

@@ -12,7 +12,7 @@ var routes = require('./routes');
 var config = require('./config').config;
 
 //message queue
-require('./libs/mq.js');
+require('./libs/mq_server.js');
 
 var app = express.createServer();
 

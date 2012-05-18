@@ -134,7 +134,7 @@ exports.login = function(req, res, next) {
 		if (pass !== user.password) {
 			return res.render('sign/signin', { error:'密码错误。' });
 		}
-		if (!user.active) {
+		if (!user.state) {
 			res.render('sign/signin', { error:'此帐号还没有被激活。' });
 			return;
 		}

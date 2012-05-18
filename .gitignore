@@ -8,3 +8,5 @@ public/user_data
 .nide
 
 .DS_Store
+
+deployProduct.sh

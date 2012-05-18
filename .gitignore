@@ -7,5 +7,7 @@ public/user_data
 .npmignore
 .monitor
 .nide
-
+log
 .DS_Store
+server.js
+deployProduct.sh

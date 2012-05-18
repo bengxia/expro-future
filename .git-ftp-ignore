@@ -4,3 +4,4 @@ config.default.js
 .nide
 .npmignore
 .naeignore
+startup.sh

@@ -9,8 +9,9 @@ Expro Future 是用 **Node.js** 和 **MySQL** 开发的销售管理平台。
 ## 安装部署
 
 ```bash
-// create ace project  
-cd nodeclub
+//clone expro future project
+git clone git://github.com/extensivepro/expro-future.git  
+cd expro-future
 npm install ./
 cp config.default.js config.js
 // modify the config file as yours

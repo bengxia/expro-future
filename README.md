@@ -1,6 +1,6 @@
 # Expro Future 泛盈商惠
 
-基于nodejs的销售管理系统，基于Node club
+基于nodejs的销售管理系统，基于Node Club
 
 ## 介绍
 

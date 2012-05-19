@@ -10,4 +10,5 @@ public/user_data
 log
 .DS_Store
 server.js
+deployStaging.sh
 deployProduction.sh

@@ -3,6 +3,7 @@
 #grap master code 
 git checkout master
 git fetch origin master
+git merge origin/master
 #shutdown staging server
 #find sql script
 #	backup database

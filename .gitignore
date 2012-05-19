@@ -9,4 +9,4 @@ public/user_data
 log
 .DS_Store
 server.js
-deployProduct.sh
+deployProduction.sh

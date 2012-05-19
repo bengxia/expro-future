@@ -1,7 +1,5 @@
 test
 config.default.js
-node_modules/express
-node_modules/jade
 .gitignore
 .nide
 .npmignore

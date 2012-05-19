@@ -1,5 +1,6 @@
-config.js
+deployProduct.sh
 node_modules
+config.js
 .naeindex
 public/user_data
 

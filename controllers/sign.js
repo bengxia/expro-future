@@ -1,6 +1,7 @@
 var models = require('../models');
 var User = models.User;
 var Role = models.Role;
+var Member = models.Member;
 
 var check = require('validator').check;
 var sanitize = require('validator').sanitize;
@@ -124,7 +125,7 @@ exports.login = function(req, res, next) {
     var loginname = sanitize(req.body.name).trim().toLowerCase();
     var pass = sanitize(req.body.pass).trim();
     var role = req.query.role;
-    var merchant = req.query.merchant;
+    var org = req.query.org;
     var ep = EventProxy.create();
     
     function feedback(result) {
@@ -151,8 +152,7 @@ exports.login = function(req, res, next) {
     }
     
     ep.once('error', function(result) {
-        ep.unbind('roleDone');
-        ep.unbind('memberDone');
+        ep.unbind();//remove all event
         return feedback(result);
     });
 
@@ -168,13 +168,13 @@ exports.login = function(req, res, next) {
                 feedback({status:200, error:'登陆成功');
             });
             Role.findOne({role:role}, function(err, role) {
-                if(err) next(err)
+                if(err) { ep.unbind(); next(err);}
                 if (!role) return ep.trigger('error', {status:403, error:'用户权限不存在。'});
                 req.session.role = role;
                 ep.trigger('roleDone');
             });
-            Member.findOne({merchant:merchant, user:user._id}, function(err, member) {
-                if(err) next(err)
+            Member.findOne({org:org, user:user._id}, function(err, member) {
+                if(err) { ep.unbind(); next(err);}
                 if (!member) return ep.trigger('error', {status:401, error:'商户没有这个用户。'});
                 req.session.member = member
                 ep.trigger('memberDone');

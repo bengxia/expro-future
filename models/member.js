@@ -4,12 +4,11 @@ function create() {
     return new Role();
 };
 
-function Role() {
+function Member() {
 };
 
-Role.prototype.findOne = function(opt, cb) {
-    var sql = 'SELECT t1.*, t3.* FROM ef_role as t1, ef_role_privilage as t2, ef_route_table as t3 '+
-              'WHERE t1._id = t2.role_id AND t3._id = t2.route_table_id AND t1._id = '+opt.role;
+Member.prototype.findOne = function(opt, cb) {
+    var sql = 'SELECT * FROM ef_member WHERE org_id = '+opt.org+' AND user_id = '+opt.user;
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);

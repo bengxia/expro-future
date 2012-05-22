@@ -3,6 +3,7 @@
 //var User = require('./user');
 exports.User = require('./user')();
 exports.Role = require('./role')();
+exports.Member = require('./member')();
 /*require('./tag');
 require('./topic');
 require('./topic_tag');

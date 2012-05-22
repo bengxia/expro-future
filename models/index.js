@@ -2,6 +2,7 @@
 // models
 //var User = require('./user');
 exports.User = require('./user')();
+exports.Role = require('./role')();
 /*require('./tag');
 require('./topic');
 require('./topic_tag');

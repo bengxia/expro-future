@@ -27,9 +27,9 @@ exports = module.exports = function(app) {
   // sign up, login, logout
   app.get('/signin', sign.showLogin);
   app.post('/signin', sign.login);
+  app.get('/signout', sign.signout);
 /*  app.get('/signup', sign.signup);
   app.post('/signup', sign.signup);
-  app.get('/signout', sign.signout);
   app.get('/active_account', sign.active_account);
 
   // password

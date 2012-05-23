@@ -28,6 +28,14 @@
       - }
       form#signin_form.form-horizontal(action='/signin', method='post')
         .control-group
+          label.control-label(for='org') 商户代码
+          .controls
+            input#name.input-xlarge(name='org', size='30', type='text')
+        .control-group
+          label.control-label(for='role') 身份
+          .controls
+            input#name.input-xlarge(name='role', size='30', type='text')
+        .control-group
           label.control-label(for='name') 用户名
           .controls
             input#name.input-xlarge(name='name', size='30', type='text')

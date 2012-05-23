@@ -11,9 +11,9 @@
         li 分享自己的知识
         li 和其它人一起进步
 #content
-script(src='/libs/jquery.js')
-script(src='/libs/jquery.base64.js')
-script(src='/libs/sha1.js')
+script(src='/public/jquery/jquery.js')
+script(src='/public/jquery/jquery.base64.js')
+script(src='/public/javascripts/sha1.js')
     .panel
         .header
           ul.breadcrumb
@@ -24,11 +24,6 @@ script(src='/libs/sha1.js')
         .inner
           .sep10
           .sep10
-          - if(locals.error) {
-          .alert.alert-error
-            !{'<a class="close" data-dismiss="alert" href="#">&times;</a>'}
-            strong #{error}
-          - }
 
 script
      //TODO 输入你的accessId和accessKey
@@ -98,6 +93,6 @@ script
        };
 
       $(document).ready(function() {
-        alert("starting....");
-        sendMsgToOSS();
+        //alert("starting....");
+        //sendMsgToOSS();
      });

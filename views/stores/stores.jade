@@ -1,3 +1,46 @@
+link(rel='stylesheet', type='text/css', href='/libs/jquery.jqGrid-4.3.2/css/ui.jqgrid.css', media='screen')
+link(rel='stylesheet', type='text/css', href='/libs/jquery-jquery-ui-c1dc191/themes/base/jquery.ui.all.css', media='screen')
+
+script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/i18n/grid.locale-cn.js')
+script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/jquery.jqGrid.min.js')
+script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/mygrid.js')
+
 - partial('stores/sidebar')
 #content
-  h1 商户首页List+操作
+  .panel
+    .header
+      ul.breadcrumb
+        li
+          a(href='/') 主页
+          span.divider /
+        li.active 登录
+    .inner
+      .sep10
+      .sep10
+    #tableView
+      table#list2
+      #pager2
+  script
+      jQuery("#list2").jqGrid({
+        url:'/stores/',
+        datatype: "json",
+        colNames:['Inv No','Date', 'Client', 'Amount','Tax','Total','Notes'],
+        colModel:[
+            {name:'id',index:'id', width:55},
+            {name:'invdate',index:'invdate', width:90},
+            {name:'name',index:'name asc, invdate', width:100},
+            {name:'amount',index:'amount', width:80, align:"right"},
+            {name:'tax',index:'tax', width:80, align:"right"},
+            {name:'total',index:'total', width:80,align:"right"},
+            {name:'note',index:'note', width:150, sortable:false}
+        ],
+        rowNum:10,
+        rowList:[10,20,30],
+        pager: '#pager2',
+        sortname: 'id',
+        viewrecords: true,
+        sortorder: "desc",
+        caption:"商户列表"
+      });
+      jQuery("#list2").jqGrid('contl','#pager2',{edit:false,add:false,del:false});
+.cl.cr

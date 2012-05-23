@@ -12,12 +12,51 @@ exports.index = function(req,res,next){
     if(req.accepts('html')) {
       res.render('stores/stores', {});
     }else{
-        Store.findAll(function(err,rows){
-            if(err) return next(err);
+        var page = req.params.page; // 取得当前页数,注意这是jqgrid自身的参数
+        var rows = req.params.rows; // 取得每页显示行数，,注意这是jqgrid自身的参数
+        var sidx = req.params.sidx; //取得排序字段
+        var sord  = req.params.sord;//排序方式asc、desc
 
-            //var jsonStr = JSON.stringify(rows);
-            var row = rows[0];
-            console.log('row id:'+row._id);
+        console.log('page:'+page);
+        console.log('rows:'+rows);
+        console.log('sidx:'+sidx);
+
+        var total = '1';//总页数
+        var records = '1';//总记录数
+        page = '1';
+        if(!sidx){
+            sidx = 1;
+        }
+
+
+        Store.findAll(function(err,ds){
+            if(err) return next(err);
+            //-------------------------------------------
+            var jsonObj = new Object();
+            jsonObj.page = page;  // 当前页
+            jsonObj.total = total;    // 总页数
+            jsonObj.records = records;  // 总记录数
+
+            //定义rows 数组，保存所有rows数据
+            var rowsArray = new Array();
+
+
+            for(var i=0; i<ds.length; i++){
+                // 定义rows
+                var rows = new Object();
+                rows.id = ds[i]._id;
+                rows.cell = ds[i];
+                rowsArray[i] = rows;
+            }
+
+            //将rows数组赋予jsonObj.rows
+            jsonObj.rows = rowsArray;
+            //-------------------------------------------
+
+            var jsonStr = JSON.stringify(jsonObj);
+            console.log('jsonStr:'+jsonStr);
+            //console.log('row id:'+row._id);
+            return res.json(jsonObj);
         });
     /*
      json格式：
@@ -27,15 +66,15 @@ exports.index = function(req,res,next){
      …
      ]}
      */
-    var page = req.params.page; // 取得当前页数,注意这是jqgrid自身的参数
-    var rows = req.params.rows; // 取得每页显示行数，,注意这是jqgrid自身的参数
-    var sidx = req.params.sidx; //取得排序字段
-    var sord  = req.params.sord;//排序方式asc、desc
-
-    var total = '2';//总页数
-    var records = '13';//总记录数
-    page = '1';
-
+//    var page = req.params.page; // 取得当前页数,注意这是jqgrid自身的参数
+//    var rows = req.params.rows; // 取得每页显示行数，,注意这是jqgrid自身的参数
+//    var sidx = req.params.sidx; //取得排序字段
+//    var sord  = req.params.sord;//排序方式asc、desc
+//
+//    var total = '1';//总页数
+//    var records = '1';//总记录数
+//    page = '1';
+/*
     var jsonObj = new Object();
     jsonObj.page = page;  // 当前页
     jsonObj.total = total;    // 总页数
@@ -63,6 +102,7 @@ exports.index = function(req,res,next){
     //var jsonStr = JSON.stringify(jsonObj);
     //console.log('jsonStr:'+jsonStr);
 
-    res.json(jsonObj);
+//    res.json(jsonObj);
+*/
     }
 };

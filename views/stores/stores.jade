@@ -13,13 +13,11 @@ script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/mygrid.js')
         li
           a(href='/') 主页
           span.divider /
-        li.active 登录
+        li.active 商户管理
     .inner
-      .sep10
-      .sep10
-    #tableView
       table#list2
       #pager2
+      .sep10
   script
       jQuery("#list2").jqGrid({
         url:'/stores/',
@@ -42,5 +40,5 @@ script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/mygrid.js')
         sortorder: "desc",
         caption:"商户列表"
       });
-      jQuery("#list2").jqGrid('contl','#pager2',{edit:false,add:false,del:false});
+      jQuery("#list2").jqGrid('contl','#pager2',{add:false,del:false,edit:false,position:'right'});
 .cl.cr

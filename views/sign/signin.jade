@@ -3,9 +3,6 @@
   .panel
     .header
       ul.breadcrumb
-        li
-          a(href='/') 主页
-          span.divider /
         li.active 登录
     .inner
       .sep10
@@ -32,8 +29,9 @@
           label.control-label(for='pass') 密码
           .controls
             input#pass.input-xlarge(name='pass', size='30', type='password')
-            p.help-block
-              a(href='/search_pass') 我忘记了密码
+            //
+                p.help-block
+                  a(href='/search_pass') 我忘记了密码
         input(type='hidden', name='_csrf', value='#{csrf}')
         .form-actions
           input.btn(type='submit', value='登录')

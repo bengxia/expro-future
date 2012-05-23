@@ -32,6 +32,7 @@ exports.config = {
             host: '127.0.0.1'
         },
 	session_secret: 'expro_future',
+        session_cookie: { maxAge: 60 * 60 * 1000 },
 	auth_cookie_name: 'expro_future',
 	port: 10080,
 

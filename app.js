@@ -25,6 +25,7 @@ app.configure(function() {
 	app.use(express.cookieParser());
 	app.use(express.session({
 		secret: config.session_secret,
+                cookie: config.session_cookie
 	}));
         app.use(express.methodOverride());
 	// custom middleware

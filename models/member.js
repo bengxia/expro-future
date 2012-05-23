@@ -1,7 +1,7 @@
 var mysql = require('../libs/mysql.js');
 
 function create() {
-    return new Role();
+    return new Member();
 };
 
 function Member() {

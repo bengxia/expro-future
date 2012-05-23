@@ -124,8 +124,8 @@ var notJump = [
 exports.login = function(req, res, next) {
     var loginname = sanitize(req.body.name).trim().toLowerCase();
     var pass = sanitize(req.body.pass).trim();
-    var role = req.query.role;
-    var org = req.query.org;
+    var role = sanitize(req.body.role).trim();
+    var org = sanitize(req.body.org).trim();
     var ep = EventProxy.create();
     
     function feedback(result) {
@@ -147,7 +147,7 @@ exports.login = function(req, res, next) {
         else res.json(result);
     };
         
-    if (!loginname || !pass || !role || !merchant) {
+    if (!loginname || !pass || !role || !org) {
         return feedback({status:401, error:'信息不完整。'});
     }
     
@@ -159,13 +159,14 @@ exports.login = function(req, res, next) {
     User.findOne({ 'loginname': loginname }, function(err, user) {
         if (err) return next(err);
         if (!user) return feedback({status:401, error:'这个用户不存在。'});
+        pass = md5(pass);
         if (pass !== user.password) return feedback({status:401, error:'密码错误。'});
         if (!user.state) return feedback({status:403, error:'此帐号还没有被激活。'});
         // store session cookie
         req.session.regenerate(function() {
             req.session.user = user;
             ep.assign('roleDone', 'memberDone', function() {
-                feedback({status:200, error:'登陆成功');
+                feedback({status:200, error:'登陆成功'});
             });
             Role.findOne({role:role}, function(err, role) {
                 if(err) { ep.unbind(); next(err);}

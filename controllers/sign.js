@@ -131,6 +131,7 @@ exports.login = function(req, res, next) {
     function feedback(result) {
         if(req.accepts('html')) {
             var refer = result.refer || 'sign/signin';
+            res.local('current_user',req.session.user);
             if(200 == result.status) {
                 //check at some page just jump to home page 
                 var refer = req.session._loginReferer || 'home';
@@ -302,11 +303,11 @@ exports.reset_pass = function(req,res,next) {
     })
   }
 }
-
+*/
 // auth_user middleware
 exports.auth_user = function(req,res,next){
 	if(req.session.user){
-		if(config.admins[req.session.user.name]){
+		/*if(config.admins[req.session.user.name]){
 			req.session.user.is_admin = true;
 		}
 		message_ctrl.get_messages_count(req.session.user._id,function(err,count){
@@ -314,11 +315,13 @@ exports.auth_user = function(req,res,next){
 			req.session.user.messages_count = count;
 			res.local('current_user',req.session.user);
 			return next();
-		});
+		});*/
+                res.local('current_user', req.session.user);
+                return next();
 	}else{
 		var cookie = req.cookies[config.auth_cookie_name];
 		if(!cookie) return next();
-
+/*
 		var auth_token = decrypt(cookie, config.session_secret);
 		var auth = auth_token.split('\t');
 		var user_id = auth[0];
@@ -338,10 +341,10 @@ exports.auth_user = function(req,res,next){
 			}else{
 				return next();	
 			}
-		});	
+		});	*/
 	}
 };
-*/
+
 // private
 function gen_session(user,res) {
     var auth_token = encrypt(user.gid + '\t'+user.username + '\t' + user.password +'\t' + user.email, config.session_secret);

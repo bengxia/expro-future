@@ -43,11 +43,11 @@ html(xmlns='http://www.w3.org/1999/xhtml')
               a(href=nav[0], target=nav[2]) #{nav[1]}
             - }
             li.divider-vertical
-            - if (locals.current_user) { 
+            - if(locals.current_user) { 
              li
               a(href='/signup') 设置
             li
-              a(href='/signin') 退出           
+              a(href='/signout') 退出           
             - } else { 
             li
               a(href='/signin') 登录
@@ -58,8 +58,6 @@ html(xmlns='http://www.w3.org/1999/xhtml')
         #main
             != body
     #backtotop 回到顶部
-    a(href='https://github.com/extensivepro/expro-future')
-      img(style='position: absolute; top: 0; right: 0; border: 0;', src='https://a248.e.akamai.net/assets.github.com/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67', alt='Fork me on GitHub')
     //
        footer 
     #footer

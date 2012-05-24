@@ -321,6 +321,7 @@ exports.auth_user = function(req,res,next){
 	}else{
 		var cookie = req.cookies[config.auth_cookie_name];
 		if(!cookie) return next();
+                next();
 /*
 		var auth_token = decrypt(cookie, config.session_secret);
 		var auth = auth_token.split('\t');

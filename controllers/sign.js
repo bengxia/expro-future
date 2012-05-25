@@ -101,8 +101,13 @@ exports.signup = function(req,res,next){
  * @param  {HttpResponse} res
  */
 exports.showLogin = function(req, res) {
-    req.session._loginReferer = req.headers.referer;
-    res.render('sign/signin');
+    var refer = req.headers.referer || 'home';
+    if(req.session.user) {
+        res.redirect(refer);
+    } else {
+        req.session._loginReferer = refer;
+        res.render('sign/signin');
+    }
 };
 /**
  * define some page when login just jump to the home page

@@ -14,17 +14,13 @@
       - }
       form#signin_form.form-horizontal(action='/signin', method='post')
         .control-group
-          label.control-label(for='org') 商户代码
+          label.control-label(for='org') 商户
           .controls
-            input#name.input-xlarge(name='org', size='30', type='text')
+            input#name.input-xlarge(name='org', size='30', type='text', placeholder="商户的数字代码，例如:2168")
         .control-group
-          label.control-label(for='role') 身份
+          label.control-label(for='name') 手机
           .controls
-            input#name.input-xlarge(name='role', size='30', type='text')
-        .control-group
-          label.control-label(for='name') 用户名
-          .controls
-            input#name.input-xlarge(name='name', size='30', type='text')
+            input#name.input-xlarge(name='name', size='30', type='text', placeholder="以手机号码登陆，例如：18912345678")
         .control-group
           label.control-label(for='pass') 密码
           .controls

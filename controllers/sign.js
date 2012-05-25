@@ -124,7 +124,6 @@ var notJump = [
 exports.login = function(req, res, next) {
     var loginname = sanitize(req.body.name).trim().toLowerCase();
     var pass = sanitize(req.body.pass).trim();
-    var role = sanitize(req.body.role).trim();
     var org = sanitize(req.body.org).trim();
     var ep = EventProxy.create();
     
@@ -148,7 +147,7 @@ exports.login = function(req, res, next) {
         else res.json(result);
     };
         
-    if (!loginname || !pass || !role || !org) {
+    if (!loginname || !pass || !org) {
         return feedback({status:401, error:'信息不完整。'});
     }
     
@@ -156,7 +155,14 @@ exports.login = function(req, res, next) {
         ep.unbind();//remove all event
         return feedback(result);
     });
+    ep.on('member', function(member) { 
+        findRole(member.role_id);
+    });
+    ep.on('role', function() {
+        feedback({status:200, error:'登陆成功'});
+    });
 
+    //check user info
     User.findOne({ 'loginname': loginname }, function(err, user) {
         if (err) return next(err);
         if (!user) return feedback({status:401, error:'这个用户不存在。'});
@@ -166,24 +172,24 @@ exports.login = function(req, res, next) {
         // store session cookie
         req.session.regenerate(function() {
             req.session.user = user;
-            ep.assign('roleDone', 'memberDone', function() {
-                feedback({status:200, error:'登陆成功'});
-            });
-            Role.findOne({role:role}, function(err, role) {
-                if(err) { ep.unbind(); next(err);}
-                if (!role) return ep.trigger('error', {status:403, error:'用户权限不存在。'});
-                req.session.role = role;
-                ep.trigger('roleDone');
-            });
             Member.findOne({org:org, user:user._id}, function(err, member) {
                 if(err) { ep.unbind(); next(err);}
                 if (!member) return ep.trigger('error', {status:401, error:'商户没有这个用户。'});
                 req.session.member = member
-                ep.trigger('memberDone');
+                ep.trigger('member', member);
             });
         });
         //gen_session(user, res);
     });
+    
+    function findRole(role_id) {    
+        Role.findOne({role:role_id}, function(err, role) {
+            if(err) { ep.unbind(); next(err);}
+            if (!role) return ep.trigger('error', {status:403, error:'用户权限不存在。'});
+            req.session.role = role;
+            ep.trigger('role');
+        });
+    }
 };
 
 // sign out

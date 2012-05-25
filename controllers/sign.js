@@ -127,15 +127,16 @@ var notJump = [
  * @param  {Function} next
  */
 exports.login = function(req, res, next) {
-    var loginname = sanitize(req.body.name).trim().toLowerCase();
-    var pass = sanitize(req.body.pass).trim();
+    if (!req.body || !req.body.cellphone || !req.body.password || !req.body.org) {
+        return feedback({status:401, error:'信息不完整。'});
+    }    
+    var loginname = sanitize(req.body.cellphone).trim().toLowerCase();
+    var pass = sanitize(req.body.password).trim();
     var org = sanitize(req.body.org).trim();
     var ep = EventProxy.create();
     
     function feedback(result) {
         if(req.accepts('html')) {
-            var refer = result.refer || 'sign/signin';
-            res.local('current_user',req.session.user);
             if(200 == result.status) {
                 //check at some page just jump to home page 
                 var refer = req.session._loginReferer || 'home';
@@ -149,12 +150,18 @@ exports.login = function(req, res, next) {
             }
             else res.render('sign/signin', {error:result.error});
         }
-        else res.json(result);
+        else {
+            if(200 == result.status) {
+                var user = req.session.user;
+                var data = {
+                    name:user.name,
+                    sex:user.sex
+                };
+                res.json(data, result.status);
+            }
+            else res.send(result.status);
+        }
     };
-        
-    if (!loginname || !pass || !org) {
-        return feedback({status:401, error:'信息不完整。'});
-    }
     
     ep.once('error', function(result) {
         ep.unbind();//remove all event
@@ -178,9 +185,9 @@ exports.login = function(req, res, next) {
         req.session.regenerate(function() {
             req.session.user = user;
             Member.findOne({org:org, user:user._id}, function(err, member) {
-                if(err) { ep.unbind(); next(err);}
+                if(err) { ep.unbind(); return next(err);}
                 if (!member) return ep.trigger('error', {status:401, error:'商户没有这个用户。'});
-                req.session.member = member
+                req.session.user.member = member
                 ep.trigger('member', member);
             });
         });
@@ -189,9 +196,9 @@ exports.login = function(req, res, next) {
     
     function findRole(role_id) {    
         Role.findOne({role:role_id}, function(err, role) {
-            if(err) { ep.unbind(); next(err);}
+            if(err) { ep.unbind(); return next(err);}
             if (!role) return ep.trigger('error', {status:403, error:'用户权限不存在。'});
-            req.session.role = role;
+            req.session.user.role = role;
             ep.trigger('role');
         });
     }

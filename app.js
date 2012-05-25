@@ -30,7 +30,13 @@ app.configure(function() {
         app.use(express.methodOverride());
 	// custom middleware
 	app.use(require('./controllers/sign').auth_user);
-	app.use(express.csrf());
+
+        var csrf = express.csrf();
+	app.use(function(req, res, next){
+            //ignore some route
+            if(req.url == '/signin') return next();
+            csrf(req, res, next);
+        });            
 
 	// plugins
 	var plugins = config.plugins || [];

@@ -7,6 +7,7 @@ public/user_data
 .npmignore
 .monitor
 .nide
+.idea
 log
 .DS_Store
 server.js

@@ -45,7 +45,7 @@ exports.index = function(req,res,next){
                 // 定义rows
                 var rows = new Object();
                 rows.id = ds[i]._id;
-                rows.cell = ds[i];
+                rows.cell = [ds[i]];
                 rowsArray[i] = rows;
             }
 

@@ -15,7 +15,7 @@ script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/mygrid.js')
         li
           a(href='/') 主页
           span.divider /
-        li.active 商户管理
+        li.active 商户门店管理
     .inner
       table#list2
       #pager2
@@ -24,6 +24,7 @@ script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/mygrid.js')
       jQuery("#list2").jqGrid({
         url:'/stores/',
         datatype: "json",
+        mtype: 'GET',
         colNames:['Inv No','Date', 'Client', 'Amount','Tax','Total','Notes'],
         colModel:[
             {name:'id',index:'id', width:55},

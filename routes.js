@@ -10,6 +10,7 @@
 var sign = require('./controllers/sign');
 var site = require('./controllers/site');
 var stores = require('./controllers/stores');
+var merchants = require('./controllers/merchants');
 /*
 var user = require('./controllers/user');
 var message = require('./controllers/message');
@@ -30,6 +31,12 @@ exports = module.exports = function(app) {
   app.post('/signin', sign.login);
 
   app.get('/stores', stores.index);
+
+  //商户管理
+  app.get('/merchants', merchants.index);
+  app.get('/merchants/showCreatPage', merchants.showCreatPage);
+  app.post('/merchants/create', merchants.create);
+
 /*  app.get('/signup', sign.signup);
   app.post('/signup', sign.signup);
   app.get('/signout', sign.signout);

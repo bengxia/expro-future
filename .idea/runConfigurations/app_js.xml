@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="app.js" type="NodeJSConfigurationType" factoryName="Node JS" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="$PROJECT_DIR$/app.js" working-dir="$PROJECT_DIR$/.." coffeescript-run="false">
-    <RunnerSettings RunnerId="NodeJS.debug" />
-    <RunnerSettings RunnerId="NodeJS.run" />
-    <ConfigurationWrapper RunnerId="NodeJS.debug" />
-    <ConfigurationWrapper RunnerId="NodeJS.run" />
-    <method />
-  </configuration>
-</component>

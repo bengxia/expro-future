@@ -11,12 +11,16 @@ var models = require('../models'),
 
 var check = require('validator').check,
     sanitize = require('validator').sanitize;
-
+/**
+ * 显示商户列表
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.index = function(req,res,next){
     if(req.accepts('html')) {
       res.render('merchants/merchants', {});
     }else{
-        console.log('进入了控制中心·········');
         Merchant.count(function(err,ds){
             if(err) return next(err);
 
@@ -80,60 +84,11 @@ exports.index = function(req,res,next){
                 return res.json(jsonObj);
             });
         });
-        //console.log('count: '+count[0]);
-
-    /*
-     json格式：
-     { total: xxx, page: yyy, records: zzz, rows: [
-     {id:”1″,cell:[”Row 1:1″,”Row 1:2″,”Row 1:3″,”Row 1:4″]},
-     {id:”2″,cell:[”Row 2:1″,”Row 2:2″,”Row 2:3″,”Row 2:4″]},
-     …
-     ]}
-     */
-//    var page = req.params.page; // 取得当前页数,注意这是jqgrid自身的参数
-//    var rows = req.params.rows; // 取得每页显示行数，,注意这是jqgrid自身的参数
-//    var sidx = req.params.sidx; //取得排序字段
-//    var sord  = req.params.sord;//排序方式asc、desc
-//
-//    var total = '1';//总页数
-//    var records = '1';//总记录数
-//    page = '1';
-/*
-    var jsonObj = new Object();
-    jsonObj.page = page;  // 当前页
-    jsonObj.total = total;    // 总页数
-    jsonObj.records = records;  // 总记录数
-
-    //定义rowdata，属于 rows.cell 的子数据
-    var rowData = new Array();
-    rowData[0] = 111;
-    rowData[1] = 222;
-    rowData[2] = 'mengwei';
-    rowData[3] = 333;
-    rowData[4] = 444;
-    rowData[5] = 555;
-
-    // 定义rows
-    var rows = new Object();
-    rows.id = 111;
-    rows.cell = rowData;
-    //定义rows 数组，保存所有rows数据
-    var rowsArray = new Array();
-    rowsArray[0] = rows;
-    //将rows数组赋予jsonObj.rows
-    jsonObj.rows = rowsArray;
-
-    //var jsonStr = JSON.stringify(jsonObj);
-    //console.log('jsonStr:'+jsonStr);
-
-//    res.json(jsonObj);
-*/
     }
 };
 exports.create = function(req, res, next) {
     console.log("保存并新增商户数据******");
-    //console.log(req.body.short_name);
-
+    //开始校验输入数值的正确性
     var short_name = sanitize(req.body.short_name).trim();
     var full_name = sanitize(req.body.full_name).trim();
     var state = sanitize(req.body.state).trim();

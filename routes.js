@@ -30,12 +30,15 @@ exports = module.exports = function(app) {
   app.get('/signin', sign.showLogin);
   app.post('/signin', sign.login);
 
-  app.get('/stores', stores.index);
+  //门店管理
+  app.get('/stores', stores.index);//门店列表
+  app.get('/stores/showCreatPage', stores.showCreatPage);//显示新增门店页面
+  app.post('/stores/create', stores.create);//创建门店
 
   //商户管理
-  app.get('/merchants', merchants.index);
-  app.get('/merchants/showCreatPage', merchants.showCreatPage);
-  app.post('/merchants/create', merchants.create);
+  app.get('/merchants', merchants.index);//商户列表
+  app.get('/merchants/showCreatPage', merchants.showCreatPage);//显示新增商户页面
+  app.post('/merchants/create', merchants.create);//创建商户
 
 /*  app.get('/signup', sign.signup);
   app.post('/signup', sign.signup);

@@ -1,13 +1,32 @@
-link(rel='stylesheet', type='text/css', href='/libs/jquery.jqGrid-4.3.2/css/ui.jqgrid.css', media='screen')
-link(rel='stylesheet', type='text/css', href='/libs/jquery.jqGrid-4.3.2/css/ui.multiselect.css', media='screen')
-link(rel='stylesheet', type='text/css', href='/libs/jquery.jqGrid-4.3.2/css/redmond/jquery-ui-1.8.2.custom.css', media='screen')
-//link(rel='stylesheet', type='text/css', href='/libs/jquery-jquery-ui-c1dc191/themes/base/jquery.ui.all.css', media='screen')
+!=partial('stores/sidebar')
+//以下是一个jqGrid+fancybox的解决方案
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui-lightness/jquery-ui-1.8.2.custom.css', media='screen')
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui.jqgrid.css', media='screen')
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/fancybox.css', media='screen')
 
-script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/i18n/grid.locale-cn.js')
-script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/jquery.jqGrid.min.js')
-script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/mygrid.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/i18n/grid.locale-cn.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.jqGrid.min.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.fancybox.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.form.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.message.js')
+style
+ input, textarea, select, .uneditable-input {
+     width: auto;
+     padding: 0px;
+ }
+ .input{width:120px; height:19px; line-height:19px; padding:1px; border:1px solid #ccc}
+ .btn{width:58px; height:24px; border:1px solid #ccc; background:url(../btn_bg.gif) repeat-x; cursor:pointer;}
 
-- partial('stores/sidebar')
+ .nodata{display:block; position:absolute; top:100px; left:35%; padding:6px 20px; border:1px solid #fc9; background:#ffc}
+
+ .fanbox{width:540px; padding:0}
+ .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
+ .post_table{width:98%; margin:10px auto}
+ .post_table td{height:24px; line-height:24px; padding:2px; border:1px solid #ccc; border-collapse:collapse}
+ .input2{width:220px; height:20px; line-height:20px; padding:1px; border:1px solid #999}
+
+ .jquery-message{position:absolute;  top:15%; left:45%; background:#217eb9; border:1px solid #ff9; padding:3px 12px 3px 12px; z-index:9001; color:#fff;}
+
 #content
   .panel
     .header
@@ -17,31 +36,130 @@ script(type='text/javascript', src='/libs/jquery.jqGrid-4.3.2/js/mygrid.js')
           span.divider /
         li.active 商户门店管理
     .inner
-      table#list2
-      #pager2
       .sep10
-  script
-      jQuery("#list2").jqGrid({
+      .sep10
+      .grid_table
+              #opt
+                #query
+                  label 编号：
+                  input#sn.input(type='text')
+                  label 名称：
+                  input#title.input(type='text')
+                  input#find_btn.btn(type='submit', value='查 询')
+                input#add_btn.btn(type='button', value='新 增')
+                input#del_btn.btn(type='button', value='删 除')
+              table#list
+              #pager
+      .cl.cr
+  script(type='text/javascript')
+      jQuery("#list").jqGrid({
         url:'/stores/',
         datatype: "json",
         mtype: 'GET',
-        colNames:['Inv No','Date', 'Client', 'Amount','Tax','Total','Notes'],
+        colNames:['门店编号', '门店名称', '所属商户','仓库名称','状态','创建时间'],
         colModel:[
-            {name:'id',index:'id', width:55},
-            {name:'invdate',index:'invdate', width:90},
-            {name:'name',index:'name asc, invdate', width:100},
-            {name:'amount',index:'amount', width:80, align:"right"},
-            {name:'tax',index:'tax', width:80, align:"right"},
-            {name:'total',index:'total', width:80,align:"right"},
-            {name:'note',index:'note', width:150, sortable:false}
+            {name:'_id',index:'_id', width:100, align:"center",sortable:true},
+            {name:'name',index:'name', width:180, align:"center",sortable:true},
+            {name:'merchant_name',index:'merchant_id', width:150,sortable:true},
+            {name:'warehouse_name',index:'warehouse_id', width:80, align:"center",sortable:true},
+            {name:'state',index:'state', width:100, align:"center",sortable:true,
+                formatter:function(cellvalue, options, row){
+                  //0-封闭状态说明门店可能暂时停业整修等。
+                  //1-正常状态说明此门店正常营业；
+                  //2-公开：门店可以被其他商户及公众立刻可见。
+                  //3-不公开：门店不可以被其他商户及公众可见
+                  if(cellvalue==0){return "封闭";}
+                  else if(cellvalue==1){return "正常";}
+                  else if(cellvalue==2){return "公开";}
+                  else if(cellvalue==3){return "不公开";}
+                  else{return ">异常状态<";}
+                }
+            },
+            {name:'create_time',index:'create_time', width:100, align:"center",sortable:true
+            }
         ],
         rowNum:10,
         rowList:[10,20,30],
-        pager: '#pager2',
-        sortname: 'id',
+        pager: '#pager',
+        sortname: '_id',
         viewrecords: true,
-        sortorder: "desc",
-        caption:"商户列表"
+        jsonReader: {
+            repeatitems : true,
+             id: "_id"
+        },
+        caption:"商户列表",
+        autowidth: true, //自动匹配宽度
+        editurl:"/stores/",
+        height: 500,
+        loadComplete:function(data){ //完成服务器请求后，回调函数
+          if(data.records==0){ //如果没有记录返回，追加提示信息，删除按钮不可用
+              $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
+              $("#del_btn").attr("disabled",true);
+          }else{ //否则，删除提示，删除按钮可用
+              $("p.nodata").remove();
+              $("#del_btn").removeAttr("disabled");
+          }
+        }
       });
-      jQuery("#list2").jqGrid('contl','#pager2',{add:false,del:false,edit:false,position:'right'});
-.cl.cr
+      $(function(){
+        $("#add_btn").click(function(){
+            $.fancybox({
+                'title':'新增门店',
+                'autoDimensions':false,
+                'type':'ajax',
+                'href':'/stores/showCreatPage',
+                'width': 700,
+                'height': 800,
+                'modal':true,
+                'titleShow':true,
+                'titlePosition':'outside',
+                'showCloseButton':true,
+                'showNavArrows':false,
+                'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
+                'transitionOut': 'elastic',
+                'centerOnScroll':true
+            });
+        });
+        $("#del_btn").click(function(){
+            var sels = $("#list").jqGrid('getGridParam','selarrrow');
+            if(sels==""){
+                alert('请选择要删除的项！')
+            }else{
+                if(confirm("您是否确认删除？")){
+                    $.ajax({
+                        type: "POST",
+                        url: "do.php?action=del",
+                        data: "ids="+sels,
+                        beforeSend: function() {
+                            $().message("正在请求...");
+                        },
+                        error:function(){
+                            $().message("请求失败...");
+                        },
+                        success: function(msg){
+                            if(msg!=0){
+                                var arr = msg.split(',');
+                                $.each(arr,function(i,n){
+                                    if(arr[i]!=""){
+                                        $("#list").jqGrid('delRowData',n);
+                                    }
+                                });
+                                $().message("已成功删除!");
+                            }else{
+                                $().message("操作失败！");
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        $("#find_btn").click(function(){
+        var title = escape($("#title").val());
+        var sn = escape($("#sn").val());
+        $("#list").jqGrid('setGridParam',{
+        url:"do.php?action=list",
+        postData:{'title':title,'sn':sn},
+        page:1
+        }).trigger("reloadGrid");
+        });
+      });

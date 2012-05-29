@@ -40,10 +40,10 @@ html(xmlns='http://www.w3.org/1999/xhtml')
             - for (var i = 0, l = site_navs.length; i < l; i++) {
                 - var nav = site_navs[i];
             li
-              a(href='/merchants') 商户管理
+              a(href='/stores') 商户管理
             li
-              a(href='/stores') 商户门店管理
-            li 
+              a(href='/merchants') 平台管理
+            li
               a(href=nav[0], target=nav[2]) #{nav[1]}
             - }
             li.divider-vertical

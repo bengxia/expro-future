@@ -13,7 +13,12 @@ Merchant.prototype.save = function(obj, cb) {
 };
 
 Merchant.prototype.findAll = function(sidx, sord, cb) {
-    var sql = "SELECT _id, short_name, state, type, phone, create_time, due_time FROM `ef_merchant` ORDER BY "+sidx+" "+sord;
+    var sql = "SELECT _id, short_name, state, type, phone, create_time, due_time FROM `ef_merchant`";
+    if(sidx != null && sord != null){
+        sql += " ORDER BY "+sidx+" "+sord;
+    }else{
+        sql += " ORDER BY create_time desc ";
+    }
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);

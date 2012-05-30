@@ -111,6 +111,7 @@ exports.create = function(req, res, next) {
     //Merchant.create(merchant);
     Merchant.create(req.body, function(err, info){
         if(err) return next(err);
+        req.body.create_time = getNow();
         return info.insertId;
     });
     //res.render('merchants/merchants', {});
@@ -118,4 +119,11 @@ exports.create = function(req, res, next) {
 exports.showCreatPage = function(req,res,next){
     console.log("显示新增商户页面。。。");
     res.render('merchants/create', { layout: false });
+};
+
+var getNow=function(){
+    var now = new Date();
+    var year = now.getFullYear();
+    return (year+'-'+(now.getMonth()+1)+'-'+now.getDate()+' '+
+        now.getHours()+':'+now.getMinutes()+':'+now.getSeconds());
 };

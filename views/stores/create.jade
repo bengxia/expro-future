@@ -16,18 +16,13 @@
       tr
         td(width='30%', align='right') 门店名称：
         td
-          input.input2(type='text', name='name', maxlength='30')
+          input.input2(type='text', name='name', maxlength='30', value='#{locals.store?store.name:''}')
       tr
-        td(align='right') 所属商户nosql：
+        td(align='right') 所属商户：
         td
           select(name='merchant_id')
-            option(value='1') 泛盈科技
-            option(value='3') 金丝瑞
-      tr
-        td(align='right') 仓库名称nosql：
-        td
-          select(name='warehouse_id')
-            option(value='0') 百家湖门店仓库
+            each merchant in merchants
+                option(value='#{merchant._id}') #{merchant.short_name}
       tr
         td(align='right') 状态：
         td
@@ -45,13 +40,13 @@ script(type='text/javascript')
       $('#add_form').ajaxForm({
           beforeSubmit: validate,
           success: function(msg){
-                alert(msg);
-              if(msg==1){
+              if(msg.status=='success'){
                   $.fancybox.close();
                   $().message("成功添加");
                   $("#list").trigger("reloadGrid");
               }else{
-                alert("returnMsg is not 1:"+msg);
+                //alert("returnMsg is not 1:"+msg);
+                $().message("添加失败:"+msg.status);
               }
           }
       });

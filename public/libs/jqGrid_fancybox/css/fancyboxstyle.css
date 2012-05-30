@@ -10,7 +10,7 @@ img{border:none}
 
 
 #header{width:910px; height:92px; margin:0 auto;}
-#logo{width:240px; height:90px; background:url(../images/logo_demo.gif) no-repeat}
+/*#logo{width:240px; height:90px; background:url(../images/logo_demo.gif) no-repeat}*/
 #logo h1{}
 #logo h1 a{display:block; width:240px; height:90px}
 
@@ -28,7 +28,7 @@ td a{color:#369}
 #opt{height:32px; }
 #query{float:right; width:450px; text-align:right}
 .input{width:120px; height:19px; line-height:19px; padding:1px; border:1px solid #ccc}
-.btn{width:58px; height:24px; border:1px solid #ccc; background:url(../btn_bg.gif) repeat-x; cursor:pointer;}
+.btn{width:58px; height:24px; border:1px solid #ccc; background:url(../images/btn_bg.gif) repeat-x; cursor:pointer;}
 
 .nodata{display:block; position:absolute; top:100px; left:35%; padding:6px 20px; border:1px solid #fc9; background:#ffc}
 

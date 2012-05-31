@@ -11,6 +11,7 @@ var sign = require('./controllers/sign');
 var site = require('./controllers/site');
 var stores = require('./controllers/stores');
 var merchants = require('./controllers/merchants');
+var goods = require('./controllers/goods');
 /*
 var user = require('./controllers/user');
 var message = require('./controllers/message');
@@ -42,6 +43,12 @@ exports = module.exports = function(app) {
   app.get('/merchants/showCreatPage', merchants.showCreatPage);//显示新增商户页面
   app.post('/merchants/create', merchants.create);//创建商户
 
+  //商品管理
+  app.get('/goods/type', goods.showTypes);//商品类型显示
+  app.put('/goods/type/:_id', goods.updateType);//更新选中的商品类型
+  app.get('/goods/type', goods.showCreatType);//显示新增商品类型页
+  app.post('/goods/type', goods.creatType);//创建商品类型
+  app.get('/goods', goods.index);//商品列表
 
 /*  app.get('/signup', sign.signup);
   app.post('/signup', sign.signup);

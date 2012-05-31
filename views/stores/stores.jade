@@ -41,7 +41,6 @@ style
     .inner
       .sep10
       .sep10
-      //.grid_table
       #opt
         #query
           label 门店编号：
@@ -85,11 +84,11 @@ style
         height: 300,
         editurl:"/stores/",
         loadComplete:function(data){ //完成服务器请求后，回调函数
-          if(data.records == 0 || data.records == undefined){ //如果没有记录返回，追加提示信息，删除按钮不可用
+          if(data.records == undefined){ //如果没有记录返回，追加提示信息，删除按钮不可用
               $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
               $("#del_btn").attr("disabled",true);
           }else{ //否则，删除提示，删除按钮可用
-              //$("p.nodata").remove();
+              $("p.nodata").remove();
               $("#del_btn").removeAttr("disabled");
           }
         }
@@ -102,20 +101,20 @@ style
                 'type':'ajax',
                 'href':'/stores/showCreatPage',
                 'width': 700,
-                'height': 800,
+                'height': 700,
                 'modal':true,
                 'titleShow':true,
-                'titlePosition':'outside',
+                'titlePosition':'over',
                 'showCloseButton':true,
                 'showNavArrows':false,
                 'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
                 'transitionOut': 'elastic',
-                'centerOnScroll':true
+                'centerOnScroll':false,
+                'onComplete': function() {$("#fancybox-title").css({'top':'0px', 'bottom':'auto'});}
             });
         });
         $("#edit_btn").click(function(){
             var sels = $("#list").jqGrid('getGridParam','selarrrow');
-
             if(sels==""){
                 $().message("请选择要编辑的项！");
             }else{
@@ -132,7 +131,7 @@ style
                         'type':'ajax',
                         'href':'/stores/showEditPage?_id='+sels,
                         'width': 700,
-                        'height': 800,
+                        'height': 700,
                         'modal':true,
                         'titleShow':true,
                         'titlePosition':'over',
@@ -141,7 +140,8 @@ style
                         'showNavArrows':false,
                         'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
                         'transitionOut': 'elastic',
-                        'centerOnScroll':true
+                        'centerOnScroll':false,
+                        'onComplete': function() {$("#fancybox-title").css({'top':'0px', 'bottom':'auto'});}
                     });
                 }
             }

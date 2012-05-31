@@ -1,11 +1,3 @@
-/*var tag_ctrl = require('./tag');
-var user_ctrl = require('./user');
-var topic_ctrl = require('./topic');
-var config = require('../config').config;
-var EventProxy = require('eventproxy').EventProxy;
-
-var sanitize = require('validator').sanitize;
-*/
 var models = require('../models'),
     Store = models.Store,
     Merchant = models.Merchant,
@@ -34,8 +26,6 @@ exports.index = function(req,res,next){
         var where = ' ';
         var _id = req.query._id;
         var name = req.query.name;
-//        console.log('_id:      '+_id);
-//        console.log('name:      '+name);
 
         if(_id != undefined){
             where += ' and store._id like \'%'+_id+'%\' ';
@@ -43,7 +33,6 @@ exports.index = function(req,res,next){
         if(name != undefined){
             where += ' and store.name like \'%'+name+'%\' ';
         }
-        console.log('------:'+where);
 
         Store.count(where, function(err,ds){
             if(err) return next(err);
@@ -73,10 +62,9 @@ exports.index = function(req,res,next){
             // 若起始行为0
             if(start < 0) start = 0;
 
-
             Store.findAll(where, start, limit, sidx, sord, function(err,ds){
                 if(err) return next(err);
-                //-------------------------------------------
+
                 if (ds == undefined){
                     return res.json({status:'查询结果为空！'});
                 }
@@ -96,7 +84,6 @@ exports.index = function(req,res,next){
                 }
                 //将rows数组赋予jsonObj.rows
                 jsonObj.rows = rowsArray;
-                //-------------------------------------------
 
                 var jsonStr = JSON.stringify(jsonObj);
                 console.log('jsonStr:'+jsonStr);
@@ -105,10 +92,16 @@ exports.index = function(req,res,next){
         });
     }
 };
-
+/**
+ * 创建一个新的商户门店
+ * @param req
+ * @param res
+ * @param next
+ * @return {*}
+ */
 exports.create = function(req, res, next) {
-    console.log("保存并新增商户门店数据******");
     //开始校验输入数值的正确性
+    var _id = sanitize(req.body._id).trim();
     var name = sanitize(req.body.name).trim();
     var merchant_id = sanitize(req.body.merchant_id).trim();
     var state = sanitize(req.body.state).trim();
@@ -120,34 +113,50 @@ exports.create = function(req, res, next) {
     if(!merchant_id) return res.json({status:'请选择所属商户！'});
     if(!state) return res.json({status:'请选择状态！'});
     if(!district_code) return res.json({status:'地区编号不能为空！'});
-
-    //创建门店仓库
-    Warehouse.create(name, function(err, info){
-        if(err) return next(err);
-        //获得门店仓库的ID，并与门店关联
-        req.body.warehouse_id = info.insertId;
-        req.body.create_time = getNow();
-
-        Store.create(req.body, function(err, info){
+    if(_id){
+        //流水号不为空，说明是更新
+        Store.update(req.body, function(err, rs){
             if(err) return next(err);
-            //return info.insertId;
             res.json({status:'success'});
         });
-    });
+    }else{
+        //创建门店仓库
+        Warehouse.create(name, function(err, info){
+            if(err) return next(err);
+            //获得门店仓库的ID，并与门店关联
+            req.body.warehouse_id = info.insertId;
+            req.body.create_time = getNow();
+
+            Store.create(req.body, function(err, info){
+                if(err) return next(err);
+                //return info.insertId;
+                res.json({status:'success'});
+            });
+        });
+    }
 };
 
+/**
+ * 显示新增页面
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.showCreatPage = function(req,res,next){
-    console.log("显示新增商户页面。。。");
     Merchant.findAll(null, null, function(err,ds){
         if(err) return next(err);
         res.render('stores/create', { layout: false, merchants:ds});
     });
 };
 
+/**
+ * 显示修改页面
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.showEditPage = function(req,res,next){
-    console.log("显示修改商户页面。。。");
     var _id = req.query._id;
-    console.log('id:'+_id);
     Store.findOne({'_id':_id},function(err,store){
         if(err) return next(err);
         Merchant.findAll(null, null, function(err,rs){
@@ -157,8 +166,13 @@ exports.showEditPage = function(req,res,next){
     });
 };
 
+/**
+ * 批量删除商户门店
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.delete = function(req, res, next) {
-    console.log("删除选中的商户门店数据******");
     //开始校验输入数值的正确性
     var _ids = req.query._ids;
     console.log('ids:'+_ids);

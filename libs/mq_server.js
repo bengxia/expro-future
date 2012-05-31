@@ -6,7 +6,7 @@ var mqtt = require('mqttjs');
 var util = require('util');
 var config = require('../config.js').config;
 
-mqtt.createServer(function(client) {
+var mqServer = mqtt.createServer(function(client) {
 	var self = this;
 
 	if (!self.clients) self.clients = {};
@@ -33,14 +33,17 @@ mqtt.createServer(function(client) {
 	});
 
 	client.on('publish', function(packet) {
+                console.log('Server Publish:', packet);
 		for (var k in self.clients) {
 			var c = self.clients[k],
 				publish = false;
 
-			for (var i = 0; i < c.subscriptions.length; i++) {
+			console.log('%s, subscription.length',k, c.subscriptions.length);
+                        for (var i = 0; i < c.subscriptions.length; i++) {
 				var s = c.subscriptions[i];
 
-				if (s.test(packet.topic)) {
+				console.log(s);
+                                if (s.test(packet.topic)) {
 					publish = true;
 				}
 			}
@@ -68,3 +71,5 @@ mqtt.createServer(function(client) {
 		console.log(e);
 	});
 }).listen(config.message_queue.port);
+
+console.log('Message Queue Listen On %d', mqServer.address().port);

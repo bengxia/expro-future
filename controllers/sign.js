@@ -10,6 +10,8 @@ var crypto = require('crypto');
 var config = require('../config').config;
 var EventProxy = require('eventproxy').EventProxy;
 
+var MQClient = require('../libs/mq_client.js');
+
 /*
 var message_ctrl = require('./message');
 var mail_ctrl = require('./mail');
@@ -136,8 +138,9 @@ exports.login = function(req, res, next) {
     var ep = EventProxy.create();
     
     function feedback(result) {
-        if(req.accepts('html')) {
-            if(200 == result.status) {
+        MQClient.pub('UserLogin', 'test');
+        if(200 == result.status) {
+            if(req.accepts('html')) {
                 //check at some page just jump to home page 
                 var refer = req.session._loginReferer || 'home';
                 for (var i=0, len=notJump.length; i!=len; ++i) {
@@ -148,10 +151,7 @@ exports.login = function(req, res, next) {
                 }
                 res.redirect(refer);
             }
-            else res.render('sign/signin', {error:result.error});
-        }
-        else {
-            if(200 == result.status) {
+            else {
                 var user = req.session.user;
                 var data = {
                     name:user.name,
@@ -159,6 +159,9 @@ exports.login = function(req, res, next) {
                 };
                 res.json(data, result.status);
             }
+        }
+        else {
+            if(req.accepts('html')) res.render('sign/signin', {error:result.error});
             else res.send(result.status);
         }
     };
@@ -399,3 +402,8 @@ function randomString(size) {
 	}
 	return new_pass;
 }
+function UserLogin(user) {
+    console.log("UserLogin cb\t", user);
+}
+MQClient.sub('UserLogin', UserLogin);
+console.log('subscript UserLogin');

@@ -47,10 +47,10 @@ function subscribe(topic, cb) {
             //    process.exit(-1);
             }
         });
-    
+        
         client.on('publish', function(packet) {
             console.log('%s\t%s', packet.topic, packet.payload);
-            cb(payload);
+            cb(packet.payload);
         });
     
         client.on('close', function() {

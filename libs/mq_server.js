@@ -11,16 +11,19 @@ var mqServer = mqtt.createServer(function(client) {
 
 	if (!self.clients) self.clients = {};
 	client.on('connect', function(packet) {
-		self.clients[packet.client] = client;
-		client.id = packet.client;
-		client.subscriptions = [];
-		client.connack({returnCode: 0});
+            if(packet.client != 'mqtt_pub') {
+                console.log(packet.client);
+                self.clients[packet.client] = client;
+            }
+            client.id = packet.client;
+            client.subscriptions = [];
+            client.connack({returnCode: 0});
 	});
 
 	client.on('subscribe', function(packet) {
 		var granted = [];
-
-		for (var i = 0; i < packet.subscriptions.length; i++) {
+                
+                for (var i = 0; i < packet.subscriptions.length; i++) {
 			var qos = packet.subscriptions[i].qos,
 				topic = packet.subscriptions[i].topic,
 				reg = new RegExp(topic.replace('+', '[^\/]+').replace('#', '.+$'));
@@ -28,21 +31,17 @@ var mqServer = mqtt.createServer(function(client) {
 			granted.push(qos);
 			client.subscriptions.push(reg);
 		}
-
 		client.suback({messageId: packet.messageId, granted: granted});
 	});
 
 	client.on('publish', function(packet) {
-                console.log('Server Publish:', packet);
 		for (var k in self.clients) {
 			var c = self.clients[k],
 				publish = false;
 
-			console.log('%s, subscription.length',k, c.subscriptions.length);
                         for (var i = 0; i < c.subscriptions.length; i++) {
 				var s = c.subscriptions[i];
 
-				console.log(s);
                                 if (s.test(packet.topic)) {
 					publish = true;
 				}

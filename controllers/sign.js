@@ -138,7 +138,7 @@ exports.login = function(req, res, next) {
     var ep = EventProxy.create();
     
     function feedback(result) {
-        MQClient.pub('UserLogin', 'test');
+        MQClient.pub('UserLogin', JSON.stringify(req.session.user));
         if(200 == result.status) {
             if(req.accepts('html')) {
                 //check at some page just jump to home page 
@@ -402,8 +402,8 @@ function randomString(size) {
 	}
 	return new_pass;
 }
-function UserLogin(user) {
+function UserLogin(data) {
+    var user = JSON.parse(data);
     console.log("UserLogin cb\t", user);
 }
 MQClient.sub('UserLogin', UserLogin);
-console.log('subscript UserLogin');

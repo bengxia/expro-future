@@ -12,7 +12,7 @@ var host = config.message_queue.host;
 
 function publish(topic, payload) {
     mqtt.createClient(port, host, function(client) {
-        client.connect({keepalive: 3000});
+        client.connect({keepalive: 3000, client:"mqtt_pub"});
     
         client.on('connack', function(packet) {
             if (packet.returnCode === 0) {
@@ -37,8 +37,7 @@ function publish(topic, payload) {
 
 function subscribe(topic, cb) {
     mqtt.createClient(port, host, function(client) {
-        client.connect({keepalive: 3000});
-
+        client.connect({keepalive: 3000, client:"mqtt_sub_"+Math.floor(65535 * Math.random())});
         client.on('connack', function(packet) {
             if (packet.returnCode === 0) {
                 client.subscribe({topic: topic});
@@ -47,7 +46,7 @@ function subscribe(topic, cb) {
             //    process.exit(-1);
             }
         });
-        
+                
         client.on('publish', function(packet) {
             console.log('%s\t%s', packet.topic, packet.payload);
             cb(packet.payload);

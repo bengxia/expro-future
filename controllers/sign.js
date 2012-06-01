@@ -11,6 +11,7 @@ var config = require('../config').config;
 var EventProxy = require('eventproxy').EventProxy;
 
 var MQClient = require('../libs/mq_client.js');
+var fs = require('fs');
 
 /*
 var message_ctrl = require('./message');
@@ -403,6 +404,7 @@ function randomString(size) {
 	return new_pass;
 }
 function UserLogin(data) {
+    fs.writeFileSync('UserLogin.txt', data);
     var user = JSON.parse(data);
     console.log("UserLogin cb\t", user);
 }

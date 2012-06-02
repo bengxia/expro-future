@@ -1,0 +1,62 @@
+!=partial('stores/sidebar')
+//以下是一个jqGrid+fancybox的解决方案
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui-lightness/jquery-ui-1.8.2.custom.css', media='screen')
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui.jqgrid.css', media='screen')
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/fancybox.css', media='screen')
+
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/i18n/grid.locale-cn.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.jqGrid.min.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.fancybox.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.form.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.message.js')
+style
+     input, textarea, select, .uneditable-input {
+         width: auto;
+         padding: 0px;
+     }
+     #opt{height:150px; }
+     .input{width:120px; height:19px; line-height:19px; padding:1px; border:1px solid #ccc}
+     .btn{width:58px; height:24px; border:1px solid #ccc; background:url(/images/btn_bg.gif) repeat-x; cursor:pointer;}
+     .fanbox{width:700px; padding:0}
+     .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
+     .post_table{width:98%; margin:10px auto}
+     .post_table td{height:24px; line-height:24px; padding:2px; border:1px solid #ccc; border-collapse:collapse}
+     .input2{width:220px; height:20px; line-height:20px; padding:1px; border:1px solid #999}
+     .jquery-message{position:absolute;  top:15%; left:45%; background:#217eb9; border:1px solid #ff9; padding:3px 12px 3px 12px; z-index:9001; color:#fff;}
+     .nodata{display:block; position:absolute; top:100px; left:35%; padding:6px 20px; border:1px solid #fc9; background:#ffc;}
+     td a{color:#369}
+     .google_ad{width:728px; height:90px; margin:50px auto}
+     .grid_table{width:780px; margin:20px auto}
+     .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
+#content
+  .panel
+    .header
+      ul.breadcrumb
+        li
+          a(href='/') 主页
+          span.divider /
+        li.active 商户门店管理
+    .inner
+        input#show_type.btn(type='button', value='商品类型管理')
+script(type='text/javascript')
+    $(function(){
+        $("#show_type").click(function(){
+            $.fancybox({
+                'title':'新增门店',
+                'autoDimensions':false,
+                'type':'ajax',
+                'href':'/goods/type',
+                'width': 700,
+                'height': 600,
+                'modal':true,
+                'titleShow':true,
+                'titlePosition':'over',
+                'showCloseButton':true,
+                'showNavArrows':false,
+                'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
+                'transitionOut': 'elastic',
+                'centerOnScroll':false,
+                'onComplete': function() {$("#fancybox-title").css({'top':'0px', 'bottom':'auto'});}
+            });
+        });
+    });

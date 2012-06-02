@@ -1,0 +1,102 @@
+.fanbox
+  br
+  br
+  form#add_form(action='/stores/create', method='post')
+    table.post_table(width='100%', cellpadding='0', cellspacing='0')
+      tr
+          td(height='60')
+          td()
+            input(type='hidden', name='_csrf', value='#{csrf}')
+            input(type='hidden', name='_id', value='#{locals.store?store._id:''}')
+            input.btn(type='submit', value=' 保 存 ')
+            input.btn(type='button', value=' 取 消 ', onclick='$.fancybox.close();')
+      tr
+        td(width='30%', align='right') 系统流水号：
+        td
+          lable #{locals.store?store._id:''}
+      tr
+        td(width='30%', align='right') 资产编号：
+        td
+          input.input2(type='text', name='inventar_num', maxlength='30', value='#{locals.store?store.inventar_num:''}')
+      tr
+        td(width='30%', align='right') 门店名称：
+        td
+          input.input2(type='text', name='name', maxlength='30', value='#{locals.store?store.name:''}')
+      tr
+        td(width='30%', align='right') 门店仓库名称：
+        td
+          label #{locals.store?store.warehouse_name:''}
+      tr
+        td(align='right') 所属商户：
+        td
+          - if (locals.store && store.merchant_id)
+            label #{locals.store?store.merchant_name:''}
+          - else
+              select(name='merchant_id')
+                each merchant in merchants
+                    - var str = "<option value='"+merchant._id+"'>"+merchant.short_name + " </option>"
+                     | !{str}
+      tr
+        td(align='right') 状态：
+        td
+          select(name='state')
+            - var states = [{id:0,value:'封闭'},{id:1,value:'正常'},{id:2,value:'公开'},{id:3,value:'不公开'}];
+            - for (var i in states)
+              - var str = "<option value='"+states[i].id+"' >"+states[i].value + " </option>"
+              - if(locals.store && states[i].id == store.state)
+                  str = "<option value='"+states[i].id+"' selected='selected'>"+states[i].value + " </option>"
+              | !{str}
+      tr
+        td(width='30%', align='right') 地区编号：
+        td
+          input.input2(type='text', name='district_code', maxlength='30' , value='#{locals.store?store.district_code:''}')
+      tr
+        td(width='30%', align='right') 详细地址：
+        td
+          input.input2(type='text', name='address', maxlength='30' , value='#{locals.store?store.address:''}')
+      tr
+        td(width='30%', align='right') 公交说明：
+        td
+          input.input2(type='text', name='transit_info', maxlength='30' , value='#{locals.store?store.transit_info:''}')
+      tr
+        td(width='30%', align='right') 地图坐标：
+        td
+          input.input2(type='text', name='map_info', maxlength='30' , value='#{locals.store?store.map_info:''}')
+      tr
+        td(width='30%', align='right') 门店公告：
+        td
+          input.input2(type='text', name='notice', maxlength='30' , value='#{locals.store?store.notice:''}')
+      tr
+        td(width='30%', align='right') 创建时间：
+        td
+          label #{locals.store?store.create_time:''}
+      tr
+        td(width='30%', align='right') 备注：
+        td
+          input.input2(type='text', name='comment', maxlength='30' , value='#{locals.store?store.comment:''}')
+script(type='text/javascript')
+  $(function(){
+      $('#add_form').ajaxForm({
+          beforeSubmit: validate,
+          success: function(msg){
+              if(msg.status=='success'){
+                  $.fancybox.close();
+                  $().message("成功添加");
+                  $("#list").trigger("reloadGrid");
+              }else{
+                $().message("添加失败:"+msg.status);
+              }
+          }
+      });
+  });
+  function validate(formData, jqForm, options) {
+      for (var i=0; i < formData.length; i++) {
+          /*
+          if (!formData[i].value) {
+              $('#msg').html("<b>请输入完整相关信息</b>");
+              return false;
+          }
+          */
+      }
+      $().message("正在提交...");
+  }

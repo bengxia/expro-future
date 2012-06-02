@@ -27,7 +27,7 @@ app.configure(function() {
 		secret: config.session_secret,
                 cookie: config.session_cookie
 	}));
-        app.use(express.methodOverride());
+    app.use(express.methodOverride());
 	// custom middleware
 	app.use(require('./controllers/sign').auth_user);
 	app.use(express.csrf());

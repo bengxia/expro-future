@@ -85,8 +85,8 @@ exports.index = function(req,res,next){
                 //将rows数组赋予jsonObj.rows
                 jsonObj.rows = rowsArray;
 
-                var jsonStr = JSON.stringify(jsonObj);
-                console.log('jsonStr:'+jsonStr);
+                //var jsonStr = JSON.stringify(jsonObj);
+                //console.log('jsonStr:'+jsonStr);
                 return res.json(jsonObj);
             });
         });

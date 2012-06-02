@@ -44,11 +44,15 @@ exports = module.exports = function(app) {
   app.post('/merchants/create', merchants.create);//创建商户
 
   //商品管理
-  app.get('/goods/type', goods.showTypes);//商品类型显示
+  app.get('/goods/type', goods.showTypes);//显示商品类型页面(弹出页面)
+  app.get('/goods/type/:_id', goods.showTypeDetail);//显示商品类型详细（弹出页面右侧）
   app.put('/goods/type/:_id', goods.updateType);//更新选中的商品类型
-  app.get('/goods/type', goods.showCreatType);//显示新增商品类型页
+  //app.get('/goods/type', goods.showCreatType);//显示新增商品类型页
   app.post('/goods/type', goods.creatType);//创建商品类型
+  app.get('/goods/type/delete', goods.deleteType);//删除商品类型
+
   app.get('/goods', goods.index);//商品列表
+
 
 /*  app.get('/signup', sign.signup);
   app.post('/signup', sign.signup);

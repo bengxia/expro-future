@@ -1,81 +1,256 @@
-!=partial('stores/sidebar')
-//以下是一个jqGrid+fancybox的解决方案
-link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui-lightness/jquery-ui-1.8.2.custom.css', media='screen')
-link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui.jqgrid.css', media='screen')
-link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/fancybox.css', media='screen')
+.fanbox
+    link(rel='stylesheet', type='text/css', href='/libs/JQuery_zTree_v3.2/css/zTreeStyle/zTreeStyle.css', media='screen')
 
-link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/fancybox.css', media='screen')
-<link rel="StyleSheet" href="dtree.css" type="text/css" />
-<script type="text/javascript" src="dtree.js"></script>
+    script(type='text/javascript', src='/libs/JQuery_zTree_v3.2/js/jquery.ztree.core-3.2.js')
+    style
+        #testIframe {margin-left: 10px;}
+    br
+    br
+    br
+    form#goods_type_form(action='/goods/type', method='post')
+        table(border='0', align='left')
+          tr
+            td(width='30%', align='center', valign='top')
+              input(type='hidden', name='_csrf', value='#{csrf}')
+            td(width='70%', align='right', valign='top')
+              input.btn(type='button', value=' 关 闭 ', onclick='$.fancybox.close();')
+          tr(height='510px', valign='top', style='BORDER-TOP: #13458B 1px dashed;')
+            td(align='left', valign='top', style='BORDER-RIGHT: #13458B 1px dashed;')
+              ul#tree.ztree(style='width: 260px; overflow: auto;')
+            td(align='right')
+                #parent_operate(style='visibility:none;')
+                    br
+                    input#saveNewType.btn(type='submit', value='保存子类型')
+                    input#addNewType.btn(type='button', value='新增子类型')
+                    input#delType.btn(type='button', value='删除本类型')
+                #type_detail
+                    table.post_table(width='100%', border='0',cellpadding='0', cellspacing='0')
+                        tr
+                            td(width='30%', align='left') 系统流水号：
+                            td(width='70%', align='center')
+                                input#_id.input2(type='text', name='_id', maxlength='30')
+                        tr
+                            td() 父节点ID：
+                            td(align='center')
+                                input#parent_id.input2(type='text', name='parent_id', maxlength='30')
+                        tr
+                            td() 类型名称：
+                            td(align='center')
+                                input#name.input2(type='text', name='name', maxlength='30')
+                        tr
+                            td() 创建时间：
+                            td(align='center')
+                                input#create_time.input2(type='text', name='create_time', maxlength='30')
+                        tr
+                            td() 是否叶子：
+                            td(align='center')
+                                input#isleaf.input2(type='text', name='isleaf', maxlength='30')
+                        tr
+                            td() 层次：
+                            td(align='center')
+                                input#level.input2(type='text', name='level', maxlength='30')
+                        tr
+                            td() 备注：
+                            td(align='center')
+                                input#comment.input2(type='text', name='comment', maxlength='30')
+script(type='text/javascript')
+    var zTree;
+    var zNodes;//保存树节点的json对象
+    var setting = {
+        check: {
+             enable: true,
+             chkStyle:"checkbox"
+        },
+        async: {
+            enable: true,
+            type:"get",
+            dataType:"text",
+            contentType:"application/json",
+            url:"/goods/type",
+            autoParam:["_id", "name"],
+            otherParam:{"otherParam":"zTreeAsyncTest"},//可以传参，暂未使用
+            dataFilter: filter
+        },
+        view: {
+            dblClickExpand: false,
+            showLine: true,
+            selectedMulti: false,
+            expandSpeed: ($.browser.msie && parseInt($.browser.version)<=6)?"":"fast"
+        },
+        data: {
+            simpleData: {
+                enable:true,
+                idKey: "_id",
+                pIdKey: "parent_id",
+                rootPId: ""
+            }
+        },
+        callback: {
+            beforeClick: function(treeId, treeNode) {
+                setShowAddBtn();
+                var zTree = $.fn.zTree.getZTreeObj("tree");
+                if (treeNode.isParent) {
+                    zTree.expandNode(treeNode);//展开选中的支节点
+                    setContentValue(treeNode);
+                    return true;
+                } else {
+                    setContentValue(treeNode);
+                    return true;
+                }
+            }
+        }
+    };
 
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/i18n/grid.locale-cn.js')
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.jqGrid.min.js')
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.fancybox.js')
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.form.js')
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.message.js')
-style
-     input, textarea, select, .uneditable-input {
-         width: auto;
-         padding: 0px;
-     }
-     #opt{height:150px; }
-     .input{width:120px; height:19px; line-height:19px; padding:1px; border:1px solid #ccc}
-     .btn{width:58px; height:24px; border:1px solid #ccc; background:url(/images/btn_bg.gif) repeat-x; cursor:pointer;}
-     .fanbox{width:540px; padding:0}
-     .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
-     .post_table{width:98%; margin:10px auto}
-     .post_table td{height:24px; line-height:24px; padding:2px; border:1px solid #ccc; border-collapse:collapse}
-     .input2{width:220px; height:20px; line-height:20px; padding:1px; border:1px solid #999}
-     .jquery-message{position:absolute;  top:15%; left:45%; background:#217eb9; border:1px solid #ff9; padding:3px 12px 3px 12px; z-index:9001; color:#fff;}
-     .nodata{display:block; position:absolute; top:100px; left:35%; padding:6px 20px; border:1px solid #fc9; background:#ffc;}
-     td a{color:#369}
-     .google_ad{width:728px; height:90px; margin:50px auto}
-     .grid_table{width:780px; margin:20px auto}
-     .fanbox{width:540px; padding:0}
-     .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
+    function filter(treeId, parentNode, childNodes) {
+        if (!childNodes) return null;
+        for (var i=0, l=childNodes.length; i<l; i++) {
+            childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
+        }
+        return childNodes;
+    };
 
-#content
-  .panel
-    .header
-      ul.breadcrumb
-        li
-          a(href='/') 主页
-          span.divider /
-        li.active 商户门店管理
-    .inner
-      .sep10
-      .sep10
-      #opt
-        #query
-          label 门店编号：
-          input#_id.input(type='text')
-          label 门店名称：
-          input#name.input(type='text')
-          input#find_btn.btn(type='submit', value='查 询')
-        input#add_btn.btn(type='button', value='新 增')
-        input#edit_btn.btn(type='button', value='修 改')
-        input#del_btn.btn(type='button', value='删 除')
-      table#addtree
-      #paddtree
+    function setContentValue(node){
+        if(node._id){
+            $("#_id").attr('readonly', true);
+            $("#parent_id").attr('readonly', true);
+            $("#create_time").attr('readonly', true);
+            $("#isleaf").attr('readonly', true);
+            $("#level").attr('readonly', true);
+        }
+        $("#_id").val(node._id);
+        $("#parent_id").val(node.parent_id);
+        $("#create_time").val(node.create_time);
+        $("#isleaf").val(node.isleaf);
+        $("#level").val(node.level);
+        $("#name").val(node.name);
+        $("#comment").val(node.comment);
 
-      script(type='text/javascript')
-          jQuery("#addtree").jqGrid({
-            url: '/stores/',
-            treedatatype: 'json',
-            mtype: 'GET',
-            colNames:["id","Account","Acc Num", "Debit", "Credit","Balance"],
-            colModel:[
-                {name:'_id',index:'id', width:1,hidden:true,key:true, editable:true},
-                {name:'name',index:'name', width:180, editable:true},
-                {name:'num',index:'acc_num', width:80, align:"center",editable:true},
-                {name:'debit',index:'debit', width:80, align:"right",editable:true},
-                {name:'credit',index:'credit', width:80,align:"right",editable:true},
-                {name:'balance',index:'balance', width:80,align:"right",editable:true}
-            ],
-            height:'auto',
-            pager : "#paddtree",
-            treeGrid: true,
-            ExpandColumn : 'name',
-            editurl:'/stores/',
-            caption: "商品类型管理"
-          });
+        //var s = '';//选中节点ids
+        //遍历选中的节点，为s赋值
+        //var nodes = zTreeObj.getCheckedNodes();
+        /*for(var i=0; i<nodes.length; i++){
+            var isParent = nodes[i].isParent;
+            if (s != '')s += ',';
+            s += nodes[i].id;
+        }*/
+        //$("#content").val(s);
+    };
+    //清除input的内容，并设置所有input为非readonly
+    function clearInput(){
+        $("#_id").attr('readonly', false);
+        $("#parent_id").attr('readonly', false);
+        $("#create_time").attr('readonly', false);
+        $("#isleaf").attr('readonly', false);
+        $("#level").attr('readonly', false);
+        $("#name").attr('readonly', false);
+        $("#comment").attr('readonly', false);
+
+        $("#_id").val("");
+        $("#parent_id").val("");
+        $("#create_time").val("");
+        $("#isleaf").val("");
+        $("#level").val("");
+        $("#name").val("");
+        $("#comment").val("");
+    };
+    //新增类型
+    function addNewType(){
+        setShowSaveBtn();
+        //清除输入框原数据
+        clearInput();
+        //设置不可输入状态
+
+        $("#_id").attr('readonly', true);
+        $("#parent_id").attr('readonly', true);
+        $("#create_time").attr('readonly', true);
+        $("#isleaf").attr('readonly', true);
+        $("#level").attr('readonly', true);
+        //alert(zTree.getSelectedNodes()[0]._id);
+        //获得当前选择的node
+        var nodes = zTree.getSelectedNodes();
+        if(!nodes){
+            alert("请在左侧选择一个商品类型！");
+        }
+        if(!nodes.length || nodes.length != 1){
+            alert("请指定一个商品类型后再进行添加！");
+        }
+        var selNode = nodes[0];
+        $("#parent_id").val(selNode._id);//设置选中的node的id为当前要创建的node的父节点
+        $("#isleaf").val('1');//当前肯定是叶子节点，需要判断若父节点原本是叶子则需要设置为“0”。
+        $("#level").val(selNode.level+1);
+    };
+
+    //设置显示新增按钮隐藏保存按钮
+    function setShowAddBtn(){
+        $('#saveNewType').hide();
+        $('#addNewType').show();
+    };
+
+    //设置显示保存按钮隐藏新增按钮
+    function setShowSaveBtn(){
+        $('#saveNewType').show();
+        $('#addNewType').hide();
+    };
+
+    //保存并提交新增类型（提交不在本方法内实现）
+    function saveNewType(){
+        setShowAddBtn();
+    };
+
+    //设置提交的form的参数，及处理返回函数
+    $("#goods_type_form").ajaxForm({
+        beforeSubmit: validate,
+        success: function(msg){
+            if(msg.status=='success'){
+                //alert("成功添加新类型");
+                $().message("成功添加新类型");
+                //获得当前选择的node
+                var nodes = zTree.getSelectedNodes();
+                alert(nodes.length);
+                zTree.reAsyncChildNodes(null, "refresh");
+                //zTree.selectNode(zTree.getNodeByParam("_id", nodes[0]._id));
+            }else{
+                $().message("添加类型失败:"+msg.status);
+                //alert("添加类型失败");
+            }
+        }
+    });
+
+    //表单提交前的校验
+    function validate(formData, jqForm, options) {
+        //alert("1111");
+    };
+
+    $(document).ready(function(){
+        $.ajax({
+            type: "Get",
+            url: '/goods/type',
+            dataType: "text",
+            global: false,
+            async: false,
+            success: function (strReult) {
+                zNodes=eval(strReult);
+            },
+            error: function () {
+                alert("Ajax请求数据失败!");
+            }
+        });
+        var t = $("#tree");
+        t = $.fn.zTree.init(t, setting, zNodes);
+        $('#addNewType').bind("click", addNewType);
+        $('#saveNewType').bind("click", saveNewType);
+        setShowAddBtn();
+        zTree = $.fn.zTree.getZTreeObj("tree");
+        zTree.selectNode(zTree.getNodeByParam("_id", 1));
+    });
+
+    function loadReady() {
+        /*
+        var bodyH = demoIframe.contents().find("body").get(0).scrollHeight,
+        htmlH = demoIframe.contents().find("html").get(0).scrollHeight,
+        maxH = Math.max(bodyH, htmlH), minH = Math.min(bodyH, htmlH),
+        h = demoIframe.height() >= maxH ? minH:maxH ;
+        if (h < 530) h = 530;
+        demoIframe.height(h);
+        */
+    };

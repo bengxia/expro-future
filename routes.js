@@ -105,3 +105,4 @@ exports = module.exports = function(app) {
   app.get('/about', static.about);
   app.get('/faq', static.faq);*/
 };
+

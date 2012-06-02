@@ -1,7 +1,8 @@
 
 // models
-//var User = require('./user');
 exports.User = require('./user')();
+exports.Role = require('./role')();
+exports.Member = require('./member')();
 exports.Store = require('./stores')();
 exports.Merchant = require('./merchants')();
 exports.Warehouse = require('./warehouses')();

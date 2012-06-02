@@ -25,3 +25,4 @@ exports.TopicCollect = mongoose.model('TopicCollect');
 exports.TagCollect = mongoose.model('TagCollect');
 exports.Relation = mongoose.model('Relation');
 exports.Message = mongoose.model('Message');
+*/

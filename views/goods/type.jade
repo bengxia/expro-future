@@ -20,9 +20,10 @@
             td(align='right')
                 #parent_operate(style='visibility:none;')
                     br
-                    input#saveNewType.btn(type='submit', value='保存子类型')
-                    input#addNewType.btn(type='button', value='新增子类型')
-                    input#delType.btn(type='button', value='删除本类型')
+                    input#updateType.btn(type='button', value='更新')
+                    input#saveNewType.btn(type='submit', value='保存')
+                    input#addNewType.btn(type='button', value='新增')
+                    input#delType.btn(type='button', value='删除')
                 #type_detail
                     table.post_table(width='100%', border='0',cellpadding='0', cellspacing='0')
                         tr
@@ -205,13 +206,72 @@ script(type='text/javascript')
                 //alert("成功添加新类型");
                 $().message("成功添加新类型");
                 //获得当前选择的node
-                var nodes = zTree.getSelectedNodes();
-                alert(nodes.length);
+                //var nodes = zTree.getSelectedNodes();
                 zTree.reAsyncChildNodes(null, "refresh");
-                //zTree.selectNode(zTree.getNodeByParam("_id", nodes[0]._id));
             }else{
                 $().message("添加类型失败:"+msg.status);
-                //alert("添加类型失败");
+            }
+        }
+    });
+
+    function delType(){
+    };
+    //
+    $("#updateType").click(function(){
+        //获得当前选择的node
+        var nodes = zTree.getSelectedNodes();
+        if(!nodes){
+            $().message("请选择要更新的项！");
+        }else{
+            if(confirm("是否更新当前类型？")){
+                $.ajax({
+                    type: "put",
+                    url: "/goods/type/"+nodes[0]._id,
+                    data:$("#goods_type_form").serialize(),
+                    beforeSend: function() {
+                        $().message("正在请求...");
+                    },
+                    error:function(){
+                        $().message("请求失败...");
+                    },
+                    success: function(msg){
+                        if(msg.status == "success"){
+                            $().message("已成功更新!");
+                            zTree.reAsyncChildNodes(null, "refresh");
+                        }else{
+                            $().message("操作失败:"+msg.status);
+                        }
+                    }
+                });
+            }
+        }
+    });
+    $("#delType").click(function(){
+        //获得当前选择的node
+        var nodes = zTree.getSelectedNodes();
+        if(!nodes){
+            $().message("请选择要删除的项！");
+        }else{
+            if(confirm("删除当前类型及其下所有子类型，您是否确认删除？")){
+                $.ajax({
+                    type: "delete",
+                    url: "/goods/type/"+nodes[0]._id,
+                    data: "_csrf=#{csrf}",
+                    beforeSend: function() {
+                        $().message("正在请求...");
+                    },
+                    error:function(){
+                        $().message("请求失败...");
+                    },
+                    success: function(msg){
+                        if(msg.status == "success"){
+                            $().message("已成功删除!");
+                            zTree.reAsyncChildNodes(null, "refresh");
+                        }else{
+                            $().message("操作失败:"+msg.status);
+                        }
+                    }
+                });
             }
         }
     });
@@ -239,9 +299,13 @@ script(type='text/javascript')
         t = $.fn.zTree.init(t, setting, zNodes);
         $('#addNewType').bind("click", addNewType);
         $('#saveNewType').bind("click", saveNewType);
+        $('#delType').bind("click", delType);
+
         setShowAddBtn();
         zTree = $.fn.zTree.getZTreeObj("tree");
         zTree.selectNode(zTree.getNodeByParam("_id", 1));
+
+
     });
 
     function loadReady() {

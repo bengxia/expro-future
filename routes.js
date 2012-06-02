@@ -49,7 +49,7 @@ exports = module.exports = function(app) {
   app.put('/goods/type/:_id', goods.updateType);//更新选中的商品类型
   //app.get('/goods/type', goods.showCreatType);//显示新增商品类型页
   app.post('/goods/type', goods.creatType);//创建商品类型
-  app.get('/goods/type/delete', goods.deleteType);//删除商品类型
+  app.delete('/goods/type/:_id', goods.deleteType);//删除商品类型
 
   app.get('/goods', goods.index);//商品列表
 

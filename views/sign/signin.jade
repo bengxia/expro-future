@@ -1,22 +1,8 @@
-#sidebar
-  .panel
-    .header
-      span.col_fade 关于
-    .inner
-      p CNode：Node.js专业中文社区
-      p 在这里你可以：
-      ul
-        li 向别人提出你遇到的问题
-        li 帮助遇到问题的人
-        li 分享自己的知识
-        li 和其它人一起进步
+!=partial('sign/sidebar')
 #content
   .panel
     .header
       ul.breadcrumb
-        li
-          a(href='/') 主页
-          span.divider /
         li.active 登录
     .inner
       .sep10
@@ -28,15 +14,20 @@
       - }
       form#signin_form.form-horizontal(action='/signin', method='post')
         .control-group
-          label.control-label(for='name') 用户名
+          label.control-label(for='org') 商户
           .controls
-            input#name.input-xlarge(name='name', size='30', type='text')
+            input#name.input-xlarge(name='org', size='30', type='text', placeholder="商户的数字代码，例如:2168")
+        .control-group
+          label.control-label(for='name') 手机
+          .controls
+            input#name.input-xlarge(name='name', size='30', type='text', placeholder="以手机号码登陆，例如：18912345678")
         .control-group
           label.control-label(for='pass') 密码
           .controls
             input#pass.input-xlarge(name='pass', size='30', type='password')
-            p.help-block
-              a(href='/search_pass') 我忘记了密码
+            //
+                p.help-block
+                  a(href='/search_pass') 我忘记了密码
         input(type='hidden', name='_csrf', value='#{csrf}')
         .form-actions
           input.btn(type='submit', value='登录')

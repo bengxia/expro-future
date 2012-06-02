@@ -9,6 +9,7 @@
  */
 var sign = require('./controllers/sign');
 var site = require('./controllers/site');
+var stores = require('./controllers/stores');
 /*
 var user = require('./controllers/user');
 var message = require('./controllers/message');
@@ -27,6 +28,9 @@ exports = module.exports = function(app) {
   // sign up, login, logout
   app.get('/signin', sign.showLogin);
   app.post('/signin', sign.login);
+  app.get('/signout', sign.signout);
+
+  app.get('/stores', stores.index);
 /*  app.get('/signup', sign.signup);
   app.post('/signup', sign.signup);
   app.get('/signout', sign.signout);

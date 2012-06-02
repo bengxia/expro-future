@@ -1,11 +1,15 @@
-var models = require('../models'),
-	User = models.User;
+var models = require('../models');
+var User = models.User;
+var Role = models.Role;
+var Member = models.Member;
 
-var check = require('validator').check,
-	sanitize = require('validator').sanitize;
+var check = require('validator').check;
+var sanitize = require('validator').sanitize;
 
 var crypto = require('crypto');
 var config = require('../config').config;
+var EventProxy = require('eventproxy').EventProxy;
+
 /*
 var message_ctrl = require('./message');
 var mail_ctrl = require('./mail');
@@ -97,8 +101,13 @@ exports.signup = function(req,res,next){
  * @param  {HttpResponse} res
  */
 exports.showLogin = function(req, res) {
-	req.session._loginReferer = req.headers.referer;
-	res.render('sign/signin');
+    var refer = req.headers.referer || 'home';
+    if(req.session.user) {
+        res.redirect(refer);
+    } else {
+        req.session._loginReferer = refer;
+        res.render('sign/signin');
+    }
 };
 /**
  * define some page when login just jump to the home page
@@ -118,45 +127,84 @@ var notJump = [
  * @param  {Function} next
  */
 exports.login = function(req, res, next) {
-	var loginname = sanitize(req.body.name).trim().toLowerCase();
-	var pass = sanitize(req.body.pass).trim();
-	
-	if (!loginname || !pass) {
-		return res.render('sign/signin', { error: '信息不完整。' });
-	}
-
-	User.findOne({ 'loginname': loginname }, function(err, user) {
-		if (err) return next(err);
-		if (!user) {
-			return res.render('sign/signin', { error:'这个用户不存在。' });
-		}
-		pass = md5(pass);
-		if (pass !== user.password) {
-			return res.render('sign/signin', { error:'密码错误。' });
-		}
-		if (!user.state) {
-			res.render('sign/signin', { error:'此帐号还没有被激活。' });
-			return;
-		}
-		// store session cookie
-		gen_session(user, res);
+    var loginname = sanitize(req.body.name).trim().toLowerCase();
+    var pass = sanitize(req.body.pass).trim();
+    var org = sanitize(req.body.org).trim();
+    var ep = EventProxy.create();
+    
+    function feedback(result) {
+        if(req.accepts('html')) {
+            var refer = result.refer || 'sign/signin';
+            res.local('current_user',req.session.user);
+            if(200 == result.status) {
                 //check at some page just jump to home page 
                 var refer = req.session._loginReferer || 'home';
                 for (var i=0, len=notJump.length; i!=len; ++i) {
-                  if (refer.indexOf(notJump[i]) >= 0) {
-                    refer = 'home';
-                    break;
-                  }
+                    if (refer.indexOf(notJump[i]) >= 0) {
+                        refer = 'home';
+                        break;
+                    }
                 }
-		res.redirect(refer);
-	});
+                res.redirect(refer);
+            }
+            else res.render('sign/signin', {error:result.error});
+        }
+        else res.json(result);
+    };
+        
+    if (!loginname || !pass || !org) {
+        return feedback({status:401, error:'信息不完整。'});
+    }
+    
+    ep.once('error', function(result) {
+        ep.unbind();//remove all event
+        return feedback(result);
+    });
+    ep.on('member', function(member) { 
+        findRole(member.role_id);
+    });
+    ep.on('role', function() {
+        feedback({status:200, error:'登陆成功'});
+    });
+
+    //check user info
+    User.findOne({ 'loginname': loginname }, function(err, user) {
+        if (err) return next(err);
+        if (!user) return feedback({status:401, error:'这个用户不存在。'});
+        pass = md5(pass);
+        if (pass !== user.password) return feedback({status:401, error:'密码错误。'});
+        if (!user.state) return feedback({status:403, error:'此帐号还没有被激活。'});
+        // store session cookie
+        req.session.regenerate(function() {
+            req.session.user = user;
+            Member.findOne({org:org, user:user._id}, function(err, member) {
+                if(err) { ep.unbind(); next(err);}
+                if (!member) return ep.trigger('error', {status:401, error:'商户没有这个用户。'});
+                req.session.member = member
+                ep.trigger('member', member);
+            });
+        });
+        //gen_session(user, res);
+    });
+    
+    function findRole(role_id) {    
+        Role.findOne({role:role_id}, function(err, role) {
+            if(err) { ep.unbind(); next(err);}
+            if (!role) return ep.trigger('error', {status:403, error:'用户权限不存在。'});
+            req.session.role = role;
+            ep.trigger('role');
+        });
+    }
 };
 
 // sign out
 exports.signout = function(req, res, next) {
-	req.session.destroy();
-	res.clearCookie(config.auth_cookie_name, { path: '/' });
-	res.redirect(req.headers.referer || 'home');
+    req.session.destroy();
+    res.clearCookie(config.auth_cookie_name, { path: '/' });
+    if(req.accepts('html')) {
+        res.redirect(req.headers.referer || 'home');
+    }
+    else res.send(200);
 };
 /*
 exports.active_account = function(req,res,next) {
@@ -266,11 +314,11 @@ exports.reset_pass = function(req,res,next) {
     })
   }
 }
-
+*/
 // auth_user middleware
 exports.auth_user = function(req,res,next){
 	if(req.session.user){
-		if(config.admins[req.session.user.name]){
+		/*if(config.admins[req.session.user.name]){
 			req.session.user.is_admin = true;
 		}
 		message_ctrl.get_messages_count(req.session.user._id,function(err,count){
@@ -278,11 +326,14 @@ exports.auth_user = function(req,res,next){
 			req.session.user.messages_count = count;
 			res.local('current_user',req.session.user);
 			return next();
-		});
+		});*/
+                res.local('current_user', req.session.user);
+                return next();
 	}else{
 		var cookie = req.cookies[config.auth_cookie_name];
 		if(!cookie) return next();
-
+                next();
+/*
 		var auth_token = decrypt(cookie, config.session_secret);
 		var auth = auth_token.split('\t');
 		var user_id = auth[0];
@@ -302,15 +353,15 @@ exports.auth_user = function(req,res,next){
 			}else{
 				return next();	
 			}
-		});	
+		});	*/
 	}
 };
-*/
+
 // private
 function gen_session(user,res) {
-	var auth_token = encrypt(user.gid + '\t'+user.username + '\t' + user.password +'\t' + user.email, config.session_secret);
-	res.cookie(config.auth_cookie_name, auth_token, {path: '/',maxAge: 1000*60*60*24*30}); //cookie 有效期30天	
-        res.local('current_user', user);
+    var auth_token = encrypt(user.gid + '\t'+user.username + '\t' + user.password +'\t' + user.email, config.session_secret);
+    res.cookie(config.auth_cookie_name, auth_token, {path: '/',maxAge: 1000*60*60*24*30}); //cookie 有效期30天	
+    res.local('current_user', user);
 }
 function encrypt(str,secret) {
    var cipher = crypto.createCipher('aes192', secret);

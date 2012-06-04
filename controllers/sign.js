@@ -11,7 +11,6 @@ var config = require('../config').config;
 var EventProxy = require('eventproxy').EventProxy;
 
 var MQClient = require('../libs/mq_client.js');
-var fs = require('fs');
 
 /*
 var message_ctrl = require('./message');
@@ -139,7 +138,7 @@ exports.login = function(req, res, next) {
     var ep = EventProxy.create();
     
     function feedback(result) {
-        MQClient.pub('UserLogin', JSON.stringify(req.session.user));
+        MQClient.pub('UserLogin', req.session.user);
         if(200 == result.status) {
             if(req.accepts('html')) {
                 //check at some page just jump to home page 
@@ -404,8 +403,8 @@ function randomString(size) {
 	return new_pass;
 }
 function UserLogin(data) {
-    fs.writeFileSync('UserLogin.txt', data);
-    var user = JSON.parse(data);
+//    var user = JSON.parse(data);
+    var user = data;
     console.log("UserLogin cb\t", user);
 }
 MQClient.sub('UserLogin', UserLogin);

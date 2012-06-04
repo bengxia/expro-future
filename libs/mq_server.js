@@ -2,7 +2,23 @@
 * Message Queue Service
 */
 
-var mqtt = require('mqttjs');
+exports = module.exports = function(app) {
+    var io = require('socket.io').listen(app);
+    
+    io.sockets.on('connection', function (socket) {
+        socket.on('subscribe', function(data) { 
+            socket.join(data.topic); 
+        });
+        
+        socket.on('publish', function(data) {
+//            socket.broadcast.to(data.topic).emit('publish');
+//            socket.broadcast.to(data.topic).json.send(data);
+            io.sockets.in(data.topic).emit(data.topic, data.payload);
+        });
+    });
+};
+
+/*var mqtt = require('mqttjs');
 var util = require('util');
 var config = require('../config.js').config;
 
@@ -71,4 +87,4 @@ var mqServer = mqtt.createServer(function(client) {
 	});
 }).listen(config.message_queue.port);
 
-console.log('Message Queue Listen On %d', mqServer.address().port);
+console.log('Message Queue Listen On %d', mqServer.address().port);*/

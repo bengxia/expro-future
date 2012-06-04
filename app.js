@@ -6,8 +6,9 @@
  * Module dependencies.
  */
 
-//message queue
-require('./libs/mq_server.js');
+var Log = require('./log.js');
+var log = Log.create(Log.INFO, {'file':'./node.debug'});
+
 
 var path = require('path');
 var express = require('express');
@@ -16,6 +17,9 @@ var config = require('./config').config;
 
 
 var app = express.createServer();
+//message queue
+require('./libs/mq_server.js')(app);
+
 
 // configuration in all env
 app.configure(function() {
@@ -70,10 +74,11 @@ app.configure('production', function(){
 	app.set('view cache', true);
 });
 
+log.info('config OK');
 // routes
 routes(app);
 
+log.info('route OK');
+
 app.listen(config.port);
 console.log("ExproFuture listening on port %d in %s mode", app.address().port, app.settings.env);
-console.log("God bless love....");
-console.log("You can debug your app with http://localhost:"+app.address().port);

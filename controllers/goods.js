@@ -27,9 +27,128 @@ var getNow=function(){
  */
 exports.index = function(req,res,next){
     if(req.accepts('html')) {
-        res.render('goods/goods', {});
+        res.render('goods/index', {});
+    }else{
+        var where = ' ';
+        var _id = req.query._id;
+        var name = req.query.name;
+
+        if(_id != undefined){
+            where += ' and goods._id like \'%'+_id+'%\' ';
+        }
+        if(name != undefined){
+            where += ' and goods.name like \'%'+name+'%\' ';
+        }
+
+        Goods.count(where, function(err,ds){
+            if(err) return next(err);
+
+            var page = req.query.page; // 取得当前页数,注意这是jqgrid自身的参数
+            var limit = req.query.rows; // 取得每页显示行数，,注意这是jqgrid自身的参数
+            var sidx = req.query.sidx; //取得排序字段
+            var sord  = req.query.sord;//排序方式asc、desc
+
+            if(!sidx){
+                sidx = 1;
+            }
+            // 计算查询结果总行数
+            var count = ds[0].count;
+            // 查询结果总页数
+            var total_pages = 0;
+
+            // 计算查询结果页数
+            if(count > 0 && limit > 0){
+                total_pages = Math.ceil(count/limit);
+            }
+            // 若请求页大于总页数，设置请求页为最后一页
+            if (page > total_pages) page=total_pages;
+
+            // 计算起始行
+            var start = limit * page - limit;
+            // 若起始行为0
+            if(start < 0) start = 0;
+
+            Goods.findAll(where, start, limit, sidx, sord, function(err,ds){
+                if(err) return next(err);
+
+                if (ds == undefined){
+                    return res.json({status:'查询结果为空！'});
+                }
+                var jsonObj = new Object();
+                jsonObj.page = page;  // 当前页
+                jsonObj.total = total_pages;    // 总页数
+                jsonObj.records = count;  // 总记录数
+
+                //定义rows 数组，保存所有rows数据
+                var rowsArray = new Array();
+                for(var i=0; i<ds.length; i++){
+                    // 定义rows
+                    var rows = new Object();
+                    rows.id = ds[i]._id;
+                    rows.cell = [ds[i]._id, ds[i].name, ds[i].inventar_num, ds[i].goods_type_name, ds[i].state, ds[i].price, ds[i].create_time];
+                    rowsArray[i] = rows;
+                }
+                //将rows数组赋予jsonObj.rows
+                jsonObj.rows = rowsArray;
+
+                //var jsonStr = JSON.stringify(jsonObj);
+                //console.log('jsonStr:'+jsonStr);
+                return res.json(jsonObj);
+            });
+        });
     }
 };
+
+/**
+ * 显示新增商品（无_id）,或已有商品（有_id）页面
+ * @param req
+ * @param res
+ * @param next
+ * @return {*}
+ */
+exports.showGoods = function(req, res, next) {
+    console.log("开始显示 新建||编辑||查看 弹出框。。。"+req.query._id);
+    var _id = req.query._id;
+    //如果_id不为空，则弹出编辑页面
+    if(_id){
+        //显示已有商品（有_id）页面
+        console.log("_id:"+_id);
+        var opt = new Object();
+        opt._id = _id;
+        Goods.findOne(opt, function(err,ds){
+            if(err) return next(err);
+            res.render('goods/goods', { layout: false, goods:ds});
+        });
+    }else{
+        //显示新增商品（无_id）
+        res.render('goods/goods', { layout: false});
+    }
+};
+
+exports.saveOrUpdateGoods = function(req,res,next){
+    //开始校验输入数值的正确性
+    var _id = req.body._id;
+    var name = req.body.name;
+
+    if(!name) return res.json({status:'名字不能为空！'});
+
+    if(_id){
+        //说明是更新数据
+        Goods.update(req.body, function(err,info){
+            if(err) return next(err);
+            res.json({status:'success'});
+        });
+    }else{
+        //说明是新增
+        //创建时间
+        req.body.create_time = getNow();
+        Goods.create(req.body, function(err, info){
+            if(err) return next(err);
+            res.json({status:'success'});
+        });
+    }
+};
+
 /**
  * 显示商品类型页面
  * @param req

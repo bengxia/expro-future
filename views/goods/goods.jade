@@ -1,62 +1,194 @@
-!=partial('stores/sidebar')
-//以下是一个jqGrid+fancybox的解决方案
-link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui-lightness/jquery-ui-1.8.2.custom.css', media='screen')
-link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui.jqgrid.css', media='screen')
-link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/fancybox.css', media='screen')
+.fanbox
+    link(rel='stylesheet', type='text/css', href='/libs/JQuery_zTree_v3.2/css/zTreeStyle/zTreeStyle.css', media='screen')
 
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/i18n/grid.locale-cn.js')
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.jqGrid.min.js')
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.fancybox.js')
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.form.js')
-script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.message.js')
-style
-     input, textarea, select, .uneditable-input {
-         width: auto;
-         padding: 0px;
-     }
-     #opt{height:150px; }
-     .input{width:120px; height:19px; line-height:19px; padding:1px; border:1px solid #ccc}
-     .btn{width:58px; height:24px; border:1px solid #ccc; background:url(/images/btn_bg.gif) repeat-x; cursor:pointer;}
-     .fanbox{width:700px; padding:0}
-     .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
-     .post_table{width:98%; margin:10px auto}
-     .post_table td{height:24px; line-height:24px; padding:2px; border:1px solid #ccc; border-collapse:collapse}
-     .input2{width:220px; height:20px; line-height:20px; padding:1px; border:1px solid #999}
-     .jquery-message{position:absolute;  top:15%; left:45%; background:#217eb9; border:1px solid #ff9; padding:3px 12px 3px 12px; z-index:9001; color:#fff;}
-     .nodata{display:block; position:absolute; top:100px; left:35%; padding:6px 20px; border:1px solid #fc9; background:#ffc;}
-     td a{color:#369}
-     .google_ad{width:728px; height:90px; margin:50px auto}
-     .grid_table{width:780px; margin:20px auto}
-     .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
-#content
-  .panel
-    .header
-      ul.breadcrumb
-        li
-          a(href='/') 主页
-          span.divider /
-        li.active 商户门店管理
-    .inner
-        input#show_type.btn(type='button', value='商品类型管理')
+    script(type='text/javascript', src='/libs/JQuery_zTree_v3.2/js/jquery.ztree.core-3.2.js')
+    style
+        #testIframe {margin-left: 10px;}
+    br
+    br
+    br
+    #menuContent.menuContent(style='display:none; position: absolute;background-color:#FF8040')
+        ul#treeDemo.ztree(style="margin-top:0; width:160px;")
+    form#add_form(action='/goods/#{locals.goods?'?_id='+goods._id:''}', method='post')
+        table.post_table(width='100%', cellpadding='0', cellspacing='0',border='0')
+            tr
+                td(height='60')
+                td()
+                    input(type='hidden', name='_csrf', value='#{csrf}')
+                    input(type='hidden', name='_id', value='#{locals.goods?goods._id:''}')
+                    input.btn(type='submit', value=' 保 存 ')
+                    input.btn(type='button', value=' 取 消 ', onclick='$.fancybox.close();')
+            tr
+                td(width='30%', align='right') 系统流水号：
+                td
+                    lable #{locals.goods?goods._id:''}
+            tr
+                td(width='30%', align='right') 名称：
+                td
+                    input.input2(type='text', name='name', maxlength='30', value='#{locals.goods?goods.name:''}')
+            tr
+                td(width='30%', align='right') 资产编号：
+                td
+                    input.input2(type='text', name='inventar_num', maxlength='30', value='#{locals.goods?goods.inventar_num:''}')
+            tr
+                td(width='30%', align='right') 商品类型：
+                td
+                    input#citySel.input2(type='hidden', name='type_id', maxlength='30', value='#{locals.goods?goods.type_id:''}')
+                    label#type_name #{locals.goods?goods.name:''}
+                    a#menuBtn(href='#', onclick="showMenu(); return false;")选择商品类型
+            tr
+                td(align='right') 状态：
+                td
+                  select(name='state')
+                    - var states = [{id:0,value:'下架'},{id:1,value:'上架'}];
+                    - for (var i in states)
+                      - var str = "<option value='"+states[i].id+"' >"+states[i].value + " </option>"
+                      - if(locals.goods && states[i].id == goods.state)
+                          str = "<option value='"+states[i].id+"' selected='selected'>"+states[i].value + " </option>"
+                      | !{str}
+            tr
+                td(width='30%', align='right') 售价：
+                td
+                    input.input2(type='text', name='price', maxlength='30', value='#{locals.goods?goods.price:''}')
+            tr
+                td(width='30%', align='right') 创建时间：
+                td
+                    input.input2(type='text', name='create_time', maxlength='30', value='#{locals.goods?goods.create_time:''}')
+            tr
+                td(width='30%', align='right') 备注：
+                td
+                    input.input2(type='text', name='comment', maxlength='30', value='#{locals.goods?goods.comment:''}')
+
 script(type='text/javascript')
-    $(function(){
-        $("#show_type").click(function(){
-            $.fancybox({
-                'title':'新增门店',
-                'autoDimensions':false,
-                'type':'ajax',
-                'href':'/goods/type',
-                'width': 700,
-                'height': 600,
-                'modal':true,
-                'titleShow':true,
-                'titlePosition':'over',
-                'showCloseButton':true,
-                'showNavArrows':false,
-                'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
-                'transitionOut': 'elastic',
-                'centerOnScroll':false,
-                'onComplete': function() {$("#fancybox-title").css({'top':'0px', 'bottom':'auto'});}
+    var zTree;
+    var zNodes;//保存树节点的json对象
+    var setting = {
+        async: {
+            enable: true,
+            type:"get",
+            dataType:"text",
+            contentType:"application/json",
+            url:"/goods/type",
+            autoParam:["_id", "name"],
+            otherParam:{"otherParam":""},//可以传参，暂未使用
+            dataFilter: filter
+        },
+        view: {
+            dblClickExpand: false,
+            showLine: true,
+            selectedMulti: false,
+            expandSpeed: ($.browser.msie && parseInt($.browser.version)<=6)?"":"fast"
+        },
+        data: {
+            simpleData: {
+                enable:true,
+                idKey: "_id",
+                pIdKey: "parent_id",
+                rootPId: ""
+            }
+        },
+        callback: {
+            beforeClick: beforeClick,
+            onClick: onClick
+        }
+    };
+
+    function filter(treeId, parentNode, childNodes) {
+            if (!childNodes) return null;
+            for (var i=0, l=childNodes.length; i<l; i++) {
+                childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
+            }
+            return childNodes;
+        };
+
+    function beforeClick(treeId, treeNode) {
+        //var check = (treeNode && !treeNode.isParent);
+        //if (!check) alert("只能选择叶子节点...");
+        //return check;
+        return true;
+    }
+
+    function onClick(e, treeId, treeNode) {
+
+        zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+        nodes = zTree.getSelectedNodes(),
+        v = "";
+        _id = "";
+        //nodes.sort(function compare(a,b){return a.id-b.id;});
+        if(nodes.length){
+            v = nodes[0].name;
+            _id = nodes[0]._id;
+        }
+        //if (v.length > 0 ) v = v.substring(0, v.length-1);
+        var cityObj = $("#citySel");
+        var type_name = $("#type_name");
+        cityObj.attr("value", _id);
+        type_name.html("<b>"+v+"</b>");
+        hideMenu();
+    }
+
+    function showMenu() {
+        var cityObj = $("#type_name");
+        var cityOffset = $("#type_name").offset();
+        var dialogOffset = $("#fancybox-wrap").offset();
+        var left = cityOffset.left - dialogOffset.left;
+        var top = cityOffset.top - dialogOffset.top;
+
+        $("#menuContent").css({left:left + "px", top:top + cityObj.outerHeight() + "px"}).slideDown("fast");
+
+        $("body").bind("mousedown", onBodyDown);
+    }
+    function hideMenu() {
+        $("#menuContent").fadeOut("fast");
+        $("body").unbind("mousedown", onBodyDown);
+    }
+    function onBodyDown(event) {
+        if (!(event.target.id == "menuBtn" || event.target.id == "menuContent" || $(event.target).parents("#menuContent").length>0)) {
+            hideMenu();
+        }
+    }
+
+    $(document).ready(function(){
+            $.ajax({
+                type: "Get",
+                url: '/goods/type',
+                dataType: "text",
+                global: false,
+                async: false,
+                success: function (strReult) {
+                    //alert(strReult);
+                    zNodes=eval(strReult);
+                },
+                error: function () {
+                    alert("Ajax请求数据失败!");
+                }
             });
+            var t = $("#treeDemo");
+            t = $.fn.zTree.init(t, setting, zNodes);
         });
+
+    $(function(){
+      $('#add_form').ajaxForm({
+          beforeSubmit: validate,
+          success: function(msg){
+              if(msg.status=='success'){
+                  $.fancybox.close();
+                  $().message("成功添加");
+                  $("#list").trigger("reloadGrid");
+              }else{
+                $().message("添加失败:"+msg.status);
+              }
+          }
+      });
     });
+    function validate(formData, jqForm, options) {
+      for (var i=0; i < formData.length; i++) {
+          /*
+          if (!formData[i].value) {
+              $('#msg').html("<b>请输入完整相关信息</b>");
+              return false;
+          }
+          */
+      }
+      $().message("正在提交...");
+    };

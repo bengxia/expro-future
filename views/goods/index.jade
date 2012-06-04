@@ -17,7 +17,7 @@ style
      #opt{height:150px; }
      .input{width:120px; height:19px; line-height:19px; padding:1px; border:1px solid #ccc}
      .btn{width:58px; height:24px; border:1px solid #ccc; background:url(/images/btn_bg.gif) repeat-x; cursor:pointer;}
-     .fanbox{width:540px; padding:0}
+     .fanbox{width:700px; padding:0}
      .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
      //.post_table{width:98%; margin:10px auto}
      //.post_table td{height:24px; line-height:24px; padding:2px; border:1px solid #ccc; border-collapse:collapse}
@@ -27,9 +27,7 @@ style
      td a{color:#369}
      //.google_ad{width:728px; height:90px; margin:50px auto}
      //.grid_table{width:780px; margin:20px auto}
-     .fanbox{width:540px; padding:0}
      .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
-
 #content
   .panel
     .header
@@ -37,45 +35,46 @@ style
         li
           a(href='/') 主页
           span.divider /
-        li.active 商户门店管理
+        li.active 商品管理
     table(border='0', width='100%')
-            tr
-                td
-                    table
-                        tr
-                            td(width='100%', align='left', valign='top')
-                                #page_operate(style='visibility:none;')
-                                    input#add_btn.btn(type='button', value='新 增')
-                                    input#edit_btn.btn(type='button', value='修 改')
-                                    input#del_btn.btn(type='button', value='删 除')
-                        tr
-                            td
-                                #page_query(style='visibility:none;')
-                                    label 编号：
-                                        input#_id.input(type='text')
-                                    label 名称：
-                                        input#name.input(type='text')
-                                        input#find_btn.btn(type='submit', value='查 询')
-            tr
-                td
-                    .inner
-                        table#list
-                        #pager
-                        .cl.cr
-
-  script(type='text/javascript')
-      jQuery("#list").jqGrid({
-        url:'/stores/',
+        tr
+            td
+                table
+                    tr
+                        td(width='100%', align='left', valign='top')
+                            #page_operate(style='visibility:none;')
+                                input#show_type.btn(type='button', value='商品类型管理')
+                                input#add_btn.btn(type='button', value='新 增')
+                                input#edit_btn.btn(type='button', value='修 改')
+                                input#del_btn.btn(type='button', value='删 除')
+                    tr
+                        td
+                            #page_query(style='visibility:none;')
+                                label 编号：
+                                    input#_id.input(type='text')
+                                label 名称：
+                                    input#name.input(type='text')
+                                    input#find_btn.btn(type='submit', value='查 询')
+        tr
+            td
+                .inner
+                    table#list
+                    #pager
+                    .cl.cr
+script(type='text/javascript')
+    jQuery("#list").jqGrid({
+        url:'/goods/index',
         datatype: "json",
         mtype: 'GET',
-        colNames:['门店编号', '门店名称', '所属商户','仓库名称','状态','创建时间'],
+        colNames:['编号', '名称', '资产编号','商品类型','状态','售价','创建时间'],
         colModel:[
             {name:'_id',index:'_id', width:100, align:"center",sortable:true},
-            {name:'name',index:'name', width:120, align:"center",sortable:true},
-            {name:'merchant_name',index:'merchant_id', width:120,align:"center",sortable:true},
-            {name:'warehouse_name',index:'warehouse_id', width:150, align:"center",sortable:true},
-            {name:'state',index:'state', width:80, align:"center",sortable:true,formatter:'select', editoptions:{value:"0:封闭;1:正常;2:公开;3:不公开"}},
-            {name:'create_time',index:'create_time', width:200, align:"center",sortable:true,
+            {name:'name',index:'name', width:200, align:"center",sortable:true},
+            {name:'inventar_num',index:'merchant_id', width:200,align:"center",sortable:true},
+            {name:'goods_type_name',index:'warehouse_id', width:200, align:"center",sortable:true},
+            {name:'state',index:'state', width:150, align:"center",sortable:true,formatter:'select', editoptions:{value:"0:下架;1:上架"}},
+            {name:'price',index:'price', width:200, align:"center",sortable:true},
+            {name:'create_time',index:'create_time', width:300, align:"center",sortable:true,
              formatter : 'date', formatoptions : {srcformat : 'Y-m-d H:i:s',newformat : 'Y-m-d H:i:s'}
             }
         ],
@@ -85,13 +84,13 @@ style
         rowNum:10,
         rowList:[10,20,30],
         pager: '#pager',
-        sortname: 'store.create_time',
+        sortname: 'goods.create_time',
         sortorder:'desc',
         viewrecords: true,
-        caption:"商户列表",
+        caption:"商品列表",
         autowidth: true, //自动匹配宽度
         height: 300,
-        editurl:"/stores/",
+        editurl:"/goods/index",
         loadComplete:function(data){ //完成服务器请求后，回调函数
           if(data.records == undefined){ //如果没有记录返回，追加提示信息，删除按钮不可用
               $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
@@ -101,14 +100,33 @@ style
               $("#del_btn").removeAttr("disabled");
           }
         }
-      });
-      $(function(){
-        $("#add_btn").click(function(){
+    });
+    $(function(){
+        $("#show_type").click(function(){
             $.fancybox({
-                'title':'新增门店',
+                'title':'商品类型管理',
                 'autoDimensions':false,
                 'type':'ajax',
-                'href':'/stores/showCreatPage',
+                'href':'/goods/type',
+                'width': 700,
+                'height': 600,
+                'modal':true,
+                'titleShow':true,
+                'titlePosition':'over',
+                'showCloseButton':true,
+                'showNavArrows':false,
+                'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
+                'transitionOut': 'elastic',
+                'centerOnScroll':false,
+                'onComplete': function() {$("#fancybox-title").css({'top':'0px', 'bottom':'auto'});}
+            });
+        });
+        $("#add_btn").click(function(){
+            $.fancybox({
+                'title':'新增商品',
+                'autoDimensions':false,
+                'type':'ajax',
+                'href':'/goods',
                 'width': 700,
                 'height': 700,
                 'modal':true,
@@ -131,14 +149,14 @@ style
                     $().message("只可选择一项进行编辑！");
                 }else{
                     $.fancybox({
-                        'title':'修改门店',
+                        'title':'修改商品',
                          'titleFormat': function(title, currentArray, currentIndex, currentOpts) {
                                             var str = '<span id="fancybox-title-over">' + (currentIndex + 1) + ' / ' + currentArray.length + (title.length ? '   ' + title : '') + '</span>';
                                             return str;
                                             },
                         'autoDimensions':false,
                         'type':'ajax',
-                        'href':'/stores/showEditPage?_id='+sels,
+                        'href':'/goods/?_id='+sels,
                         'width': 700,
                         'height': 700,
                         'modal':true,
@@ -163,7 +181,7 @@ style
                 if(confirm("您是否确认删除？")){
                     $.ajax({
                         type: "GET",
-                        url: "/stores/delete",
+                        url: "/goods/",
                         data: "_ids="+sels,
                         beforeSend: function() {
                             $().message("正在请求...");
@@ -192,9 +210,9 @@ style
             var _id = escape($("#_id").val());
             var name = escape($("#name").val());
             $("#list").jqGrid('setGridParam',{
-                url:"/stores/",
+                url:"/goods/index",
                 postData:{'_id':_id,'name':name},
                 page:1
             }).trigger("reloadGrid");
         });
-      });
+    });

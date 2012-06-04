@@ -35,7 +35,7 @@ exports = module.exports = function(app) {
   app.get('/stores', stores.index);//门店列表
   app.get('/stores/showCreatPage', stores.showCreatPage);//显示新增门店页面
   app.get('/stores/showEditPage', stores.showEditPage);//显示修改门店页面
-  app.post('/stores/create', stores.create);//创建门店
+  app.post('/stores/create', stores.create);//创建，更新门店
   app.get('/stores/delete', stores.delete);//删除门店
 
   //商户管理
@@ -43,7 +43,7 @@ exports = module.exports = function(app) {
   app.get('/merchants/showCreatPage', merchants.showCreatPage);//显示新增商户页面
   app.post('/merchants/create', merchants.create);//创建商户
 
-  //商品管理
+  //商品类型管理
   app.get('/goods/type', goods.showTypes);//显示商品类型页面(弹出页面)
   app.get('/goods/type/:_id', goods.showTypeDetail);//显示商品类型详细（弹出页面右侧）
   app.put('/goods/type/:_id', goods.updateType);//更新选中的商品类型
@@ -51,7 +51,12 @@ exports = module.exports = function(app) {
   app.post('/goods/type', goods.creatType);//创建商品类型
   app.delete('/goods/type/:_id', goods.deleteType);//删除商品类型
 
-  app.get('/goods', goods.index);//商品列表
+  //商品管理
+  app.get('/goods/index', goods.index);//商品列表
+  //app.get('/goods', goods.showGoods);//显示新增商品（无_id）
+  app.get('/goods/:_id?/:isEdit?', goods.showGoods);//显示已有商品（有_id）页面
+  app.post('/goods/:_id?', goods.saveOrUpdateGoods);//保存新增商品（无_id）,或更新已有商品（有_id）
+  app.delete('/goods/:_ids', goods.deleteGoods);//删除商品
 
 
 /*  app.get('/signup', sign.signup);

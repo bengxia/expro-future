@@ -69,7 +69,7 @@ script(type='text/javascript')
             contentType:"application/json",
             url:"/goods/type",
             autoParam:["_id", "name"],
-            otherParam:{"otherParam":"zTreeAsyncTest"},//可以传参，暂未使用
+            otherParam:{"otherParam":""},//可以传参，暂未使用
             dataFilter: filter
         },
         view: {
@@ -304,8 +304,6 @@ script(type='text/javascript')
         setShowAddBtn();
         zTree = $.fn.zTree.getZTreeObj("tree");
         zTree.selectNode(zTree.getNodeByParam("_id", 1));
-
-
     });
 
     function loadReady() {

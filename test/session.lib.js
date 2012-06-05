@@ -9,9 +9,11 @@ exports.getSID = function(res) {
   return res.headers['set-cookie'][0].split(';')[0];
 }
 
-exports.getData =function(url, sid) {
+exports.getData =function(url, sid, accept) {
+    var mineType = accept ||'application/json';
     return request()
            .get(url)
+           .set('Accept', mineType)
            .set('Cookie', sid);
 }
 

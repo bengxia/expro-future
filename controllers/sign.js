@@ -10,6 +10,8 @@ var crypto = require('crypto');
 var config = require('../config').config;
 var EventProxy = require('eventproxy').EventProxy;
 
+var Log = require('../log.js');
+var log = Log.create(Log.INFO, {'file':'public/node.debug'});
 var MQClient = require('../libs/mq_client.js');
 
 /*
@@ -403,8 +405,6 @@ function randomString(size) {
 	return new_pass;
 }
 function UserLogin(data) {
-//    var user = JSON.parse(data);
-    var user = data;
-    console.log("UserLogin cb\t", user);
+    log.info("Sign UserLogin cb\t");
 }
 MQClient.sub('UserLogin', UserLogin);

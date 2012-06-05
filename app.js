@@ -7,7 +7,7 @@
  */
 
 var Log = require('./log.js');
-var log = Log.create(Log.INFO, {'file':'./node.debug'});
+var log = Log.create(Log.INFO, {'file':'public/node.debug'});
 
 
 var path = require('path');
@@ -74,11 +74,9 @@ app.configure('production', function(){
 	app.set('view cache', true);
 });
 
-log.info('config OK');
 // routes
 routes(app);
 
-log.info('route OK');
 
 app.listen(config.port);
-console.log("ExproFuture listening on port %d in %s mode", app.address().port, app.settings.env);
+log.info("ExproFuture listening on port %d in %s mode", app.address().port, app.settings.env);

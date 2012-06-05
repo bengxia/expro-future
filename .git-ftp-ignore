@@ -5,3 +5,4 @@ config.default.js
 .npmignore
 .naeignore
 startup.sh
+.DS_Store

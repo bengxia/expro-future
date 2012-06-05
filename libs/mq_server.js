@@ -2,25 +2,44 @@
 * Message Queue Service
 */
 
-var mqtt = require('mqttjs');
+exports = module.exports = function(app) {
+    var io = require('socket.io').listen(app);
+    
+    io.sockets.on('connection', function (socket) {
+        socket.on('subscribe', function(data) { 
+            socket.join(data.topic); 
+        });
+        
+        socket.on('publish', function(data) {
+//            socket.broadcast.to(data.topic).emit('publish');
+//            socket.broadcast.to(data.topic).json.send(data);
+            io.sockets.in(data.topic).emit(data.topic, data.payload);
+        });
+    });
+};
+
+/*var mqtt = require('mqttjs');
 var util = require('util');
 var config = require('../config.js').config;
 
-mqtt.createServer(function(client) {
+var mqServer = mqtt.createServer(function(client) {
 	var self = this;
 
 	if (!self.clients) self.clients = {};
 	client.on('connect', function(packet) {
-		self.clients[packet.client] = client;
-		client.id = packet.client;
-		client.subscriptions = [];
-		client.connack({returnCode: 0});
+            if(packet.client != 'mqtt_pub') {
+                console.log(packet.client);
+                self.clients[packet.client] = client;
+            }
+            client.id = packet.client;
+            client.subscriptions = [];
+            client.connack({returnCode: 0});
 	});
 
 	client.on('subscribe', function(packet) {
 		var granted = [];
-
-		for (var i = 0; i < packet.subscriptions.length; i++) {
+                
+                for (var i = 0; i < packet.subscriptions.length; i++) {
 			var qos = packet.subscriptions[i].qos,
 				topic = packet.subscriptions[i].topic,
 				reg = new RegExp(topic.replace('+', '[^\/]+').replace('#', '.+$'));
@@ -28,7 +47,6 @@ mqtt.createServer(function(client) {
 			granted.push(qos);
 			client.subscriptions.push(reg);
 		}
-
 		client.suback({messageId: packet.messageId, granted: granted});
 	});
 
@@ -37,10 +55,10 @@ mqtt.createServer(function(client) {
 			var c = self.clients[k],
 				publish = false;
 
-			for (var i = 0; i < c.subscriptions.length; i++) {
+                        for (var i = 0; i < c.subscriptions.length; i++) {
 				var s = c.subscriptions[i];
 
-				if (s.test(packet.topic)) {
+                                if (s.test(packet.topic)) {
 					publish = true;
 				}
 			}
@@ -68,3 +86,5 @@ mqtt.createServer(function(client) {
 		console.log(e);
 	});
 }).listen(config.message_queue.port);
+
+console.log('Message Queue Listen On %d', mqServer.address().port);*/

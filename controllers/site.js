@@ -6,8 +6,16 @@ var EventProxy = require('eventproxy').EventProxy;
 
 var sanitize = require('validator').sanitize;
 */
+var Log = require('../log.js');
+var log = Log.create(Log.INFO, {'file':'public/node.debug'});
+var MQClient = require('../libs/mq_client.js');
 
 exports.index = function(req,res,next){
     res.render('index');
 //    res.redirect('/signin');
 };
+
+function UserLogin(user) {
+    log.info("Site Got UserLogin");
+}
+MQClient.sub('UserLogin', UserLogin);

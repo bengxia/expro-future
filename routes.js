@@ -53,8 +53,7 @@ exports = module.exports = function(app) {
 
   //商品管理
   app.get('/goods/index', goods.index);//商品列表
-  //app.get('/goods', goods.showGoods);//显示新增商品（无_id）
-  app.get('/goods/:_id?/:isEdit?', goods.showGoods);//显示已有商品（有_id）页面
+  app.get('/goods/:_id?/:isEdit?', goods.showGoods);//显示已有商品（有_id）页面(查看 or 编辑:isEdit=true)
   app.post('/goods/:_id?', goods.saveOrUpdateGoods);//保存新增商品（无_id）,或更新已有商品（有_id）
   app.delete('/goods/:_ids', goods.deleteGoods);//删除商品
 

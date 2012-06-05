@@ -60,7 +60,7 @@ Goods.prototype.findOne = function(opt, cb) {
         +" goods.type_id type_id, goods.state state, goods.inventar_num inventar_num, goods.price price, "
         +" goods.create_time create_time, goods.comment comment "
         +" FROM ef_goods goods , ef_goods_type goods_type "
-        +" where goods.type_id = goods_type._id and goods._id="+ opt._id;
+        +" where goods.type_id = goods_type._id and goods."+ opt._id;
 
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);

@@ -108,20 +108,33 @@ exports.index = function(req,res,next){
  */
 exports.showGoods = function(req, res, next) {
     console.log("开始显示 新建||编辑||查看 弹出框。。。"+req.query._id);
-    var _id = req.query._id;
+    var _id = req.params._id;
+    var isEdit = req.query.isEdit?req.query.isEdit:"false";
+
+    // 本页面有3个状态： 新增， 查看， 编辑
+    // - 新增： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
+    // - 编辑： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
+    // - 查看： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
+    var isReadonly = false;
+    var isShowSaveBt = true;
     //如果_id不为空，则弹出编辑页面
     if(_id){
-        //显示已有商品（有_id）页面
-        console.log("_id:"+_id);
+        //编辑 和 查看
+        if(!isEdit || isEdit != "true"){
+            //查看状态
+            isReadonly = true;
+            isShowSaveBt = false;
+        }
+
         var opt = new Object();
         opt._id = _id;
         Goods.findOne(opt, function(err,ds){
             if(err) return next(err);
-            res.render('goods/goods', { layout: false, goods:ds});
+            res.render('goods/goods', { layout: false, goods:ds, isReadonly:isReadonly, isShowSaveBt:isShowSaveBt});
         });
     }else{
-        //显示新增商品（无_id）
-        res.render('goods/goods', { layout: false});
+        //新增
+        res.render('goods/goods', { layout: false, isReadonly:isReadonly, isShowSaveBt:isShowSaveBt});
     }
 };
 
@@ -147,6 +160,18 @@ exports.saveOrUpdateGoods = function(req,res,next){
             res.json({status:'success'});
         });
     }
+};
+
+exports.deleteGoods = function(req,res,next){
+    //开始校验输入数值的正确性
+    console.log("开始进行删除。。。。");
+    var _ids = req.params._ids;
+    console.log('_ids:'+_ids);
+    //console.log('parent._ids:'+parent._ids);
+    Goods.delete(_ids, function(err,ds){
+        if(err) return next(err);
+        return res.json({'_ids':_ids});
+    });
 };
 
 /**

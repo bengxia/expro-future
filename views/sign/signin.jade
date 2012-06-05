@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 !=partial('sign/sidebar')
 #content
   .panel
@@ -31,4 +32,39 @@
         input(type='hidden', name='_csrf', value='#{csrf}')
         .form-actions
           input.btn(type='submit', value='登录')
+=======
+!=partial('sign/sidebar')
+#content
+  .panel
+    .header
+      ul.breadcrumb
+        li.active 登录
+    .inner
+      .sep10
+      .sep10
+      - if(locals.error) {
+      .alert.alert-error
+        !{'<a class="close" data-dismiss="alert" href="#">&times;</a>'}
+        strong #{error}
+      - }
+      form#signin_form.form-horizontal(action='/signin', method='post')
+        .control-group
+          label.control-label(for='org') 商户
+          .controls
+            input#name.input-xlarge(name='org', size='30', type='text', placeholder="商户的数字代码，例如:2168")
+        .control-group
+          label.control-label(for='name') 手机
+          .controls
+            input#name.input-xlarge(name='name', size='30', type='text', placeholder="以手机号码登陆，例如：18912345678")
+        .control-group
+          label.control-label(for='pass') 密码
+          .controls
+            input#pass.input-xlarge(name='pass', size='30', type='password')
+            //
+                p.help-block
+                  a(href='/search_pass') 我忘记了密码
+        input(type='hidden', name='_csrf', value='#{csrf}')
+        .form-actions
+          input.btn(type='submit', value='登录')
+>>>>>>> master
 .cl.cr

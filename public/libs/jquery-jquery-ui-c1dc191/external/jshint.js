@@ -840,8 +840,7 @@ var JSHINT = (function () {
     }
 
     if (typeof String.prototype.name !== 'function') {
-        String.prototype.name = function () {
-
+z
 // If the string looks like an identifier, then we can return it as is.
 // If the string contains no control characters, no quote characters, and no
 // backslash characters, then we can simply slap some quotes around it.

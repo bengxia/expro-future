@@ -1,0 +1,110 @@
+.fanbox
+  lable#msg
+  h1 新增商户:
+  form#add_form(action='/merchants/create', method='post')
+    table.post_table(width='100%', cellpadding='0', cellspacing='0')
+      tr
+          td(height='60')
+          td
+            input(type='hidden', name='_csrf', value='#{csrf}')
+            input.btn(type='submit', value=' 保 存 ')
+            input.btn(type='button', value=' 取 消 ', onclick='$.fancybox.close();')
+      tr
+        td(width='30%', align='right') 商户简称：
+        td
+          input.input2(type='text', name='short_name', maxlength='30')
+      tr
+        td(align='right') 商户全称：
+        td
+          input.input2(type='text', name='full_name', maxlength='10')
+      tr
+        td(align='right') 状态：
+        td
+          select(name='state')
+              option(value='0') 禁用
+              option(value='1') 启用
+      tr
+        td(align='right') 类型：
+        td
+          select(name='type')
+              option(value='0') 连锁商户
+              option(value='1') 小型商户
+              option(value='2') 中型商户
+              option(value='3') 大型商户
+      tr
+        td(align='right') 商户LOGO路径：
+        td
+          input.input2(type='text', name='logo_img_path', maxlength='10')
+      tr
+        td(align='right') 营业执照号：
+        td
+          input.input2(type='text', name='charter_num', maxlength='10')
+      tr
+        td(align='right') 营业执照图片上传：
+        td
+          input.input2(type='text', name='charter_img_path', maxlength='10')
+      tr
+        td(align='right') 详细地址：
+        td
+          input.input2(type='text', name='address', maxlength='10')
+      tr
+        td(align='right') 网站：
+        td
+          input.input2(type='text', name='website', maxlength='10')
+      tr
+        td(align='right') 电话：
+        td
+          input.input2(type='text', name='phone', maxlength='10')
+      tr
+        td(align='right') 传真：
+        td
+          input.input2(type='text', name='fax', maxlength='10')
+      tr
+        td(align='right') 商户简介：
+        td
+          input.input2(type='text', name='self_intro', maxlength='10')
+      tr
+        td(align='right') 会员待遇：
+        td
+          input.input2(type='text', name='member_intro', maxlength='10')
+      tr
+        td(align='right') 地区编号：
+        td
+          input.input2(type='text', name='district_code', maxlength='10')
+      tr
+        td(align='right') 商户级别（no sql）：
+        td
+          select(name='merchant_level_id')
+              option(value='1') 单体店
+              option(value='2') 连锁店
+      tr
+        td(align='right') 备注：
+        td
+          input.input2(type='text', name='comment', maxlength='10')
+script(type='text/javascript')
+  $(function(){
+      $('#add_form').ajaxForm({
+          beforeSubmit: validate,
+          success: function(msg){
+                alert(msg);
+              if(msg==1){
+                  $.fancybox.close();
+                  $().message("成功添加");
+                  $("#list").trigger("reloadGrid");
+              }else{
+                alert("returnMsg is not 1:"+msg);
+              }
+          }
+      });
+  });
+  function validate(formData, jqForm, options) {
+      for (var i=0; i < formData.length; i++) {
+          /*
+          if (!formData[i].value) {
+              $('#msg').html("<b>请输入完整相关信息</b>");
+              return false;
+          }
+          */
+      }
+      $().message("正在提交...");
+  }

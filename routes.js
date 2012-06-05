@@ -10,6 +10,8 @@
 var sign = require('./controllers/sign');
 var site = require('./controllers/site');
 var stores = require('./controllers/stores');
+var merchants = require('./controllers/merchants');
+var goods = require('./controllers/goods');
 /*
 var user = require('./controllers/user');
 var message = require('./controllers/message');
@@ -28,9 +30,30 @@ exports = module.exports = function(app) {
   // sign up, login, logout
   app.get('/signin', sign.showLogin);
   app.post('/signin', sign.login);
-  app.get('/signout', sign.signout);
 
-  app.get('/stores', stores.index);
+  //门店管理
+  app.get('/stores', stores.index);//门店列表
+  app.get('/stores/showCreatPage', stores.showCreatPage);//显示新增门店页面
+  app.get('/stores/showEditPage', stores.showEditPage);//显示修改门店页面
+  app.post('/stores/create', stores.create);//创建门店
+  app.get('/stores/delete', stores.delete);//删除门店
+
+  //商户管理
+  app.get('/merchants', merchants.index);//商户列表
+  app.get('/merchants/showCreatPage', merchants.showCreatPage);//显示新增商户页面
+  app.post('/merchants/create', merchants.create);//创建商户
+
+  //商品管理
+  app.get('/goods/type', goods.showTypes);//显示商品类型页面(弹出页面)
+  app.get('/goods/type/:_id', goods.showTypeDetail);//显示商品类型详细（弹出页面右侧）
+  app.put('/goods/type/:_id', goods.updateType);//更新选中的商品类型
+  //app.get('/goods/type', goods.showCreatType);//显示新增商品类型页
+  app.post('/goods/type', goods.creatType);//创建商品类型
+  app.delete('/goods/type/:_id', goods.deleteType);//删除商品类型
+
+  app.get('/goods', goods.index);//商品列表
+
+
 /*  app.get('/signup', sign.signup);
   app.post('/signup', sign.signup);
   app.get('/signout', sign.signout);
@@ -99,3 +122,4 @@ exports = module.exports = function(app) {
   app.get('/about', static.about);
   app.get('/faq', static.faq);*/
 };
+

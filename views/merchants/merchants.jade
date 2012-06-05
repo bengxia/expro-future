@@ -1,0 +1,213 @@
+!=partial('merchants/sidebar')
+//以下是一个jqGrid+fancybox的解决方案
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui-lightness/jquery-ui-1.8.2.custom.css', media='screen')
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui.jqgrid.css', media='screen')
+link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/fancybox.css', media='screen')
+
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/i18n/grid.locale-cn.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.jqGrid.min.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.fancybox.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.form.js')
+script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.message.js')
+style
+ input, textarea, select, .uneditable-input {
+     width: auto;
+     padding: 0px;
+ }
+ .input{width:120px; height:19px; line-height:19px; padding:1px; border:1px solid #ccc}
+ .btn{width:58px; height:24px; border:1px solid #ccc; background:url(../btn_bg.gif) repeat-x; cursor:pointer;}
+
+ .nodata{display:block; position:absolute; top:100px; left:35%; padding:6px 20px; border:1px solid #fc9; background:#ffc}
+
+ .fanbox{width:540px; padding:0}
+ .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
+ .post_table{width:98%; margin:10px auto}
+ .post_table td{height:24px; line-height:24px; padding:2px; border:1px solid #ccc; border-collapse:collapse}
+ .input2{width:220px; height:20px; line-height:20px; padding:1px; border:1px solid #999}
+
+ .jquery-message{position:absolute;  top:15%; left:45%; background:#217eb9; border:1px solid #ff9; padding:3px 12px 3px 12px; z-index:9001; color:#fff;}
+
+#content
+  .panel
+    .header
+      ul.breadcrumb
+        li
+          a(href='/') 主页
+          span.divider /
+        li.active 商户管理
+    .inner
+      .sep10
+      .sep10
+      h2.top_title
+        a(href='http://www.helloweba.com/view-blog-164.html') jqGrid表格应用——读取与查询数据
+      .grid_table
+        #opt
+          #query
+            label 编号：
+            input#sn.input(type='text')
+            label 名称：
+            input#title.input(type='text')
+            input#find_btn.btn(type='submit', value='查 询')
+          input#add_btn.btn(type='button', value='新 增')
+          input#del_btn.btn(type='button', value='删 除')
+        table#list
+        #pager
+.cl.cr
+  script(type='text/javascript')
+      jQuery("#list").jqGrid({
+        url:'/merchants/',
+        datatype: "json",
+        mtype: 'GET',
+        colNames:['商户编号', '简称', '状态','类型','电话','注册时间','到期时间'],
+        colModel:[
+            {name:'_id',index:'_id', width:100, align:"center",sortable:true},
+            {name:'short_name',index:'short_name', width:100, align:"center",sortable:true,
+                editable:true,
+                edittype:'text',
+                editoptions:{size:10,maxlength:15},
+                editrules:{required:true},
+                formoptions:{elmprefix:':(*)'}
+            },
+            {name:'state',index:'state', width:80,sortable:true,
+                formatter:function(cellvalue, options, row){if(cellvalue==1){return "启用";}else{return "禁用";}},
+                align:"center",
+                editable:true,
+                edittype:'checkbox',
+                editoptions:{value:"1:0"},
+                editrules:{required:true},
+                formoptions:{elmprefix:'是否可用:(*)'}
+            },
+            {name:'type',index:'type', width:80, align:"center",sortable:true,
+                align:"center",
+                editable:true,
+                edittype:'text',
+                editoptions:{size:10,maxlength:15},
+                editrules:{required:true},
+                formoptions:{elmprefix:':(*)'}
+            },
+            {name:'phone',index:'phone', width:90, align:"center",sortable:true,
+                editable:true,
+                edittype:'text',
+                editoptions:{size:10,maxlength:15},
+                editrules:{required:true},
+                formoptions:{elmprefix:':(*)'}
+            },
+            {name:'create_time',index:'create_time', width:100, align:"center",sortable:true,
+                editable:true,
+                edittype:'text',
+                editoptions:{size:10,maxlength:15},
+                editrules:{required:true},
+                formoptions:{elmprefix:':(*)'}
+            },
+            {name:'due_time',index:'due_time', width:100, align:"center",sortable:true,
+                editable:true,
+                edittype:'text',
+                editoptions:{size:10,maxlength:15},
+                editrules:{required:true},
+                formoptions:{elmprefix:':(*)'}
+            }
+        ],
+        rowNum:10,
+        rowList:[10,20,30],
+        pager: '#pager',
+        sortname: 'create_time',
+        viewrecords: true,
+        jsonReader: {
+            repeatitems : true,
+             id: "_id"
+        },
+        caption:"商户列表",
+        autowidth: true, //自动匹配宽度
+        editurl:"/merchants/",
+        height: 500,
+        loadComplete:function(data){ //完成服务器请求后，回调函数
+          if(data.records==0){ //如果没有记录返回，追加提示信息，删除按钮不可用
+              $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
+              $("#del_btn").attr("disabled",true);
+          }else{ //否则，删除提示，删除按钮可用
+              $("p.nodata").remove();
+              $("#del_btn").removeAttr("disabled");
+          }
+        }
+      });
+      $(function(){
+        $("#add_btn").click(function(){
+            $.fancybox({
+                'title':'新增商户',
+                'autoDimensions':false,
+                'type':'ajax',
+                'href':'/merchants/showCreatPage',
+                'width': 700,
+                'height': 800,
+                'modal':true,
+                'titleShow':true,
+                'titlePosition':'outside',
+                'showCloseButton':true,
+                'showNavArrows':false,
+                'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
+                'transitionOut': 'elastic',
+                'centerOnScroll':true
+            });
+        });
+        $("#del_btn").click(function(){
+            var sels = $("#list").jqGrid('getGridParam','selarrrow');
+            if(sels==""){
+                alert('请选择要删除的项！')
+            }else{
+                if(confirm("您是否确认删除？")){
+                    $.ajax({
+                        type: "POST",
+                        url: "do.php?action=del",
+                        data: "ids="+sels,
+                        beforeSend: function() {
+                            $().message("正在请求...");
+                        },
+                        error:function(){
+                            $().message("请求失败...");
+                        },
+                        success: function(msg){
+                            if(msg!=0){
+                                var arr = msg.split(',');
+                                $.each(arr,function(i,n){
+                                    if(arr[i]!=""){
+                                        $("#list").jqGrid('delRowData',n);
+                                    }
+                                });
+                                $().message("已成功删除!");
+                            }else{
+                                $().message("操作失败！");
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        $("#find_btn").click(function(){
+        var title = escape($("#title").val());
+        var sn = escape($("#sn").val());
+        $("#list").jqGrid('setGridParam',{
+        url:"do.php?action=list",
+        postData:{'title':title,'sn':sn},
+        page:1
+        }).trigger("reloadGrid");
+        });
+      });
+
+
+
+      /*
+      jQuery("#list").jqGrid('navGrid','#pager',{add:true,del:true,edit:true},{},{},{},{multipleSearch:true, multipleGroup:true, showQuery: true});
+      */
+        /*
+      jQuery("#navgrid").jqGrid('navGrid','#pager',{height:280,reloadAfterSubmit:false}, //options
+        {height:280,reloadAfterSubmit:false}, // edit options
+        {height:500,afterSubmit:function(response, postdata){alert('111')}, closeAfterAdd: true, closeAfterEdit: true
+        }, // add options
+        {reloadAfterSubmit:false}, // del options
+        {} // search options
+      );
+      */
+      //$("#bedata").click(function(){
+      //  jQuery("#list").jqGrid('editGridRow',"new",{height:280,reloadAfterSubmit:false});
+      //});
+

@@ -30,6 +30,7 @@ exports = module.exports = function(app) {
   // sign up, login, logout
   app.get('/signin', sign.showLogin);
   app.post('/signin', sign.login);
+  app.get('/signout', sign.signout);
 
   //门店管理
   app.get('/stores', stores.index);//门店列表

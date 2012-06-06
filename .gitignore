@@ -13,3 +13,5 @@ log
 server.js
 deployStaging.sh
 deployProduction.sh
+
+node.debug

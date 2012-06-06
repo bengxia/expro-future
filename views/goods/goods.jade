@@ -9,35 +9,35 @@
     br
     #menuContent.menuContent(style='display:none; position: absolute;background-color:#FF8040')
         ul#treeDemo.ztree(style="margin-top:0; width:160px;")
-    form#add_form(action='/goods/#{locals.goods?'?_id='+goods._id:''}', method='post')
-        table.post_table(width='100%', cellpadding='0', cellspacing='0',border='0')
+    form#add_form(action='/goods/#{locals.goods?'?_id='+goods._id:''}', method='#{method}')
+        table.post_table(align='center', width='90%', cellpadding='0', cellspacing='0',border='0', style='BORDER: #13458B 1px dashed;')
             tr
-                td(height='60')
-                td
+                td(height='60px', width='30%', align='right', valign='top')
+                td(width='70%', align='left', valign='top')
                     input(type='hidden', name='_csrf', value='#{csrf}')
                     input(type='hidden', name='_id', value='#{locals.goods?goods._id:''}')
                     input#save.btn(type='submit', value=' 保 存 ')
                     input#close.btn(type='button', value=' 关 闭 ', onclick='$.fancybox.close();')
-            tr
+            tr(height='40px')
                 td(width='30%', align='right') 系统流水号：
-                td
+                td(width='70%')
                     lable #{locals.goods?goods._id:''}
-            tr
+            tr(height='40px')
                 td(width='30%', align='right') 名称：
                 td
                     input.input2(type='text', name='name', maxlength='30', value='#{locals.goods?goods.name:''}')
-            tr
+            tr(height='40px')
                 td(width='30%', align='right') 资产编号：
                 td
                     input.input2(type='text', name='inventar_num', maxlength='30', value='#{locals.goods?goods.inventar_num:''}')
-            tr
+            tr(height='40px')
                 td(width='30%', align='right') 商品类型：
                 td
                     input#citySel.input2(type='hidden', name='type_id', maxlength='30', value='#{locals.goods?goods.type_id:''}')
-                    input#type_name(type='text', name='#type_name', maxlength='30', value='#{locals.goods?goods.name:''}', disabled)
+                    input#type_name.input2(type='text', name='#type_name', maxlength='30', value='#{locals.goods?goods.name:''}', disabled)
                     a#menuBtn(href='#', onclick="showMenu(); return false;")选择商品类型
-            tr
-                td(align='right') 状态：
+            tr(height='40px')
+                td(width='30%', align='right') 状态：
                 td
                   select.input2(name='state')
                     - var states = [{id:1,value:'上架'},{id:0,value:'下架'}];
@@ -46,18 +46,18 @@
                       - if(locals.goods && states[i].id == goods.state)
                           str = "<option value='"+states[i].id+"' selected='selected'>"+states[i].value + " </option>"
                       | !{str}
-            tr
+            tr(height='40px')
                 td(width='30%', align='right') 售价：
                 td
                     input.input2(type='text', name='price', maxlength='30', value='#{locals.goods?goods.price:''}')
-            tr
+            tr(height='40px')
                 td(width='30%', align='right') 创建时间：
                 td
                     lable #{locals.goods?goods.create_time:''}
-            tr
-                td(width='30%', align='right') 备注：
+            tr(height='100px')
+                td(width='30%', align='right', valign='top') 备注：
                 td
-                    input.input2(type='text', name='comment', maxlength='30', value='#{locals.goods?goods.comment:''}')
+                    textarea(rows='5', cols='50', name='comment') #{locals.goods?goods.comment:''}
 
 script(type='text/javascript')
     var zTree;
@@ -153,7 +153,6 @@ script(type='text/javascript')
                 global: false,
                 async: false,
                 success: function (strReult) {
-                    //alert(strReult);
                     zNodes=eval(strReult);
                 },
                 error: function () {
@@ -170,7 +169,6 @@ script(type='text/javascript')
           success: function(msg){
               if(msg.status=='success'){
                   $().message("成功添加");
-                  //$("#list").trigger("reloadGrid");
                   $("#list").trigger("reloadGrid", [{current:true}]);
               }else{
                 $().message("添加失败:"+msg.status);

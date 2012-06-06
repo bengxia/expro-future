@@ -26,18 +26,18 @@ var getNow=function(){
  * @param next
  */
 exports.index = function(req,res,next){
+    //设置查询区域的查询输入框，规则：{"查询字段名":"页面显示的label文字"}
+    var queryInput = {'_id':'编号','name':'名称','inventar_num':'资产编号', 'price':'售价'};
+
     if(req.accepts('html')) {
-        res.render('goods/index', {});
+        res.render('goods/index', {queryInput:queryInput});
     }else{
         var where = ' ';
-        var _id = req.query._id;
-        var name = req.query.name;
-
-        if(_id != undefined){
-            where += ' and goods._id like \'%'+_id+'%\' ';
-        }
-        if(name != undefined){
-            where += ' and goods.name like \'%'+name+'%\' ';
+        for(key in queryInput){
+            var value = req.query[key];
+            if(value != undefined){
+                where += ' and goods.'+key+' like \'%'+value+'%\' ';
+            }
         }
 
         Goods.count(where, function(err,ds){
@@ -110,7 +110,6 @@ exports.showGoods = function(req, res, next) {
     console.log("开始显示 新建||编辑||查看 弹出框。。。"+req.query._id);
     var _id = req.params._id;
     var isEdit = req.query.isEdit?req.query.isEdit:"false";
-
     // 本页面有3个状态： 新增， 查看， 编辑
     // - 新增： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
     // - 编辑： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
@@ -130,32 +129,42 @@ exports.showGoods = function(req, res, next) {
         opt._id = _id;
         Goods.findOne(opt, function(err,ds){
             if(err) return next(err);
-            res.render('goods/goods', { layout: false, goods:ds, isReadonly:isReadonly, isShowSaveBt:isShowSaveBt});
+            res.render('goods/goods', { layout: false, goods:ds, isReadonly:isReadonly, isShowSaveBt:isShowSaveBt, method:'put'});
         });
     }else{
         //新增
-        res.render('goods/goods', { layout: false, isReadonly:isReadonly, isShowSaveBt:isShowSaveBt});
+        res.render('goods/goods', { layout: false, isReadonly:isReadonly, isShowSaveBt:isShowSaveBt, method:'post'});
     }
 };
 
-exports.saveOrUpdateGoods = function(req,res,next){
+exports.saveGoods = function(req,res,next){
+    console.log("saveGoods。。。");
+    //开始校验输入数值的正确性
+    var name = req.body.name;
+
+    if(!name) return res.json({status:'名字不能为空！'});
+
+    //说明是新增
+    //创建时间
+    req.body.create_time = getNow();
+    Goods.create(req.body, function(err, info){
+        if(err) return next(err);
+        res.json({status:'success'});
+    });
+};
+
+exports.updateGoods = function(req,res,next){
+    console.log("updateGoods。。。");
     //开始校验输入数值的正确性
     var _id = req.body._id;
     var name = req.body.name;
 
+    if(!_id) return res.json({status:'更新失败，数据流水号为空！'});
     if(!name) return res.json({status:'名字不能为空！'});
 
     if(_id){
         //说明是更新数据
         Goods.update(req.body, function(err,info){
-            if(err) return next(err);
-            res.json({status:'success'});
-        });
-    }else{
-        //说明是新增
-        //创建时间
-        req.body.create_time = getNow();
-        Goods.create(req.body, function(err, info){
             if(err) return next(err);
             res.json({status:'success'});
         });

@@ -28,6 +28,14 @@ style
      //.google_ad{width:728px; height:90px; margin:50px auto}
      //.grid_table{width:780px; margin:20px auto}
      .fanbox h3{height:32px; line-height:32px; padding-left:12px; background:#369; color:#fff}
+     //单元格内的文本自动换行 ：
+     .ui-jqgrid tr.jqgrow td {
+         white-space: normal !important;
+         height:auto;
+         vertical-align:text-top;
+         padding-top:2px;
+     }
+
 #content
   .panel
     .header
@@ -39,23 +47,32 @@ style
     table(border='0', width='100%')
         tr
             td
-                table
-                    tr
-                        td(width='100%', align='left', valign='top')
-                            #page_operate(style='visibility:none;')
-                                input#show_type.btn(type='button', value='商品类型管理')
-                                input#add_btn.btn(type='button', value='新 增')
-                                input#view_btn.btn(type='button', value='查 看')
-                                input#edit_btn.btn(type='button', value='修 改')
-                                input#del_btn.btn(type='button', value='删 除')
-                    tr
-                        td
-                            #page_query(style='visibility:none;')
-                                label 编号：
-                                    input#_id.input(type='text')
-                                label 名称：
-                                    input#name.input(type='text')
-                                    input#find_btn.btn(type='submit', value='查 询')
+                form
+                    table(border='0', width='100%')
+                        tr
+                            td(width='100%', align='left', valign='baseline', colspan=4)
+                                #page_operate(style='visibility:none;')
+                                    input#show_type.btn(type='button', value='商品类型管理')
+                                    input#add_btn.btn(type='button', value='新 增')
+                                    input#view_btn.btn(type='button', value='查 看')
+                                    input#edit_btn.btn(type='button', value='修 改')
+                                    input#del_btn.btn(type='button', value='删 除')
+                        ////////////////////////查询条件自动生成 Start
+                        i = 0;
+                        each val, key in queryInput
+                            if(i%2==0)
+                                tr
+                            - i++;
+                            td(width='15%', align='right', valign='top')
+                                label(style="display:block;float:right;font-weight: bold") #{val}：
+                            td(width='35%', align='left', valign='top')
+                                input.query_input(id='#{key}', type='text')
+                        tr
+                            td(width='100%', align='left', valign='top', colspan=4)
+                                #page_query(style='visibility:none;')
+                                    input#find_btn.btn(type='button', value='查 询')
+                                    input#reset_btn.btn(type='reset', value='重 置')
+                        ////////////////////////查询条件自动生成 End
         tr
             td
                 .inner
@@ -152,7 +169,11 @@ script(type='text/javascript')
                         $.fancybox({
                             'title':'查看商品',
                              'titleFormat': function(title, currentArray, currentIndex, currentOpts) {
-                                                var str = '<span id="fancybox-title-over">' + (currentIndex + 1) + ' / ' + currentArray.length + (title.length ? '   ' + title : '') + '</span>';
+                                                var str = '<span id="fancybox-title-over">'
+                                                    + (currentIndex + 1) + ' / '
+                                                    + currentArray.length
+                                                    + (title.length ? '   ' + title : '')
+                                                    + '</span>';
                                                 return str;
                                                 },
                             'autoDimensions':false,
@@ -185,7 +206,11 @@ script(type='text/javascript')
                     $.fancybox({
                         'title':'修改商品',
                          'titleFormat': function(title, currentArray, currentIndex, currentOpts) {
-                                            var str = '<span id="fancybox-title-over">' + (currentIndex + 1) + ' / ' + currentArray.length + (title.length ? '   ' + title : '') + '</span>';
+                                            var str = '<span id="fancybox-title-over">'
+                                                + (currentIndex + 1)
+                                                + ' / ' + currentArray.length
+                                                + (title.length ? '   ' + title : '')
+                                                + '</span>';
                                             return str;
                                             },
                         'autoDimensions':false,
@@ -241,11 +266,15 @@ script(type='text/javascript')
             }
         });
         $("#find_btn").click(function(){
-            var _id = escape($("#_id").val());
-            var name = escape($("#name").val());
+            var obj = new Object();
+            $(".query_input").each(function(){
+                var key = $(this).attr('id');
+                var value = $(this).val();
+                obj[key] = value;
+            });
             $("#list").jqGrid('setGridParam',{
                 url:"/goods/index",
-                postData:{'_id':_id,'name':name},
+                postData:obj,
                 page:1
             }).trigger("reloadGrid");
         });

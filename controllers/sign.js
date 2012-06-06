@@ -7,6 +7,8 @@ var check = require('validator').check;
 var sanitize = require('validator').sanitize;
 
 var crypto = require('crypto');
+var bcrypt = require('bcrypt');  
+
 var config = require('../config').config;
 var EventProxy = require('eventproxy').EventProxy;
 
@@ -183,8 +185,12 @@ exports.login = function(req, res, next) {
     User.findOne({ 'loginname': loginname }, function(err, user) {
         if (err) return next(err);
         if (!user) return feedback({status:401, error:'这个用户不存在。'});
-        pass = md5(pass);
-        if (pass !== user.password) return feedback({status:401, error:'密码错误。'});
+        //pass = md5(pass);
+        //var salt = bcrypt.genSaltSync(10);  
+        //pass = bcrypt.hashSync(pass, salt);
+//        console.log(pass, '\r', user.password); 
+        if (!bcrypt.compareSync(pass, user.password)) return feedback({status:401, error:'密码错误。'});
+//        if (pass !== user.password) return feedback({status:401, error:'密码错误。'});
         if (!user.state) return feedback({status:403, error:'此帐号还没有被激活。'});
         // store session cookie
         req.session.regenerate(function() {

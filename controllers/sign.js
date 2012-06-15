@@ -158,6 +158,7 @@ exports.login = function(req, res, next) {
             else {
                 var user = req.session.user;
                 var data = {
+                    _id:user._id,
                     name:user.name,
                     sex:user.sex
                 };

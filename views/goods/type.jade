@@ -1,59 +1,55 @@
 .fanbox
     link(rel='stylesheet', type='text/css', href='/libs/JQuery_zTree_v3.2/css/zTreeStyle/zTreeStyle.css', media='screen')
-
     script(type='text/javascript', src='/libs/JQuery_zTree_v3.2/js/jquery.ztree.core-3.2.js')
     style
         #testIframe {margin-left: 10px;}
     br
     br
     br
-    form#goods_type_form(action='/goods/type', method='post')
-        table(border='0', align='left')
-          tr
-            td(width='30%', align='center', valign='top')
-              input(type='hidden', name='_csrf', value='#{csrf}')
-            td(width='70%', align='right', valign='top')
-              input.btn(type='button', value=' 关 闭 ', onclick='$.fancybox.close();')
-          tr(height='510px', valign='top', style='BORDER-TOP: #13458B 1px dashed;')
-            td(align='left', valign='top', style='BORDER-RIGHT: #13458B 1px dashed;')
-              ul#tree.ztree(style='width: 260px; overflow: auto;')
-            td(align='right')
-                #parent_operate(style='visibility:none;')
-                    br
-                    input#updateType.btn(type='button', value='更新')
-                    input#saveNewType.btn(type='submit', value='保存')
+#wrapper
+    .form-container
+        form#goods_type_form(action='/goods/type', method='post')
+            p.legend
+                strong 注意:
+                    em 红色
+                    |为必填字段！
+            fieldset
+                legend
+                div(style="float:right;")
+                    input(type='hidden', name='_csrf', value='#{csrf}')
+                    input#close.btn(type='button', value=' 关 闭 ', onclick='$.fancybox.close();')
+            fieldset(style="float:left;width: 180px;")
+                legend(style='color: #C00; font-style: normal;') 商品类型
+                div(style='overflow: auto;')
+                    ul#tree.ztree
+            fieldset#type_detail_div(style="float:right;width: 220px;")
+                legend 详细信息
+                #operate_div
                     input#addNewType.btn(type='button', value='新增')
+                    input#updateType.btn(type='button', value='更新')
+                    input#saveNewType.btn(type='button', value='保存')
                     input#delType.btn(type='button', value='删除')
-                #type_detail
-                    table.post_table(width='100%', border='0',cellpadding='0', cellspacing='0')
-                        tr
-                            td(width='30%', align='left') 系统流水号：
-                            td(width='70%', align='center')
-                                input#_id.input2(type='text', name='_id', maxlength='30')
-                        tr
-                            td() 父节点ID：
-                            td(align='center')
-                                input#parent_id.input2(type='text', name='parent_id', maxlength='30')
-                        tr
-                            td() 类型名称：
-                            td(align='center')
-                                input#name.input2(type='text', name='name', maxlength='30')
-                        tr
-                            td() 创建时间：
-                            td(align='center')
-                                input#create_time.input2(type='text', name='create_time', maxlength='30')
-                        tr
-                            td() 是否叶子：
-                            td(align='center')
-                                input#isleaf.input2(type='text', name='isleaf', maxlength='30')
-                        tr
-                            td() 层次：
-                            td(align='center')
-                                input#level.input2(type='text', name='level', maxlength='30')
-                        tr
-                            td() 备注：
-                            td(align='center')
-                                input#comment.input2(type='text', name='comment', maxlength='30')
+                #_id_div
+                    label.error(style="width:70px;") 流水号：
+                    input#_id.noAllowInput(type='text', name='_id', readonly)
+                #parent_id_div
+                    label.error(style="width:70px;") 父ID：
+                    input#parent_id.noAllowInput(type='text', name='parent_id', readonly)
+                #name_div
+                    label.error(style="width:70px;") 名称：
+                    input#name.allowInput(type='text', name='name')
+                #create_time_div
+                    label.error(style="width:70px;") 创建时间：
+                    input#create_time.noAllowInput(type='text', name='create_time', readonly)
+                #isleaf_div
+                    label.error(style="width:70px;") 叶子：
+                    input#isleaf.noAllowInput(type='text', name='isleaf', readonly)
+                #level_div
+                    label.error(style="width:70px;") 层次：
+                    input#level.noAllowInput(type='text', name='level', readonly)
+                #comment_div
+                    label.error(style="width:70px;") 备注：
+                    textarea#comment.allowInput(rows='5', cols='20', name='comment')
 script(type='text/javascript')
     var zTree;
     var zNodes;//保存树节点的json对象
@@ -88,15 +84,27 @@ script(type='text/javascript')
         },
         callback: {
             beforeClick: function(treeId, treeNode) {
-                setShowAddBtn();
                 var zTree = $.fn.zTree.getZTreeObj("tree");
-                if (treeNode.isParent) {
-                    zTree.expandNode(treeNode);//展开选中的支节点
-                    setContentValue(treeNode);
+                zTree.expandNode(treeNode);//展开选中的支节点
+
+                //获取选中的节点详细信息
+                if(treeNode._id){
+                    $.ajax({
+                        type: "Get",
+                        url: '/goods/type/'+treeNode._id,
+                        dataType: "json",
+                        global: false,
+                        async: false,
+                        success: function (result) {
+                            setContentValue(result);
+                        },
+                        error: function () {
+                            alert("Ajax请求数据失败!");
+                        }
+                    });
                     return true;
-                } else {
-                    setContentValue(treeNode);
-                    return true;
+                }else{
+                    return false;
                 }
             }
         }
@@ -110,112 +118,88 @@ script(type='text/javascript')
         return childNodes;
     };
 
+    //设置选中的节点值到表单
     function setContentValue(node){
-        if(node._id){
-            $("#_id").attr('readonly', true);
-            $("#parent_id").attr('readonly', true);
-            $("#create_time").attr('readonly', true);
-            $("#isleaf").attr('readonly', true);
-            $("#level").attr('readonly', true);
-        }
-        $("#_id").val(node._id);
-        $("#parent_id").val(node.parent_id);
-        $("#create_time").val(node.create_time);
-        $("#isleaf").val(node.isleaf);
-        $("#level").val(node.level);
-        $("#name").val(node.name);
-        $("#comment").val(node.comment);
+        if(node && node._id){
+            $(".allowInput").attr('readonly', false);
 
-        //var s = '';//选中节点ids
-        //遍历选中的节点，为s赋值
-        //var nodes = zTreeObj.getCheckedNodes();
-        /*for(var i=0; i<nodes.length; i++){
-            var isParent = nodes[i].isParent;
-            if (s != '')s += ',';
-            s += nodes[i].id;
-        }*/
-        //$("#content").val(s);
+            $("#_id.noAllowInput").val(node._id);
+            $("#name.allowInput").val(node.name);
+            $("#parent_id").val(node.parent_id);
+            $("#create_time").val(node.create_time);
+            $("#isleaf").val(node.isleaf);
+            $("#level").val(node.level);
+            $("#comment").val(node.comment);
+
+            //设置按钮显示
+            $('#addNewType').show();
+            $('#delType').show();
+            $('#saveNewType').hide();
+            $('#updateType').show();
+
+        }else{
+            $().message("获取数据失败,可能是应为当前选中节点被删除！");
+        }
+
     };
+
     //清除input的内容，并设置所有input为非readonly
     function clearInput(){
-        $("#_id").attr('readonly', false);
-        $("#parent_id").attr('readonly', false);
-        $("#create_time").attr('readonly', false);
-        $("#isleaf").attr('readonly', false);
-        $("#level").attr('readonly', false);
-        $("#name").attr('readonly', false);
-        $("#comment").attr('readonly', false);
+        $(".allowInput").removeAttr('readonly');
+        $(".allowInput").attr("value", "");
+        $(".noAllowInput").attr("value", "");
+        /*
+            $("#_id").attr('readonly', false);
+            $("#parent_id").attr('readonly', false);
+            $("#create_time").attr('readonly', false);
+            $("#isleaf").attr('readonly', false);
+            $("#level").attr('readonly', false);
+            $("#name").attr('readonly', false);
+            $("#comment").attr('readonly', false);
 
-        $("#_id").val("");
-        $("#parent_id").val("");
-        $("#create_time").val("");
-        $("#isleaf").val("");
-        $("#level").val("");
-        $("#name").val("");
-        $("#comment").val("");
+            $("#_id").val("");
+            $("#parent_id").val("");
+            $("#create_time").val("");
+            $("#isleaf").val("");
+            $("#level").val("");
+            $("#name").val("");
+            $("#comment").val("");
+        */
     };
+
     //新增类型
-    function addNewType(){
-        setShowSaveBtn();
+    $("#addNewType").click(function(){
+        //setShowSaveBtn();
+
+        //设置按钮显示
+        $('#addNewType').hide();
+        $('#delType').hide();
+        $('#saveNewType').show();
+        $('#updateType').hide();
+
         //清除输入框原数据
         clearInput();
-        //设置不可输入状态
 
-        $("#_id").attr('readonly', true);
-        $("#parent_id").attr('readonly', true);
-        $("#create_time").attr('readonly', true);
-        $("#isleaf").attr('readonly', true);
-        $("#level").attr('readonly', true);
-        //alert(zTree.getSelectedNodes()[0]._id);
         //获得当前选择的node
         var nodes = zTree.getSelectedNodes();
         if(!nodes){
-            alert("请在左侧选择一个商品类型！");
+            $().message("请在左侧选择一个商品类型！");
+            return;
         }
         if(!nodes.length || nodes.length != 1){
-            alert("请指定一个商品类型后再进行添加！");
+            $().message("请指定一个商品类型后再进行添加！");
+            return;
         }
         var selNode = nodes[0];
         $("#parent_id").val(selNode._id);//设置选中的node的id为当前要创建的node的父节点
         $("#isleaf").val('1');//当前肯定是叶子节点，需要判断若父节点原本是叶子则需要设置为“0”。
         $("#level").val(selNode.level+1);
-    };
-
-    //设置显示新增按钮隐藏保存按钮
-    function setShowAddBtn(){
-        $('#saveNewType').hide();
-        $('#addNewType').show();
-    };
-
-    //设置显示保存按钮隐藏新增按钮
-    function setShowSaveBtn(){
+        //设置按钮状态
         $('#saveNewType').show();
         $('#addNewType').hide();
-    };
 
-    //保存并提交新增类型（提交不在本方法内实现）
-    function saveNewType(){
-        setShowAddBtn();
-    };
-
-    //设置提交的form的参数，及处理返回函数
-    $("#goods_type_form").ajaxForm({
-        beforeSubmit: validate,
-        success: function(msg){
-            if(msg.status=='success'){
-                //alert("成功添加新类型");
-                $().message("成功添加新类型");
-                //获得当前选择的node
-                //var nodes = zTree.getSelectedNodes();
-                zTree.reAsyncChildNodes(null, "refresh");
-            }else{
-                $().message("添加类型失败:"+msg.status);
-            }
-        }
     });
 
-    function delType(){
-    };
     //
     $("#updateType").click(function(){
         //获得当前选择的node
@@ -246,6 +230,7 @@ script(type='text/javascript')
             }
         }
     });
+
     $("#delType").click(function(){
         //获得当前选择的node
         var nodes = zTree.getSelectedNodes();
@@ -276,32 +261,62 @@ script(type='text/javascript')
         }
     });
 
+    $("#saveNewType").click(function(){
+        $("#goods_type_form").submit();
+        //设置按钮显示
+        $('#addNewType').show();
+        $('#delType').show();
+        $('#saveNewType').hide();
+        $('#updateType').hide();
+    });
+
+    //设置提交的form的参数，及处理返回函数
+    $("#goods_type_form").ajaxForm({
+        beforeSubmit: validate,
+        success: function(msg){
+            if(msg.status=='success'){
+                //alert("成功添加新类型");
+                $().message("成功添加新类型");
+                //获得当前选择的node
+                //var nodes = zTree.getSelectedNodes();
+                zTree.reAsyncChildNodes(null, "refresh");
+            }else{
+                $().message("添加类型失败:"+msg.status);
+            }
+        }
+    });
+
+
     //表单提交前的校验
     function validate(formData, jqForm, options) {
         //alert("1111");
     };
 
     $(document).ready(function(){
+        //页面初始化
+        pageInit();
+
         $.ajax({
             type: "Get",
             url: '/goods/type',
             dataType: "text",
             global: false,
             async: false,
-            success: function (strReult) {
-                zNodes=eval(strReult);
+            success: function (reslut) {
+                if(reslut){
+                    zNodes=eval(reslut.goodsTypes);
+                }else{
+                    $().message("获取数据失败!");
+                }
             },
             error: function () {
-                alert("Ajax请求数据失败!");
+                $().message("Ajax请求数据失败!");
             }
         });
         var t = $("#tree");
         t = $.fn.zTree.init(t, setting, zNodes);
-        $('#addNewType').bind("click", addNewType);
-        $('#saveNewType').bind("click", saveNewType);
-        $('#delType').bind("click", delType);
 
-        setShowAddBtn();
+        //setShowAddBtn();
         zTree = $.fn.zTree.getZTreeObj("tree");
         zTree.selectNode(zTree.getNodeByParam("_id", 1));
     });
@@ -315,4 +330,17 @@ script(type='text/javascript')
         if (h < 530) h = 530;
         demoIframe.height(h);
         */
+    };
+
+    //页面初始化时调用，设置按钮显示，输入框是否只读等属性。
+    function pageInit(){
+        $('#addNewType').hide();
+        $('#delType').hide();
+        $('#saveNewType').hide();
+        $('#updateType').hide();
+        //隐藏不显示的条目
+        $('#_id_div').hide();
+        $('#parent_id_div').hide();
+        $('#isleaf_div').hide();
+        $('#level_div').hide();
     };

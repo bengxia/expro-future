@@ -45,7 +45,7 @@ GoodsType.prototype.create = function(body, cb) {
         fields: body
     };
     mysql.insert(opt, function(err, info) {
-        if(err) return next(err);
+        if(err) return cb(err);
         return cb(err, info);
     });
 };

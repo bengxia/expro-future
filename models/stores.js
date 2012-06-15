@@ -1,3 +1,10 @@
+/**
+ * Created with JetBrains WebStorm.
+ * User: Mengwei
+ * Date: 12-5-31
+ * Time: 下午4:35
+ * To change this template use File | Settings | File Templates.
+ */
 var mysql = require('../libs/mysql.js');
 
 function createStore() {
@@ -5,7 +12,7 @@ function createStore() {
 };
 
 function Store() {
-    this.table = '`ef_store`';
+    this.table = 'ef_store';
 };
 
 /**
@@ -57,7 +64,6 @@ Store.prototype.findOne = function(opt, cb) {
         +"store.transit_info transit_info, store.map_info map_info, store.notice notice, store.create_time create_time, store.comment comment "
         +" FROM ef_store store, ef_merchant merchant, ef_warehouse warehouse "
         +" where store.merchant_id = merchant._id and store.warehouse_id = warehouse._id  and store._id="+ opt._id;
-    //console.log('sql:  '+sql);
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);
@@ -90,7 +96,7 @@ Store.prototype.create = function(body, cb) {
         fields: body
     };
     mysql.insert(opt, function(err, info) {
-        if(err) return next(err);
+        if(err) return cb(err);
         return cb(err, info);
     });
 };
@@ -114,35 +120,13 @@ Store.prototype.delete = function(ids, cb) {
  * @param cb
  */
 Store.prototype.update = function(body, cb) {
-    /*
-     _id                （更新时不变）
-     inventar_num       资产编号
-     name
-     warehouse_id       （更新时不变）仓库
-     merchant_id        （更新时不变）所属商户
-     state
-     district_code      国家-省-市-区编号
-     address
-     transit_info       公交说明
-     map_info
-     notice             门店公告
-     create_time        （更新时不变）
-     comment
-     */
-    var sql = " update ef_store set inventar_num='"+body.inventar_num+"'"
-        +", name='"+body.name+"'"
-        +", state='"+body.state+"'"
-        +", district_code='"+body.district_code+"'"
-        +" , address='"+body.address+"'"
-        +", transit_info='"+body.transit_info+"'"
-        +", map_info='"+body.map_info+"'"
-        +", notice='"+body.notice+"'"
-        +",  comment='"+body.comment+"'"
-        +"  where _id="+body._id;
-    mysql.query(sql,
-                function(err, rs) {
-            if(err) return cb(err);
-            cb(err, rs);
+    var opt = {
+        table: 'ef_store',
+        fields: body
+    };
+    mysql.update(opt, function(err, info) {
+        if(err) return cb(err);
+        return cb(err, info);
     });
 };
 

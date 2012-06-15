@@ -11,8 +11,18 @@ html(xmlns='http://www.w3.org/1999/xhtml')
     - }
     meta(property='wb:webmaster', content='617be6bd946c6b96')
     link(title='RSS', type='application/rss+xml', rel='alternate', href='/rss')
+
     //
-       style 
+       style
+    //jquery ui
+    link(rel='stylesheet', type='text/css', href='/libs/jquery-jquery-ui-c1dc191/themes/base/jquery.ui.all.css', media='screen')
+    link(rel='stylesheet', type='text/css', href='/libs/jquery-jquery-ui-c1dc191/demos/demos.css', media='screen')
+
+    //jqGrid_fancybox
+    link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui-lightness/jquery-ui-1.8.2.custom.css', media='screen')
+    link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/ui.jqgrid.css', media='screen')
+    link(rel='stylesheet', type='text/css', href='/libs/jqGrid_fancybox/css/fancybox.css', media='screen')
+
     link(rel='stylesheet', type='text/css', href='/libs/bootstrap/css/bootstrap.css', media='screen')
     link(rel='stylesheet', type='text/css', href='/stylesheets/style.css', media='screen')
     //
@@ -20,6 +30,9 @@ html(xmlns='http://www.w3.org/1999/xhtml')
     script(type='text/javascript', src='/libs/jquery/jquery.js')
     script(type='text/javascript', src='/libs/bootstrap/js/bootstrap.js')
     script(type='text/javascript', src='/javascripts/main.js')
+
+
+
     - if (locals.topic) { 
     title  #{locals.topic} - #{config.name}
     - } else { 
@@ -40,9 +53,9 @@ html(xmlns='http://www.w3.org/1999/xhtml')
             - for (var i = 0, l = site_navs.length; i < l; i++) {
                 - var nav = site_navs[i];
             li
-              a(href='/stores') 商户管理
+              a(href='/stores/index') 商户管理
             li
-              a(href='/merchants') 平台管理
+              a(href='/merchants/index') 平台管理
             li
               a(href=nav[0], target=nav[2]) #{nav[1]}
             - }
@@ -57,7 +70,7 @@ html(xmlns='http://www.w3.org/1999/xhtml')
               a(href='/signin') 登录
             - }
     //
-       wrapper 
+       wrapper
     #wrapper
         #main
             != body

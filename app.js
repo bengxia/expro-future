@@ -29,7 +29,7 @@ app.configure(function() {
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({
-                store: new RedisStore,
+                store: new RedisStore({host:config.redis.host}),
 		secret: config.session_secret,
                 cookie: config.session_cookie
 	}));

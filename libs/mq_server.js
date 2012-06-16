@@ -4,6 +4,7 @@
 
 exports = module.exports = function(app) {
     var io = require('socket.io').listen(app);
+    io.set('log level', 0);
     
     io.sockets.on('connection', function (socket) {
         socket.on('subscribe', function(data) { 

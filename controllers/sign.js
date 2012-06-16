@@ -138,7 +138,7 @@ exports.login = function(req, res, next) {
     }    
     var loginname = sanitize(req.body.cellphone).trim().toLowerCase();
     var pass = sanitize(req.body.password).trim();
-    var org = sanitize(req.body.org).trim();
+    var org = parseInt(sanitize(req.body.org).trim());
     var ep = EventProxy.create();
     
     function feedback(result) {
@@ -158,6 +158,7 @@ exports.login = function(req, res, next) {
             else {
                 var user = req.session.user;
                 var data = {
+                    _id:user._id,
                     name:user.name,
                     sex:user.sex
                 };
@@ -195,7 +196,7 @@ exports.login = function(req, res, next) {
         // store session cookie
         req.session.regenerate(function() {
             req.session.user = user;
-            Member.findOne({org:org, user:user._id}, function(err, member) {
+            Member.findOne({org_id:org, user_id:user._id}, function(err, member) {
                 if(err) { ep.unbind(); return next(err);}
                 if (!member) return ep.trigger('error', {status:401, error:'商户没有这个用户。'});
                 req.session.user.member = member

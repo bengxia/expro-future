@@ -3,9 +3,6 @@
 * Publisher 
 * Subscriber
 */
-
-
-//var mqtt = require('mqttjs');
 var io = require('socket.io-client');
 var config = require('../config.js').config;
 

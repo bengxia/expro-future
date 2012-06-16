@@ -1,12 +1,24 @@
 /*
 * Message Queue Service
 */
+var redis = require('redis');
+var config = require('../config').config;
 
 exports = module.exports = function(app) {
-    var io = require('socket.io').listen(app);
-    io.set('log level', 0);
+    var sio = require('socket.io').listen(app);
+    var RedisStore = require('socket.io/lib/stores/redis');
+    var pub    = redis.createClient(config.redis.port, config.redis.host);
+    var sub    = redis.createClient(config.redis.port, config.redis.host);
+    var client = redis.createClient(config.redis.port, config.redis.host);
     
-    io.sockets.on('connection', function (socket) {
+    sio.set('store', new RedisStore({
+        redisPub : pub,
+        redisSub : sub,
+        redisClient : client
+    }));    
+    sio.set('log level', 0);
+    
+    sio.sockets.on('connection', function (socket) {
         socket.on('subscribe', function(data) { 
             socket.join(data.topic); 
         });
@@ -14,78 +26,7 @@ exports = module.exports = function(app) {
         socket.on('publish', function(data) {
 //            socket.broadcast.to(data.topic).emit('publish');
 //            socket.broadcast.to(data.topic).json.send(data);
-            io.sockets.in(data.topic).emit(data.topic, data.payload);
+            sio.sockets.in(data.topic).emit(data.topic, data.payload);
         });
     });
 };
-
-/*var mqtt = require('mqttjs');
-var util = require('util');
-var config = require('../config.js').config;
-
-var mqServer = mqtt.createServer(function(client) {
-	var self = this;
-
-	if (!self.clients) self.clients = {};
-	client.on('connect', function(packet) {
-            if(packet.client != 'mqtt_pub') {
-                console.log(packet.client);
-                self.clients[packet.client] = client;
-            }
-            client.id = packet.client;
-            client.subscriptions = [];
-            client.connack({returnCode: 0});
-	});
-
-	client.on('subscribe', function(packet) {
-		var granted = [];
-                
-                for (var i = 0; i < packet.subscriptions.length; i++) {
-			var qos = packet.subscriptions[i].qos,
-				topic = packet.subscriptions[i].topic,
-				reg = new RegExp(topic.replace('+', '[^\/]+').replace('#', '.+$'));
-
-			granted.push(qos);
-			client.subscriptions.push(reg);
-		}
-		client.suback({messageId: packet.messageId, granted: granted});
-	});
-
-	client.on('publish', function(packet) {
-		for (var k in self.clients) {
-			var c = self.clients[k],
-				publish = false;
-
-                        for (var i = 0; i < c.subscriptions.length; i++) {
-				var s = c.subscriptions[i];
-
-                                if (s.test(packet.topic)) {
-					publish = true;
-				}
-			}
-
-			if (publish) {
-			    c.publish({topic: packet.topic, payload: packet.payload});
-			}
-		}
-	});
-
-	client.on('pingreq', function(packet) {
-		client.pingresp();
-	});
-
-	client.on('disconnect', function(packet) {
-		client.stream.end();
-	});
-
-	client.on('close', function(packet) {
-		delete self.clients[client.id];
-	});
-
-	client.on('error', function(e) {
-		client.stream.end();
-		console.log(e);
-	});
-}).listen(config.message_queue.port);
-
-console.log('Message Queue Listen On %d', mqServer.address().port);*/

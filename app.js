@@ -15,7 +15,7 @@ var express = require('express');
 var routes = require('./routes');
 var config = require('./config').config;
 
-
+var RedisStore = require('connect-redis')(express);
 var app = express.createServer();
 //message queue
 require('./libs/mq_server.js')(app);
@@ -29,6 +29,7 @@ app.configure(function() {
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({
+                store: new RedisStore,
 		secret: config.session_secret,
                 cookie: config.session_cookie
 	}));

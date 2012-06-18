@@ -25,10 +25,11 @@ var upload = require('./controllers/upload');
 var static = require('./controllers/static');
 var tools =require('./controllers/tools');
 */
+
 var authToMember = function(req, res, next) {
     if(req.session.user) next();
     else res.send(401);
-}
+};
 
 exports = module.exports = function(app) {
     // home page
@@ -40,21 +41,19 @@ exports = module.exports = function(app) {
     app.get('/signout', sign.signout);
 
     //商户管理
-    app.get('/merchants/index', merchants.index);//商户列表
+    app.get('/merchants/index', authToMember, merchants.index);//商户列表
     app.get('/merchants/showCreatPage', merchants.showCreatPage);//显示新增商户页面
     app.post('/merchants/create', merchants.create);//创建商户
     app.get('/merchants/list', merchants.getList);//获得商户列表List（非表格）-new
 
     //门店管理
-    app.get('/stores/index', authToMember, stores.index);//门店列表
+    app.get('/stores/index', stores.index);//门店列表
     app.get('/stores/:_id?/:isEdit?', stores.showStore);//显示已有门店（有_id）页面(查看 or 编辑:isEdit=true)
     app.post('/stores', stores.saveStore);//保存新增（无_id）
     app.put('/stores/:_id?', stores.updateStore);//更新（有_id）
     app.delete('/stores/:_ids', stores.deleteStore);//删除
-    //app.get('/stores/showCreatPage', stores.showCreatPage);//显示新增门店页面
-    //app.get('/stores/showEditPage', stores.showEditPage);//显示修改门店页面
-    app.post('/stores/create', stores.create);//创建，更新门店
-    app.get('/stores/delete', stores.delete);//删除门店
+    //app.post('/stores/create', stores.create);//创建，更新门店
+    //app.get('/stores/delete', stores.delete);//删除门店
 
     //商品类型管理
     app.get('/goods/type', goods.showTypes);//显示商品类型页面(弹出页面)
@@ -151,4 +150,3 @@ exports = module.exports = function(app) {
   app.get('/about', static.about);
   app.get('/faq', static.faq);*/
 };
-

@@ -70,7 +70,7 @@ script(type='text/javascript')
         $('#add_form').ajaxForm({
             beforeSubmit: validate,
                 success: function(msg){
-                    if(msg.status=='200'){
+                    if(201 == msg.status || 200 == msg.status){
                         $().message(msg.error);
                         $.fancybox.close();//为防止因为网络延时造成对话框不关闭，再次输入，提前关闭对话框。
                         $("#list").trigger("reloadGrid", [{current:true}]);

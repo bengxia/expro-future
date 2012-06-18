@@ -100,8 +100,8 @@ exports.index = function(req,res,next){
             Store.findAll(where, start, limit, sidx, sord, function(err,ds){
                 if(err) return next(err);
 
-                if (ds == undefined){
-                    return res.json({status:'查询结果为空！'});
+                if (!ds || ds == undefined){
+                    return res.json({status:'查询结果为空！'}, 204);
                 }
                 var jsonObj = new Object();
                 jsonObj.page = page;  // 当前页
@@ -129,9 +129,9 @@ exports.index = function(req,res,next){
                 //将rows数组赋予jsonObj.rows
                 jsonObj.rows = rowsArray;
 
-                //var jsonStr = JSON.stringify(jsonObj);
-                //console.log('jsonStr:'+jsonStr);
-                return res.json(jsonObj);
+                var jsonStr = JSON.stringify(jsonObj);
+                console.log('jsonStr:'+jsonStr);
+                return res.json(jsonObj, 200);
             });
         });
         /*
@@ -230,6 +230,7 @@ exports.showStore = function(req, res, next) {
             pageState = 1;
         }
 
+
         Store.findOne({"_id":_id}, function(err,ds){
             if(err) return next(err);
             res.render('stores/store', { layout: false, store:ds, pageState:pageState, method:'put'});
@@ -270,7 +271,7 @@ exports.saveStore = function(req,res,next){
 
         Store.create(req.body, function(err, info){
             if(err) return next(err);
-            res.send({status:200, error:'添加商品信息成功!'});
+            res.send({status:201, error:'添加商品信息成功!'});
         });
     });
 };
@@ -288,8 +289,8 @@ exports.updateStore = function(req,res,next){
     var _id = req.body._id;
     var name = req.body.name;
 
-    if(!_id) return res.json({status:204, error:'更新失败，数据流水号为空!'});
-    if(!name) return res.json({status:204, error:'名字不能为空!'});
+    if(!_id) return res.json({status:400, error:'更新失败，数据流水号为空!'});
+    if(!name) return res.json({status:400, error:'名字不能为空!'});
 
     if(_id){
         //说明是更新数据

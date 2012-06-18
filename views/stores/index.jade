@@ -1,6 +1,6 @@
 !=partial('stores/sidebar')
 //以下是JQuery ui的js
-script(type='text/javascript', src='/libs/jquery-jquery-ui-c1dc191/jquery-1.7.2.js')
+//script(type='text/javascript', src='/libs/jquery-jquery-ui-c1dc191/jquery-1.7.2.js')
 script(type='text/javascript', src='/libs/jquery-jquery-ui-c1dc191/ui/jquery.ui.core.js')
 script(type='text/javascript', src='/libs/jquery-jquery-ui-c1dc191/ui/jquery.ui.widget.js')
 script(type='text/javascript', src='/libs/jquery-jquery-ui-c1dc191/ui/jquery.ui.datepicker.js')
@@ -101,6 +101,10 @@ style
               $("p.nodata").remove();
               $("#del_btn").removeAttr("disabled");
           }
+        },
+        loadError:function(xhr,status,error){
+            $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
+            $("#del_btn").attr("disabled",true);
         }
     });
     $(function(){
@@ -149,13 +153,15 @@ style
                             'modal':true,
                             'titleShow':true,
                             'titlePosition':'over',
-                             'cyclic': true,
+                            'cyclic': true,
                             'showCloseButton':true,
                             'showNavArrows':false,
                             'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
                             'transitionOut': 'elastic',
                             'centerOnScroll':false,
-                            'onComplete': function() {$("#fancybox-title").css({'top':'0px', 'bottom':'auto'});}
+                            'onComplete': function(data) {
+                                $("#fancybox-title").css({'top':'0px', 'bottom':'auto'});
+                            }
                         });
                     }
                 }
@@ -246,7 +252,7 @@ style
             console.log(obj);
 
             $("#list").jqGrid('setGridParam',{
-                url:"/member/index",
+                url:"/stores/index",
                 postData:obj,
                 page:1
             }).trigger("reloadGrid");

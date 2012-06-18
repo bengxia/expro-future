@@ -128,7 +128,11 @@ style
               $("p.nodata").remove();
               $("#del_btn").removeAttr("disabled");
           }
-        }
+        },
+         loadError:function(xhr,status,error){
+             $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
+             $("#del_btn").attr("disabled",true);
+         }
       });
       $(function(){
         $("#add_btn").click(function(){

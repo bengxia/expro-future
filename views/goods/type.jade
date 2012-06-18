@@ -219,11 +219,11 @@ script(type='text/javascript')
                         $().message("请求失败...");
                     },
                     success: function(msg){
-                        if(msg.status == "success"){
+                        if(200 == msg.status){
                             $().message("已成功更新!");
                             zTree.reAsyncChildNodes(null, "refresh");
                         }else{
-                            $().message("操作失败:"+msg.status);
+                            $().message("操作失败:"+msg.error);
                         }
                     }
                 });
@@ -249,11 +249,11 @@ script(type='text/javascript')
                         $().message("请求失败...");
                     },
                     success: function(msg){
-                        if(msg.status == "success"){
+                        if(msg.status == 200){
                             $().message("已成功删除!");
                             zTree.reAsyncChildNodes(null, "refresh");
                         }else{
-                            $().message("操作失败:"+msg.status);
+                            $().message("操作失败:"+msg.error);
                         }
                     }
                 });
@@ -274,14 +274,14 @@ script(type='text/javascript')
     $("#goods_type_form").ajaxForm({
         beforeSubmit: validate,
         success: function(msg){
-            if(msg.status=='success'){
+            if(201 == msg.status){
                 //alert("成功添加新类型");
                 $().message("成功添加新类型");
                 //获得当前选择的node
                 //var nodes = zTree.getSelectedNodes();
                 zTree.reAsyncChildNodes(null, "refresh");
             }else{
-                $().message("添加类型失败:"+msg.status);
+                $().message("添加类型失败:"+msg.error);
             }
         }
     });

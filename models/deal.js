@@ -1,1 +1,78 @@
-var mysql = require('../libs/mysql.js');function create() {    return new Deal();};function Deal(){    this.table = 'ef_deal';};Deal.prototype.create = function(options, cb) {    	mysql.insert(options, function(err, info) {		cb(err, info);			}); };Deal.prototype.findOne = function(opt, cb) {    where = "";    for(var k in opt) {        var value = opt[k];        if(typeof value != 'object' && typeof value != 'array') {            if( typeof value == 'number') {                where += " AND " + k + " = " + value;            }            else {                where += " AND " + k + " LIKE  '" + value + "'";            }        }    }    var sql = "SELECT * FROM `ef_deal` WHERE 1=1"+where;    mysql.query(sql, function(err, rs) {        if(err) return cb(err);        if(!rs.length) return cb(err);        cb(err, rs[0]);    });};/** * 查询所有的数据 * @param opt 参数，包含：opt.where， opt.sidx， opt.sord， opt.start ， opt.limit, bt:bt, et:et; * @param cb 回调 */Deal.prototype.findAll = function(opt, cb) {    var sql = " SELECT * FROM ef_deal  "        +" where 1=1 "+ opt.where;    if(opt.bt) sql += " and create_time >= "+ opt.bt;    if(opt.et) sql += " and create_time <= "+ opt.et;    if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;    if(opt.limit && opt.start) sql += " LIMIT "+ opt.start + " , "+opt.limit;    mysql.query(sql, function(err, rs) {        if(err) return cb(err);        if(!rs.length) return cb(err);        cb(err, rs);    });};/** * 根据条件获得数据的行数 * @param opt 页面传入的查询条件(where:where, start:start, limit:limit, bt:bt, et:et) * @param cb 回调 */Deal.prototype.count = function(opt, cb) {    var sql = "SELECT COUNT(*) AS count FROM ef_deal where 1=1 "        +opt.where;    if(opt.bt) sql += " and create_time >= "+ opt.bt;    if(opt.et) sql += " and create_time <= "+ opt.et;    mysql.query(sql, function(err, rs) {        if(err) return cb(err);        if(!rs.length) return cb(err);        cb(err, rs[0]);    });};exports = module.exports = create;
+var mysql = require('../libs/mysql.js');
+
+function create() {
+    return new Deal();
+};
+
+function Deal(){
+    this.table = 'ef_deal';
+};
+
+Deal.prototype.create = function(options, cb) {    
+	mysql.insert(options, function(err, info) {
+		cb(err, info);		
+	}); 
+};
+
+Deal.prototype.findOne = function(opt, cb) {
+    where = "";
+    for(var k in opt) {
+        var value = opt[k];
+        if(typeof value != 'object' && typeof value != 'array') {
+            if( typeof value == 'number') {
+                where += " AND " + k + " = " + value;
+            }
+            else {
+                where += " AND " + k + " LIKE  '" + value + "'";
+            }
+        }
+    }
+
+    var sql = "SELECT * FROM `ef_deal` WHERE 1=1"+where;
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs[0]);
+    });
+
+};
+
+/**
+ * 查询所有的数据
+ * @param opt 参数，包含：opt.where， opt.sidx， opt.sord， opt.start ， opt.limit, bt:bt, et:et;
+ * @param cb 回调
+ */
+Deal.prototype.findAll = function(opt, cb) {
+    var sql = " SELECT * FROM ef_deal  "
+        +" where 1=1 "+ opt.where;
+    if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    if(opt.et) sql += " and create_time <= "+ opt.et;
+    if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;
+    if(opt.limit && opt.start) sql += " LIMIT "+ opt.start + " , "+opt.limit;
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs);
+    });
+};
+
+/**
+ * 根据条件获得数据的行数
+ * @param opt 页面传入的查询条件(where:where, start:start, limit:limit, bt:bt, et:et)
+ * @param cb 回调
+ */
+Deal.prototype.count = function(opt, cb) {
+
+    var sql = "SELECT COUNT(*) AS count FROM ef_deal where 1=1 "
+        +opt.where;
+    if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    if(opt.et) sql += " and create_time <= "+ opt.et;
+
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs[0]);
+    });
+};
+
+exports = module.exports = create;

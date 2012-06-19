@@ -21,7 +21,6 @@ exports.restrict = function(req, res, next) {
     else res.send(406);
 }
 
-
 exports.merchant = function(req, res, next) {
     var json = {};
     var id = parseInt(sanitize(req.params.id).trim());

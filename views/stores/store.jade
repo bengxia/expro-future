@@ -1,135 +1,1 @@
-.fanbox
-br
-br
-#wrapper
-    .form-container
-        form#add_form(action='/stores/#{locals.member?'?_id='+member._id:''}', method='#{method}')
-            p.legend
-                strong 注意:
-                    em 红色
-                    |为必填字段！
-            fieldset
-                legend
-                div
-                    input(type='hidden', name='_csrf', value='#{csrf}')
-                    input#_id(type='hidden', name='_id',value='#{locals.store?store._id:''}')
-                    input#save.btn(type='button', value=' 保 存 ')
-                    input#close.btn(type='button', value=' 关 闭 ', onclick='$.fancybox.close();')
-            fieldset#storesContent
-                legend(style='color: #C00; font-style: normal;') 门店信息
-                div
-                    label.error   门店名称：
-                    input#name.allowInput(type='text', name='name', value='#{locals.store?store.name:''}')
-                div
-                    label.error   资产编号：
-                    input#inventar_num.allowInput(type='text', name='inventar_num', value='#{locals.store?store.inventar_num:''}')
-                div
-                    label.error   门店仓库：
-                    input#warehouse_name.allowInput(type='text', name='warehouse_name', value='#{locals.store?store.warehouse_name:''}', disabled)
-                div
-                    label.error   所属商户：
-                    input#merchant_id(type='hidden', name='merchant_id',value='#{locals.store?store.merchant_id:'1'}')
-                    input#merchant_name.allowInput(type='text', name='merchant_name', value='#{locals.store?store.merchant_name:''}', disabled)
-                div
-                    label.error  状态：
-                    select#state.allowInput(name='state')
-                        - var states = [{id:0,value:'封闭'},{id:1,value:'正常'},{id:2,value:'公开'},{id:3,value:'不公开'}];
-                        - for (var i in states)
-                            - var str = "<option value='"+states[i].id+"' >"+states[i].value + " </option>"
-                            - if(locals.store && states[i].id == store.state)
-                                str = "<option value='"+states[i].id+"' selected='selected'>"+states[i].value + " </option>"
-                            |!{str}
-                div
-                    label.error   地区编号：
-                    input#district_code.allowInput(type='text', name='district_code', value='#{locals.store?store.district_code:''}')
-                div
-                    label   详细地址：
-                    input#address.allowInput(type='text', name='address', value='#{locals.store?store.address:''}')
-                div
-                    label   公交说明：
-                    input#transit_info.allowInput(type='text', name='transit_info', value='#{locals.store?store.transit_info:''}')
-                div
-                    label   地图坐标：
-                    input#map_info.allowInput(type='text', name='map_info', value='#{locals.store?store.map_info:''}')
-                div
-                    label   门店公告：
-                    input#notice.allowInput(type='text', name='notice', value='#{locals.store?store.notice:''}')
-                div#create_time_div
-                    label   创建时间：
-                    input#create_time.allowInput(type='text', name='create_time', value='#{locals.store?store.create_time:''}', readonly)
-                div
-                    label  备注：
-                    textarea#comment.allowInput(rows='5', cols='40', name='comment') #{locals.store?store.comment:''}
-
-script(type='text/javascript')
-    $(document).ready(function(){
-        pageInit();
-    });
-
-    $(function(){
-        $('#add_form').ajaxForm({
-            beforeSubmit: validate,
-                success: function(msg){
-                    if(201 == msg.status || 200 == msg.status){
-                        $().message(msg.error);
-                        $.fancybox.close();//为防止因为网络延时造成对话框不关闭，再次输入，提前关闭对话框。
-                        $("#list").trigger("reloadGrid", [{current:true}]);
-                    }else{
-                        $().message("添加失败:"+msg.error);
-                    }
-                }
-        });
-
-        //提交表单进行保存
-        $("#save").click(function(){
-            $('#add_form').submit();
-        });
-
-        function validate(formData, jqForm, options) {
-            //$('#add_form').remove("warehouse_name");
-        /*
-            var name = $("#name").val();
-            var type_id = $("#type_id").attr("value");
-            var state = $("#state").attr("value");
-            var price = $("#price").attr("value");
-
-            if(!name || name.trim() == ""){
-                $().message("<b>请输入'名称'！</b>");
-                return false;
-            }else if(!type_id || type_id.trim() == ""){
-                $().message("<b>请选择'商品类型'！</b>");
-                return false;
-            }else if(!state || state.trim() == ""){
-                $().message("<b>请选择'商品状态'！</b>");
-                return false;
-            }else if(!price || price.trim() == ""){
-                $().message("<b>请输入'商品售价'！</b>");
-                return false;
-            }else{
-                $.fancybox.close();//为防止因为网络延时造成对话框不关闭，再次输入，提前关闭对话框。
-                $().message("正在提交...");
-            }
-        */
-        };
-    });
-
-
-
-    //页面初始化时调用，设置按钮显示，输入框是否只读等属性。
-    function pageInit(){
-        // - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
-        // - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
-        // - 编辑(pageState=2)： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
-        if(#{pageState} == 0){
-            //新增
-            $("#save").show();
-            $("#create_time_div").hide();
-        }else if(#{pageState} == 1){
-            //查看
-            $(".allowInput").attr("readonly","readonly");
-            $("#save").hide();//启动时隐藏保存按钮
-        }else if(#{pageState} == 2){
-            //编辑
-            $("#save").show();//显示save
-        }
-    };
+.fanboxbrbr#wrapper    .form-container        form#add_form(action='/stores/#{locals.member?'?_id='+member._id:''}', method='#{method}')            p.legend                strong 注意:                    em 红色                    |为必填字段！            fieldset                legend                div                    input(type='hidden', name='_csrf', value='#{csrf}')                    input#_id(type='hidden', name='_id',value='#{locals.store?store._id:''}')                    input#save.btn(type='button', value=' 保 存 ')                    input#close.btn(type='button', value=' 关 闭 ', onclick='$.fancybox.close();')            fieldset#storesContent                legend(style='color: #C00; font-style: normal;') 门店信息                div                    label.error   门店名称：                    input#name.allowInput(type='text', name='name', value='#{locals.store?store.name:''}')                div                    label.error   资产编号：                    input#inventar_num.allowInput(type='text', name='inventar_num', value='#{locals.store?store.inventar_num:''}')                div                    label.error   门店仓库：                    input#warehouse_name.allowInput(type='text', name='warehouse_name', value='#{locals.store?store.warehouse_name:''}', disabled)                div                    label.error   所属商户：                    input#merchant_id(type='hidden', name='merchant_id',value='#{locals.store?store.merchant_id:locals.current_user.member.org_id}')                    input#merchant_name.allowInput(type='text', name='merchant_name', value='#{locals.store?store.merchant_name:locals.current_user.member.org_id}', disabled)                div                    label.error  状态：                    select#state.allowInput(name='state')                        - var states = [{id:0,value:'封闭'},{id:1,value:'正常'},{id:2,value:'公开'},{id:3,value:'不公开'}];                        - for (var i in states)                            - var str = "<option value='"+states[i].id+"' >"+states[i].value + " </option>"                            - if(locals.store && states[i].id == store.state)                                str = "<option value='"+states[i].id+"' selected='selected'>"+states[i].value + " </option>"                            |!{str}                div                    label.error   地区编号：                    input#district_code.allowInput(type='text', name='district_code', value='#{locals.store?store.district_code:''}')                div                    label   详细地址：                    input#address.allowInput(type='text', name='address', value='#{locals.store?store.address:''}')                div                    label   公交说明：                    input#transit_info.allowInput(type='text', name='transit_info', value='#{locals.store?store.transit_info:''}')                div                    label   地图坐标：                    input#map_info.allowInput(type='text', name='map_info', value='#{locals.store?store.map_info:''}')                div                    label   门店公告：                    input#notice.allowInput(type='text', name='notice', value='#{locals.store?store.notice:''}')                div#create_time_div                    label   创建时间：                    input#create_time.allowInput(type='text', name='create_time', value='#{locals.store?store.create_time:''}', readonly)                div                    label  备注：                    textarea#comment.allowInput(rows='5', cols='40', name='comment') #{locals.store?store.comment:''}script(type='text/javascript')    $(document).ready(function(){        pageInit();    });    $(function(){        $('#add_form').ajaxForm({            beforeSubmit: validate,                success: function(msg){                    if(201 == msg.status || 200 == msg.status){                        $().message(msg.error);                        $.fancybox.close();//为防止因为网络延时造成对话框不关闭，再次输入，提前关闭对话框。                        $("#list").trigger("reloadGrid", [{current:true}]);                    }else{                        $().message("添加失败:"+msg.error);                    }                }        });        //提交表单进行保存        $("#save").click(function(){            $('#add_form').submit();        });        function validate(formData, jqForm, options) {            //$('#add_form').remove("warehouse_name");        /*            var name = $("#name").val();            var type_id = $("#type_id").attr("value");            var state = $("#state").attr("value");            var price = $("#price").attr("value");            if(!name || name.trim() == ""){                $().message("<b>请输入'名称'！</b>");                return false;            }else if(!type_id || type_id.trim() == ""){                $().message("<b>请选择'商品类型'！</b>");                return false;            }else if(!state || state.trim() == ""){                $().message("<b>请选择'商品状态'！</b>");                return false;            }else if(!price || price.trim() == ""){                $().message("<b>请输入'商品售价'！</b>");                return false;            }else{                $.fancybox.close();//为防止因为网络延时造成对话框不关闭，再次输入，提前关闭对话框。                $().message("正在提交...");            }        */        };    });    //页面初始化时调用，设置按钮显示，输入框是否只读等属性。    function pageInit(){        // - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮        // - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮        // - 编辑(pageState=2)： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮        if(#{pageState} == 0){            //新增            $("#save").show();            $("#create_time_div").hide();        }else if(#{pageState} == 1){            //查看            $(".allowInput").attr("readonly","readonly");            $("#save").hide();//启动时隐藏保存按钮        }else if(#{pageState} == 2){            //编辑            $("#save").show();//显示save        }    };

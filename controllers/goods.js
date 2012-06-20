@@ -106,7 +106,7 @@ exports.index = function(req,res,next){
             // 若起始行为0
             if(start < 0) start = 0;
 
-            Goods.findAll(where, start, limit, sidx, sord, function(err,ds){
+            Goods.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord}, function(err,ds){
                 if(err) return next(err);
 
                 if (!ds || ds == undefined){

@@ -70,11 +70,22 @@ exports = module.exports = function(app) {
     app.delete('/goods/:_ids', goods.deleteGoods);//删除商品
 
     //员工管理
-    app.get('/member/index', member.index);//员工列表
+/** for review
+    app.get('/members/:id', member.get);//?edit=0;
+    替代下面路由
+*/
     app.get('/member/:_id?/:isEdit?', member.showMember);//显示已有员工（有_id）页面(查看 or 编辑:isEdit=true)
+/** for review
+    下面3个路由中member=>members，表示id的前后统一起来，用id。
+*/
     app.post('/member', member.saveMember);//保存新增员工（无_id）
     app.put('/member/:_id?', member.updateMember);//更新已有员工（有_id）
     app.delete('/member/:_ids', member.deleteMember);//删除员工
+/** for review
+    app.get('/members', member.index); //?user_id=1&cellphone=18912345678;
+    替代下面3个路由
+*/
+    app.get('/member/index', member.index);//员工列表
     app.get('/findMemberByUserid/:user_id', member.findMemberByUserid);//通过会员ID获取员工信息
     app.get('/memberRegJudge/:cellphone', member.memberRegJudge);//通过手机号码判断是否允许创建员工信息
 

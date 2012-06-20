@@ -71,12 +71,14 @@ exports = module.exports = function(app) {
 
     //员工管理
 /** for review
-    app.get('/members/:id', member.get);//?edit=0;
+    app.get('/members/:id', member.get);
+    app.get('/members/add', member.addview);
     替代下面路由
 */
     app.get('/member/:_id?/:isEdit?', member.showMember);//显示已有员工（有_id）页面(查看 or 编辑:isEdit=true)
 /** for review
     下面3个路由中member=>members，表示id的前后统一起来，用id。
+    app.delete('/members', member.deleteList);
 */
     app.post('/member', member.saveMember);//保存新增员工（无_id）
     app.put('/member/:_id?', member.updateMember);//更新已有员工（有_id）

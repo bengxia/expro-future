@@ -17,7 +17,6 @@ var Log = require('../log.js');
 var log = Log.create(Log.INFO, {'file':'public/node.debug'});
 var MQClient = require('../libs/mq_client.js');
 
-var util = require('../libs/util.js');
 
 var getNow=function(){
     var now = new Date();
@@ -273,7 +272,6 @@ exports.showMember = function(req, res, next) {
 
     ep.assign('UserDone', 'RoleDone', 'MemberDone', function(user, roles, member) {
         if(member){
-            console.log("---------------"+user+" --- "+roles+" --- "+member);
             //查看&编辑
             res.render('member/member',
                 { layout: false, pageState:pageState, user:user, member:member, roles:roles, method:'put'});

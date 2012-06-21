@@ -52,8 +52,8 @@ Member.prototype.findOne = function(opt, cb) {
 Member.prototype.findAll = function(opt, cb) {
     var sql = " SELECT * FROM ef_member  "
         +" where 1=1 "+ opt.where
-        +" ORDER BY "+opt.sidx+" "+opt.sord
-        +" LIMIT "+ opt.start + " , "+opt.limit;
+        if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;
+        if(opt.limit) sql += " LIMIT "+ opt.start + " , "+opt.limit;
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);

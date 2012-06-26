@@ -16,6 +16,14 @@ function Store() {
 };
 
 /**
+* 以对象形式传递查询条件参数
+*/
+Store.prototype.findAllBy = function(opt, cb) {
+    options = {schema:'ef_store', querys:opt};
+    mysql.findAll(options, cb);
+};
+
+/**
  * 根据条件查询表中所有的门店数据
  * @param where 页面传入的查询条件
  * @param start 开始页数

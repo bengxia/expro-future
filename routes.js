@@ -86,5 +86,6 @@ exports = module.exports = function(app) {
     app.get('/user/:cellphone/:password', user.checkUser);//根据手机号码查询用户
     
     //Sync同步
-    app.get('/sync/merchants/:id', sync.merchant);//同步商户信息
+    app.get('/sync/merchants/:id', sync.restrict, sync.merchant);//同步一个商户信息
+    app.get('/sync/stores/:id', sync.restrict, sync.store);//同步一个门店信息
 };

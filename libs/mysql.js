@@ -31,6 +31,13 @@ exports.findAll = function(opt, cb) {
     exports.query(sql, cb);
 }
 
+exports.findOne = function(opt, cb) {
+    exports.findAll(opt, function(err, rs, fields) {
+        if(err || rs.length == 0) cb(err);
+        else cb(err, rs[0], fields);
+    });
+}
+
 exports.insert = function(opt, cb) {
     //如果提交的保单中有_csrf字段（防止跨站攻击用），则去除。Modify by Mengwei
     if(opt.fields && opt.fields._csrf) delete opt.fields._csrf;

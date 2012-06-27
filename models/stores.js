@@ -24,6 +24,11 @@ Store.prototype.findStaff = function(query, cb) {
 /**
 * 以对象形式传递查询条件参数
 */
+Store.prototype.findOneBy = function(opt, cb) {
+    options = {schema:'ef_store', querys:opt};
+    mysql.findOne(options, cb);
+};
+
 Store.prototype.findAllBy = function(opt, cb) {
     options = {schema:'ef_store', querys:opt};
     mysql.findAll(options, cb);

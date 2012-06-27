@@ -11,6 +11,33 @@ exports.query = function(sql, cb) {
     });
 }
 
+exports.findAll = function(opt, cb) {
+    var sql = "SELECT ";
+    if(opt.objs) {
+        sql += opt.objs.join();
+    } else {
+        sql += '*';
+    }
+    sql += ' FROM '+opt.schema+' WHERE 1';
+    for(var key in opt.querys) {
+        var value = opt.querys[key];
+        if(typeof value == 'string') {
+            sql += ' AND '+key+' = "'+value+'"';
+        }
+        else if(typeof value == 'number') {
+            sql += ' AND '+key+' = '+value;
+        }
+    }
+    exports.query(sql, cb);
+}
+
+exports.findOne = function(opt, cb) {
+    exports.findAll(opt, function(err, rs, fields) {
+        if(err || rs.length == 0) cb(err);
+        else cb(err, rs[0], fields);
+    });
+}
+
 exports.insert = function(opt, cb) {
     //如果提交的保单中有_csrf字段（防止跨站攻击用），则去除。Modify by Mengwei
     if(opt.fields && opt.fields._csrf) delete opt.fields._csrf;

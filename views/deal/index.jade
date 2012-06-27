@@ -6,9 +6,6 @@ script(type='text/javascript', src='/libs/jquery-jquery-ui-c1dc191/ui/jquery.ui.
 script(type='text/javascript', src='/libs/jquery-jquery-ui-c1dc191/ui/jquery.ui.datepicker.js')
 script(type='text/javascript', src='/libs/jquery-jquery-ui-c1dc191/ui//i18n/jquery.ui.datepicker-zh-CN.js')
 
-script
-    jQuery.jgrid.no_legacy_api = true;
-
 //以下是一个jqGrid+fancybox的解决方案js
 script(type='text/javascript', src='/libs/jqGrid_fancybox/js/i18n/grid.locale-cn.js')
 script(type='text/javascript', src='/libs/jqGrid_fancybox/js/jquery.jqGrid.min.js')
@@ -79,24 +76,3 @@ style
                     table#list
                     #pager
                     .cl.cr
-    //设置前台页面显示的表格列头
-    var colNames = ['编号', '交易类型', '状态','负责人','应付账款','现金支付','积分支付','支付类型','创建时间','消费会员'];
-    //设置前台页面显示的表格数据
-    var colModel = [
-        {name:'ef_deal._id',index:'ef_deal._id', width:100, align:'center',sortable:true},
-        {name:'ef_deal.type',index:'ef_deal.type', width:200, align:'center',sortable:true,formatter:'select',
-            editoptions:{value:'0:消费撤销;1:消费;2:充值;3:充值撤销;4:积分增加;5:积分消费;6:积分撤销;7:退货退款;8:抽奖;9:手工调整'}},
-        {name:'ef_deal.state',index:'ef_deal.state', width:200, align:'center',sortable:true,formatter:'select',
-            editoptions:{value:'0:失败;1:成功'}},
-        {name:'ef_member.operater_name',index:'ef_member.operater_name', width:200,align:'center',sortable:false},
-        {name:'ef_deal.payment',index:'ef_deal.payment', width:200, align:'center',sortable:true},
-        {name:'ef_deal.cash',index:'ef_deal.cash', width:200, align:'center',sortable:true},
-        {name:'ef_deal.point',index:'ef_deal.point', width:200, align:'center',sortable:true},
-        {name:'ef_deal.pay_type',index:'ef_deal.pay_type', width:200, align:'center',sortable:true,formatter:'select',
-            editoptions:{value:'0:现金;1:银行卡;2:积分;3:现金+积分;4:银行卡+积分'}},
-        {name:'ef_deal.create_time',index:'ef_deal.create_time', width:300, align:'center',sortable:true,
-            formatter : 'date', formatoptions : {srcformat : 'Y-m-d H:i:s',newformat : 'Y-m-d H:i:s'}},
-        {name:'ef_member.customer_name',index:'ef_member.customer_name', width:200,align:'center',sortable:false}];
-
-        colNames:!{JSON.stringify(colNames)},
-        colModel:!{JSON.stringify(colModel)},//由后台control中获得显示数据

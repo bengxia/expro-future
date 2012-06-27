@@ -85,13 +85,14 @@ exports = module.exports = function(app) {
     //交易管理
     app.get('/deal/index', authToMember, deal.index);//交易列表
     app.get('/deals', authToMember, deal.index);//查询一批交易
+    app.get('/deal/count', authToMember, deal.count);//查询交易总数
     //app.get('/deal/:_id?/:isEdit?', deal.showMember);//显示已有员工（有_id）页面(查看 or 编辑:isEdit=true)
     //app.post('/deal', deal.saveMember);//保存新增员工（无_id）
     //app.put('/deal/:_id?', deal.updateMember);//更新已有员工（有_id）
     //app.delete('/deal/:_ids', deal.deleteMember);//删除员工
 
     //交易明细
-    app.get('/deal/items/:deal_id', authToMember, dealItem.index);//查询指定交易的一批交易明细
+    app.get('/deals/:id', authToMember, dealItem.index);//查询指定交易的一批交易明细
     //交易明细
     app.get('/deal/items/:deal_id', authToMember, dealItem.index);//查询指定交易的一批交易明细
     

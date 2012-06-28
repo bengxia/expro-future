@@ -1,12 +1,9 @@
 /*!
  * expro future - route.js
- * Copyright(c) 2012 gbo <gbo2@extensivepro.com>
+ * Copyright(c) 2012 fengmk2 <gbo@extensivepro.com>
  * MIT Licensed
  */
 
-/**
- * Module dependencies.
- */
 var sign = require('./controllers/sign');
 var site = require('./controllers/site');
 var stores = require('./controllers/stores');
@@ -16,9 +13,9 @@ var member = require('./controllers/member');
 var user = require('./controllers/user');
 var deal = require('./controllers/deal');
 var dealItem = require('./controllers/deal_item');
-var sync = require('./controllers/sync');
 var deal = require('./controllers/deal');
 var dealItem = require('./controllers/deal_item');
+var sync = require('./controllers/sync');
 
 
 
@@ -78,6 +75,7 @@ exports = module.exports = function(app) {
     app.delete('/member/:_ids', authToMember, member.deleteMember);//删除员工
     app.get('/findMemberByUserid/:user_id', authToMember, member.findMemberByUserid);//通过会员ID获取员工信息
     app.get('/memberRegJudge/:cellphone', authToMember, member.memberRegJudge);//通过手机号码判断是否允许创建员工信息
+
     //User
     app.get('/user/:cellphone', authToMember, user.getUserByCellphone);//根据手机号码查询用户
     app.get('/user/:cellphone/:password', authToMember, user.checkUser);//根据手机号码查询用户
@@ -95,7 +93,7 @@ exports = module.exports = function(app) {
     app.get('/deals/:id', authToMember, dealItem.index);//查询指定交易的一批交易明细
     //交易明细
     app.get('/deal/items/:deal_id', authToMember, dealItem.index);//查询指定交易的一批交易明细
-    
+
     //Sync同步
     app.get('/sync/merchants/:id', sync.restrict, sync.merchant);//同步一个商户信息
     app.get('/sync/stores/:id', sync.restrict, sync.store);//同步一个门店信息

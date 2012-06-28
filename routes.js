@@ -1,6 +1,6 @@
 /*!
  * expro future - route.js
- * Copyright(c) 2012 fengmk2 <gbo@extensivepro.com>
+ * Copyright(c) 2012 gbo <gbo@extensivepro.com>
  * MIT Licensed
  */
 

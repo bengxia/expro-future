@@ -77,7 +77,7 @@ exports.merchant = function(req, res, next) {
         if(err) return next(err);
         ep.trigger('goods', goods);
     });
-    Role.findAllBy({org_id:id}, function(err, roles) {
+    Role.findAll({org_id:id}, function(err, roles) {
         if(err) return next(err);
         ep.trigger('role', roles);
     });

@@ -13,8 +13,6 @@ var member = require('./controllers/member');
 var user = require('./controllers/user');
 var deal = require('./controllers/deal');
 var dealItem = require('./controllers/deal_item');
-var deal = require('./controllers/deal');
-var dealItem = require('./controllers/deal_item');
 var sync = require('./controllers/sync');
 
 

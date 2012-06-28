@@ -1,12 +1,9 @@
 /*!
  * expro future - route.js
- * Copyright(c) 2012 gbo <gbo2@extensivepro.com>
+ * Copyright(c) 2012 fengmk2 <gbo@extensivepro.com>
  * MIT Licensed
  */
 
-/**
- * Module dependencies.
- */
 var sign = require('./controllers/sign');
 var site = require('./controllers/site');
 var stores = require('./controllers/stores');
@@ -14,9 +11,9 @@ var merchants = require('./controllers/merchants');
 var goods = require('./controllers/goods');
 var member = require('./controllers/member');
 var user = require('./controllers/user');
-var sync = require('./controllers/sync');
 var deal = require('./controllers/deal');
 var dealItem = require('./controllers/deal_item');
+var sync = require('./controllers/sync');
 
 
 var authToMember = function(req, res, next) {
@@ -75,15 +72,14 @@ exports = module.exports = function(app) {
     app.delete('/member/:_ids', authToMember, member.deleteMember);//删除员工
     app.get('/findMemberByUserid/:user_id', authToMember, member.findMemberByUserid);//通过会员ID获取员工信息
     app.get('/memberRegJudge/:cellphone', authToMember, member.memberRegJudge);//通过手机号码判断是否允许创建员工信息
+
     //User
-    app.get('/user/:cellphone', user.getUserByCellphone);//根据手机号码查询用户
-    app.get('/user/:cellphone/:password', user.checkUser);//根据手机号码查询用户
-    
     app.get('/user/:cellphone', authToMember, user.getUserByCellphone);//根据手机号码查询用户
     app.get('/user/:cellphone/:password', authToMember, user.checkUser);//根据手机号码查询用户
 
     //交易管理
     app.get('/deal/index', authToMember, deal.index);//交易列表
+    app.get('/deals', authToMember, deal.index);//查询一批交易
     //app.get('/deal/:_id?/:isEdit?', deal.showMember);//显示已有员工（有_id）页面(查看 or 编辑:isEdit=true)
     //app.post('/deal', deal.saveMember);//保存新增员工（无_id）
     //app.put('/deal/:_id?', deal.updateMember);//更新已有员工（有_id）
@@ -91,7 +87,7 @@ exports = module.exports = function(app) {
 
     //交易明细
     app.get('/deal/items/:deal_id', authToMember, dealItem.index);//查询指定交易的一批交易明细
-    
+
     //Sync同步
     app.get('/sync/merchants/:id', sync.restrict, sync.merchant);//同步一个商户信息
     app.get('/sync/stores/:id', sync.restrict, sync.store);//同步一个门店信息

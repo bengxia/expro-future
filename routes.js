@@ -14,6 +14,7 @@ var user = require('./controllers/user');
 var deal = require('./controllers/deal');
 var dealItem = require('./controllers/deal_item');
 var sync = require('./controllers/sync');
+var warehouseWarrant = require('./controllers/warehouseWarrant');
 
 
 var authToMember = function(req, res, next) {
@@ -85,6 +86,11 @@ exports = module.exports = function(app) {
     app.get('/deals/:id', authToMember, dealItem.index);//查询指定交易的一批交易明细
 
     //仓库管理
+    app.get('/warehouse_warrant', authToMember, warehouseWarrant.index);//查询一批
+    app.get('/warehouse_warrant/:id', authToMember, warehouseWarrant.index);//查询一条
+    app.post('/warehouse_warrant', authToMember, warehouseWarrant.index);//新增一条
+    app.put('/warehouse_warrant', authToMember, warehouseWarrant.index);//更新一条
+    app.delete('/warehouse_warrant/:id', authToMember, warehouseWarrant.index);//删除一条
 
     //Sync同步
     app.get('/sync/merchants/:id', sync.restrict, sync.merchant);//同步一个商户信息

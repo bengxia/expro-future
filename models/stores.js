@@ -37,12 +37,15 @@ Store.prototype.findAllBy = function(opt, cb) {
  * @param sord 升序&降序
  * @param cb 回调
  */
-Store.prototype.findAll = function(where, start, limit, sidx, sord, cb) {
+Store.prototype.findAll = function(opt, cb) {
     var sql = " SELECT store._id _id, store.name name, merchant.short_name merchant_name, warehouse.name warehouse_name, store.state state, store.create_time create_time "
         +" FROM ef_store store, ef_merchant merchant, ef_warehouse warehouse "
-        +" where store.merchant_id = merchant._id and store.warehouse_id = warehouse._id  "+ where
-        +" ORDER BY "+sidx+" "+sord
-        +" LIMIT "+ start + " , "+limit;
+        +" where store.merchant_id = merchant._id and store.warehouse_id = warehouse._id  "
+        + opt.where;
+    if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    if(opt.et) sql += " and create_time <= "+ opt.et;
+    if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;
+    if(opt.limit && opt.start) sql += " LIMIT "+ opt.start + " , "+opt.limit;
     //console.log('sql:  '+sql);
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);

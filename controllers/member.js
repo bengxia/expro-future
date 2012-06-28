@@ -208,7 +208,7 @@ exports.index = function(req,res,next){
                         ep2.trigger('UserDone', member);
 
                     });
-                    Role.findOne({'role':member[Member.table+".role_id"]}, function(err, role) {
+                    Role.findOneWithRoute({'role':member[Member.table+".role_id"]}, function(err, role) {
                         if(err) { ep2.unbind(); return next(err);}
                         if (!role || role == undefined) return ep2.trigger('error', {status:204, error:'查询Role结果为空！'});
 

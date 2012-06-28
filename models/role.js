@@ -6,6 +6,7 @@ function create() {
 };
 
 function Role() {
+    this.table = 'ef_role';
 };
 
 Role.prototype = new SimpleDO('ef_role');

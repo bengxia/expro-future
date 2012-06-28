@@ -80,4 +80,5 @@ routes(app);
 
 
 app.listen(config.port);
-log.info("ExproFuture listening on port %d in %s mode", app.address().port, app.settings.env);
+//log.info("ExproFuture listening on port %d in %s mode", app.address().port, app.settings.env);
+log.info("ExproFuture listening on port %d in %s mode", config.port, app.settings.env);

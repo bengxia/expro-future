@@ -38,11 +38,13 @@ app.configure(function() {
 	app.use(require('./controllers/sign').auth_user);
 
         var csrf = express.csrf();
-	app.use(function(req, res, next){
+/*	app.use(function(req, res, next){
             //ignore some route
             if(req.url == '/signin') return next();
+            if(req.url == '/deals/40') return next();
+            if(req.url == '/deals') return next();
             csrf(req, res, next);
-        });            
+        });            */
 
 	// plugins
 	var plugins = config.plugins || [];

@@ -8,9 +8,30 @@ function Deal(){
     this.table = 'ef_deal';
 };
 
-Deal.prototype.create = function(options, cb) {    
+Deal.prototype.add = function(deal, cb) {	
+	var options = {
+		table: 'ef_deal',
+		fields: deal 
+	};	    
 	mysql.insert(options, function(err, info) {
+		if(err) return cb(err);
 		cb(err, info);		
+	}); 
+};
+
+Deal.prototype.delete = function(opt, cb) {
+	var sql = 'delete from ef_deal where _id = '+opt._id;    
+	mysql.query(sql, function(err) {
+		cb(err);		
+	}); 
+};
+
+Deal.prototype.query = function(opt, cb) {	
+	var sql = 'select * from ef_deal where _id = '+opt._id;    
+	mysql.query(sql, function(err, rs) {
+		if(err) return cb(err);
+		if(!rs.length) return cb(err);
+		cb(err, rs[0]);		
 	}); 
 };
 

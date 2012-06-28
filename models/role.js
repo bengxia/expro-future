@@ -10,8 +10,7 @@ function Role() {
 };
 
 Role.prototype = new SimpleDO('ef_role');
-
-Role.prototype.findOneWithRoute = function(opt, cb) {
+Role.prototype.findOne = function(opt, cb) {
     var sql = 'SELECT t1.*, t3.* FROM ef_role as t1, ef_role_route as t2, ef_route as t3 '+
               'WHERE t1._id = t2.role_id AND t3._id = t2.route_id AND t1._id = '+opt.role;
     mysql.query(sql, function(err, rs) {

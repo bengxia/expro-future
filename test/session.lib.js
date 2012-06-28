@@ -38,6 +38,17 @@ exports.putData = function(url, data, sid, accept) {
             .set('Cookie', sessionID)
             .write(JSON.stringify(data));
 }
+
+exports.deleteData = function(url, data, sid, accept) {
+    var mineType = accept ||'application/json';
+    var sessionID = sid||'';
+    return  request()
+            .delete(url)
+            .set('content-type', 'application/json')
+            .set('Accept', mineType)
+            .set('Cookie', sessionID)
+            .write(JSON.stringify(data));
+}
 /*
 exports.register = function(data) { return  postData('/members/', data, ''); }
 exports.signin = function(data，ct) { return  postData('/signin', data, '', ct); }

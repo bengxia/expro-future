@@ -11,7 +11,7 @@ exports.query = function(sql, cb) {
     });
 }
 
-exports.findAll = function(opt, cb) {
+exports.find = function(opt, cb) {
     var sql = "SELECT ";
     if(opt.objs) {
         sql += opt.objs.join();
@@ -19,20 +19,24 @@ exports.findAll = function(opt, cb) {
         sql += '*';
     }
     sql += ' FROM '+opt.schema+' WHERE 1';
-    for(var key in opt.querys) {
-        var value = opt.querys[key];
+    console.log(opt);
+    for(var key in opt.query) {
+        var value = opt.query[key];
         if(typeof value == 'string') {
             sql += ' AND '+key+' = "'+value+'"';
-        }
-        else if(typeof value == 'number') {
+        } else if(typeof value == 'number') {
             sql += ' AND '+key+' = '+value;
+        } else if(typeof value == 'object') {
+            for(var op in value) {
+                sql += ' AND '+op+' '+value[op];
+            }
         }
     }
     exports.query(sql, cb);
 }
 
 exports.findOne = function(opt, cb) {
-    exports.findAll(opt, function(err, rs, fields) {
+    exports.find(opt, function(err, rs, fields) {
         if(err || rs.length == 0) cb(err);
         else cb(err, rs[0], fields);
     });

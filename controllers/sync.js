@@ -113,7 +113,7 @@ exports.store = function(req, res, next) {
     };
     
     function getWarrants(warehouse) {
-        WarehouseWarrant.findAll({recipient_id:warehouse._id}, function(err, warehouseWarrants) {
+        WarehouseWarrant.find({recipient_id:warehouse._id}, function(err, warehouseWarrants) {
             if(err) return next(err);
             if(warehouseWarrants.length > 0) warehouse.warrant = warehouseWarrants;
             ep.after('warehouseWarrant', warehouseWarrants.length, function() {

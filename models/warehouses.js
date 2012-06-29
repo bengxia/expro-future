@@ -1,13 +1,13 @@
 var mysql = require('../libs/mysql.js');
+var SimpleDO = require('../libs/simpleDO');
 
 function createWarehouse() {
     return new Warehouse();
 };
 
 function Warehouse() {
-    this.table = '`ef_warehouse`';
 };
-
+Warehouse.prototype = new SimpleDO('`ef_warehouse`');
 Warehouse.prototype.create = function(name, cb) {
     var opt = {
         table: 'ef_warehouse',
@@ -19,11 +19,6 @@ Warehouse.prototype.create = function(name, cb) {
             return cb(err, info);
         }
     });
-};
-
-Warehouse.prototype.findOne = function(opt, cb) {
-    options = {schema:this.table, querys:opt};
-    mysql.findOne(options, cb);
 };
 
 exports = module.exports = createWarehouse;

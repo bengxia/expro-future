@@ -26,4 +26,9 @@ Warehouse.prototype.findOne = function(opt, cb) {
     mysql.findOne(options, cb);
 };
 
+Warehouse.prototype.findAll = function(opt, cb) {
+    options = {schema:this.table, querys:opt};
+    mysql.findAll(options, cb);
+};
+
 exports = module.exports = createWarehouse;

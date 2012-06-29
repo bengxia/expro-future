@@ -19,6 +19,17 @@ Deal.prototype.add = function(deal, cb) {
 	}); 
 };
 
+Deal.prototype.update = function(deal, cb) {	
+	var options = {
+		table: 'ef_deal',
+		fields: deal 
+	};	    
+	mysql.update(options, function(err, info) {
+		if(err) return cb(err);
+		cb(err, info);		
+	}); 
+};
+
 Deal.prototype.delete = function(opt, cb) {
 	var sql = 'delete from ef_deal where _id = '+opt._id;    
 	mysql.query(sql, function(err) {

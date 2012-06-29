@@ -9,7 +9,6 @@ function Role() {
     this.table = 'ef_role';
 };
 Role.prototype = new SimpleDO('ef_role');
-
 Role.prototype.findRoute = function(role, cb) {
     var sql = 'SELECT t1.* FROM ef_route as t1, ef_role_route as t2 '+
               'WHERE t1._id = t2.route_id AND t2.role_id = '+role._id;

@@ -77,6 +77,11 @@ exports = module.exports = function(app) {
     //User
     app.get('/user/:cellphone', authToMember, user.getUserByCellphone);//根据手机号码查询用户
     app.get('/user/:cellphone/:password', authToMember, user.checkUser);//根据手机号码查询用户
+    
+    //交易
+    app.post('/deals', authToMember, deal.addDeal);//新增一条交易
+    app.delete('/deals/:id', authToMember, deal.deleteDeal);//取消一条交易
+    app.put('/deals/:id', authToMember, deal.updateDeal);//更新一条交易
 
     //交易管理
     //app.get('/deal/index', authToMember, deal.index);//交易列表

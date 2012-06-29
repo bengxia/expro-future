@@ -402,3 +402,48 @@ exports.deleteDeal = function(req, res, next) {
     });	
 }
 
+exports.updateDeal = function(req, res) {
+    var json = {};
+    json.deal = {};
+    var deal_item = req.body.deal.deal_item;
+    json.deal.lid = req.body.deal.lid;
+    delete req.body.deal.deal_item;
+    delete req.body.deal.lid;
+    req.body.deal.dealer_id = req.session.user._id;			
+    var ep = EventProxy.create();
+    var feedback = function(result) {
+	    if(201 == result.status) {
+	        res.json(result.json, result.status);			
+        }
+        else {
+	        res.end(result.status);
+	    }		    		
+    }	
+    Deal.update(req.body.deal, function(err, info) {		
+        if(err) {
+	        feedback({status: 400});
+	    }
+	    else { 								
+            json.deal._id = req.body.deal._id;
+            json.deal.deal_item = [];
+			
+            ep.after('deal_item', deal_item.length, function(data) {				
+		        feedback({status: 201, json: json});
+            });
+            deal_item.forEach(function(item) {	            
+	            Deal_item.update(item, function(err, info2) {
+	                if(err) {
+		                feedback({status: 400});
+		            }
+		            else {						
+		                json.deal.deal_item.push({
+			                _id:item._id,
+			                lid:info2.lid,
+			                deal_id:req.body.deal._id});					
+		            }
+			        ep.trigger('deal_item');
+		        });
+		    });
+	    }	    	
+	});		
+}

@@ -6,14 +6,15 @@
  * To change this template use File | Settings | File Templates.
  */
 var mysql = require('../libs/mysql.js');
+var SimpleDO = require('../libs/simpleDO');
 
 function createGoodsType() {
     return new GoodsType();
 };
 
 function GoodsType() {
-    this.table = '`ef_goods_type`';
 };
+GoodsType.prototype = new SimpleDO('`ef_goods_type`');
 
 GoodsType.prototype.findAll = function(where, cb) {
     var sql = " SELECT goods_type._id _id, goods_type.parent_id parent_id, goods_type.name name, "

@@ -13,8 +13,8 @@ exports.query = function(sql, cb) {
 
 exports.find = function(opt, cb) {
     var sql = "SELECT ";
-    if(opt.objs) {
-        sql += opt.objs.join();
+    if(opt.field) {
+        sql += opt.field.join();
     } else {
         sql += '*';
     }

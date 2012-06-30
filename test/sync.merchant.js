@@ -5,7 +5,7 @@ describe('##Sync merchant', function() {
         session.getData('/sync/merchants/1', '')
         .end(function(res) {
             res.statusCode.should.equal(200);
-            console.log(res.body);
+            console.log(JSON.stringify(res.body));
             done();
         })
     })

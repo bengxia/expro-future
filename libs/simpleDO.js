@@ -10,8 +10,14 @@ function SimpleDO(schema) {
     cb：回调函数，在查询完成后异步执行返回结果。
 */
 SimpleDO.prototype.findOne = function(query, cb) {
-    options = {schema:this.schema, query:query};
-    mysql.findOne(options, cb);
+    var argLen = arguments.length;
+    if(argLen < 1) return;
+    var callback = arguments[argLen-1];
+    arguments[argLen-1] = function(err, rs, fields) {
+        if(err || !rs.length) cb(err);
+        else callback(err, rs[0], fields);
+    };
+    this.find.apply(this, Array.prototype.slice.call(arguments));
 };
 
 /**
@@ -20,8 +26,13 @@ SimpleDO.prototype.findOne = function(query, cb) {
     cb：回调函数，在查询完成后异步执行返回结果。
 */
 SimpleDO.prototype.find = function(query, cb) {
-    options = {schema:this.schema, query:query};
-    mysql.find(options, cb);    
+    var argLen = arguments.length;
+    if(argLen < 1) return;
+    var callback = arguments[argLen-1];
+    var options = {schema:this.schema};
+    if(argLen > 1) options.query = arguments[0];
+    if(argLen > 2) options.field = arguments[1];
+    mysql.find(options, callback);    
 };
 
 exports = module.exports = SimpleDO;

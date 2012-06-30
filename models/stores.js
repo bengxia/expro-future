@@ -6,22 +6,22 @@
  * To change this template use File | Settings | File Templates.
  */
 var mysql = require('../libs/mysql.js');
+var SimpleDO = require('../libs/simpleDO');
 
 function createStore() {
     return new Store();
 };
 
 function Store() {
-    this.table = 'ef_store';
 };
-
+Store.prototype = new SimpleDO('`ef_store`');
 /**
-* 以对象形式传递查询条件参数
+    查找门店的员工
 */
-Store.prototype.findOneBy = function(opt, cb) {
-    options = {schema:'ef_store', query:opt};
-    mysql.findOne(options, cb);
-};
+Store.prototype.findStaff = function(query, cb) {
+    var options = {schema:'`ef_store_staff`', query:query, field:['member_id']};
+    mysql.find(options, cb);    
+}
 
 /**
  * 根据条件查询表中所有的门店数据

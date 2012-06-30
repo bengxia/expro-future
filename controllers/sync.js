@@ -31,60 +31,79 @@ exports.merchant = function(req, res, next) {
         return res.send(result.status);
     });
     
-    ep.assign('merchant', 'store', 'member', 'store_staff', 
-    'user', 'goods_type', 'goods', 'role', 'route_table', 
-    function(merchant, store, member, store_staff, user, 
-    goods_type, goods, role, route_table) {
-        merchant.store = store;
-        merchant.member = member;
-        merchant.store_staff = store_staff;
-        merchant.user = user;
-        merchant.goods_type = goods_type;
-        merchant.goods = goods;
-        merchant.role = role;
-        merchant.route_table = route_table;
-        json.sync_merchant = merchant;
+    ep.assign('merchant', 'store', 'member', 'goods_type', 'goods', 'role', function() {
+        //console.log(arguments);
+        Array.prototype.slice.apply(arguments).forEach(function(item) {
+//            console.log(item);
+            if(item.store) 
+                json.sync_merchant.store = item.store;
+            else if(item.member) 
+                json.sync_merchant.member = item.member;
+            else if(item.goods_type) 
+                json.sync_merchant.goods_type = item.goods_type;
+            else if(item.goods) 
+                json.sync_merchant.goods = item.goods;
+            else if(item.role) 
+                json.sync_merchant.role = item.role;
+        });
         return res.json(json);
     });
     
     Merchant.findOne({_id:id}, function(err, merchant) {
         if(err) return next(err);
         if(!merchant) return ep.trigger('error', {status:404});
-        console.log(merchant);
-        ep.trigger('merchant', merchant);
+        json.sync_merchant = merchant;
+        ep.trigger('merchant', {});
     });
-    Store.findAllBy({merchant_id:id}, function(err, stores) {
+    Store.find({merchant_id:id}, function(err, stores) {
         if(err) return next(err);
-        ep.trigger('store', stores);
+        ep.after('store_staff', stores.length, function(){
+            ep.trigger('store', {store:stores});
+        });
+        stores.forEach(findStoreStaff);
     });
-    Member.findAllBy({org_id:id}, function(err, members) {
+    function findStoreStaff(store) {
+        Store.findStaff({store_id:store._id}, function(err, staffs) {
+            if(err) return next(err);
+            store.staff = staffs;
+            ep.trigger('store_staff', staffs);
+        });    
+    };
+    Member.find({org_id:id}, function(err, members) {
         if(err) return next(err);
-        ep.trigger('member', members);
+        ep.after('user', members.length, function() {
+            ep.trigger('member', {member:members});
+        });
+        members.forEach(findMemberUser);
     });
-    Store.findAllBy({org_id:id}, function(err, staffs) {
+    function findMemberUser(member) {
+        User.findOne({_id:member.user_id}, function(err, user) {
+            if(err) return next(err);
+            member.user = user;
+            ep.trigger('user', user);
+        });
+    };
+    GoodsType.find(function(err, goodsTypes) {
         if(err) return next(err);
-        ep.trigger('store_staff', staffs);
+        ep.trigger('goods_type', {goods_type:goodsTypes});
     });
-    User.findAllBy({org_id:id}, function(err, Users) {
+    Merchant.findGoods({merchant_id:id}, function(err, goods) {
         if(err) return next(err);
-        ep.trigger('user', Users);
+        ep.trigger('goods', {goods:goods});
     });
-    GoodsType.findAllBy({org_id:id}, function(err, goodsTypes) {
+    Role.find(function(err, roles) {
         if(err) return next(err);
-        ep.trigger('goods_type', goodsTypes);
+        ep.after('role_route', roles.length, function() {
+            ep.trigger('role', {role:roles});
+        });
+        roles.forEach(findRoleRoute);
     });
-    Goods.findAllBy({org_id:id}, function(err, goods) {
-        if(err) return next(err);
-        ep.trigger('goods', goods);
-    });
-    Role.findAll({org_id:id}, function(err, roles) {
-        if(err) return next(err);
-        ep.trigger('role', roles);
-    });
-    Route.findAllBy({org_id:id}, function(err, routes) {
-        if(err) return next(err);
-        ep.trigger('route_table', routes);
-    });
+    function findRoleRoute(role) {
+        Role.findRoute({_id:role._id}, function(err, routes) {
+            role.route = routes;
+            ep.trigger('role_route', routes);
+        })
+    };
 };
 
 exports.store = function(req, res, next) {

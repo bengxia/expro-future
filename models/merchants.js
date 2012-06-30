@@ -1,4 +1,5 @@
 var mysql = require('../libs/mysql.js');
+var SimpleDO = require('../libs/simpleDO');
 
 function createMerchant() {
     return new Merchant();
@@ -6,6 +7,18 @@ function createMerchant() {
 
 function Merchant() {
     this.table = 'ef_merchant';
+};
+Merchant.prototype = new SimpleDO('ef_merchant');
+
+Merchant.prototype.findGoods = function(query, cb) {
+//    var options = {schema:'`ef_merchant_goods`', query:query};
+//    mysql.find(options, cb);
+    var sql = "SELECT g.* FROM ef_goods AS g, ef_merchant_goods AS mg "+
+              "WHERE g._id = mg.goods_id AND mg.merchant_id = "+query.merchant_id;
+    mysql.query(sql, function(err, rs) {
+       if(err || !rs.length) return cb(err);
+       cb(err, rs);
+    });
 };
 
 Merchant.prototype.save = function(obj, cb) {

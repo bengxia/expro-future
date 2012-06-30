@@ -207,7 +207,7 @@ exports.login = function(req, res, next) {
     });
     
     function findRole(role_id) {    
-        Role.findOneWithRoute({role:role_id}, function(err, role) {
+        Role.findOneWithRoute({_id:role_id}, function(err, role) {
             if(err) { ep.unbind(); return next(err);}
             if (!role) return ep.trigger('error', {status:403, error:'用户权限不存在。'});
             req.session.user.role = role;

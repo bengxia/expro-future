@@ -1,12 +1,13 @@
 var mysql = require('../libs/mysql.js');
+var SimpleDO = require('../libs/simpleDO');
 
 function create() {
     return new Member();
 };
 
 function Member() {
-    this.table = 'ef_member';
 };
+Member.prototype = new SimpleDO('ef_member');
 
 Member.prototype.findOne = function(opt, cb) {
     /*

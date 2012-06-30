@@ -8,16 +8,32 @@ function create() {
 function Role() {
     this.table = 'ef_role';
 };
-
 Role.prototype = new SimpleDO('ef_role');
-Role.prototype.findOneWithRoute = function(opt, cb) {
-    var sql = 'SELECT t1.*, t3.* FROM ef_role as t1, ef_role_route as t2, ef_route as t3 '+
+
+Role.prototype.findRoute = function(role, cb) {
+    var sql = 'SELECT t1.* FROM ef_route as t1, ef_role_route as t2 '+
+              'WHERE t1._id = t2.route_id AND t2.role_id = '+role._id;
+    mysql.query(sql, function(err, rs) {
+        if(err || !rs.length) return cb(err);
+        cb(err, rs);
+    });
+};
+
+Role.prototype.findOneWithRoute = function(query, cb) {
+    Role.prototype.findOne({query:query}, function(err, rs) {
+        if(err || !rs.length) return cb(err);
+        Role.protoype.findRoute({_id:query._id}, function(err, routes) {
+            rs[0].route = routes;
+            cb(err, rs[0]);
+        });
+    });
+/*    var sql = 'SELECT t1.*, t3.* FROM ef_role as t1, ef_role_route as t2, ef_route as t3 '+
               'WHERE t1._id = t2.role_id AND t3._id = t2.route_id AND t1._id = '+opt.role;
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);
         cb(err, rs[0]);
-    });
+    });*/
 };
 
 

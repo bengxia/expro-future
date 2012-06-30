@@ -15,9 +15,7 @@ function createStore() {
 function Store() {
 };
 Store.prototype = new SimpleDO('`ef_store`');
-/**
-    查找门店的员工
-*/
+
 Store.prototype.findStaff = function(query, cb) {
     var options = {schema:'`ef_store_staff`', query:query, field:['member_id']};
     mysql.find(options, cb);    

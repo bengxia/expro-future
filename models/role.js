@@ -20,11 +20,12 @@ Role.prototype.findRoute = function(role, cb) {
 };
 
 Role.prototype.findOneWithRoute = function(query, cb) {
-    Role.prototype.findOne({query:query}, function(err, rs) {
-        if(err || !rs.length) return cb(err);
-        Role.protoype.findRoute({_id:query._id}, function(err, routes) {
-            rs[0].route = routes;
-            cb(err, rs[0]);
+    Role.prototype.findOne(query, function(err, role) {
+        if(err || !role) return cb(err);
+        Role.prototype.findRoute(query, function(err, routes) {
+            role.route = routes;
+            //console.log(role);
+            cb(err, role);
         });
     });
 /*    var sql = 'SELECT t1.*, t3.* FROM ef_role as t1, ef_role_route as t2, ef_route as t3 '+

@@ -116,7 +116,7 @@ exports.store = function(req, res, next) {
         return res.send(result.status);
     });
     
-    Store.findOneBy({_id:id}, function(err, store) {
+    Store.findOne({_id:id}, function(err, store) {
         if(err) return next(err);
         if(!store) return ep.trigger('error', {status:404});
         getWarehouse(store);

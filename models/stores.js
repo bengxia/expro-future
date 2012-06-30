@@ -55,6 +55,47 @@ Store.prototype.findAll = function(opt, cb) {
 };
 
 /**
+ * 根据条件获得数据的行数
+ * @param where 页面传入的查询条件
+ * @param cb 回调
+ */
+/*
+Store.prototype.count = function(where, cb) {
+    var sql = "SELECT COUNT(*) AS count FROM ef_store store where 1=1 "+where;
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs);
+    });
+};*/
+
+Store.prototype.count = function(opt, cb) {
+    var sql = "SELECT COUNT(*) AS count FROM ef_store where 1=1 "
+        +opt.where;
+    if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    if(opt.et) sql += " and create_time <= "+ opt.et;
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs[0]);
+    });
+};
+
+Store.prototype.findAllData = function(opt, cb) {
+    var sql = " SELECT * FROM ef_store  "
+        +" where 1=1 "+ opt.where;
+    if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    if(opt.et) sql += " and create_time <= "+ opt.et;
+    if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;
+    if(opt.limit && opt.start) sql += " LIMIT "+ opt.start + " , "+opt.limit;
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs);
+    });
+};
+
+/**
  * 查询指定门店，编辑时使用。
  * @param opt 包含_id属性
  * @param cb
@@ -87,19 +128,7 @@ Store.prototype.findOne = function(opt, cb) {
     });
 };
 
-/**
- * 根据条件获得数据的行数
- * @param where 页面传入的查询条件
- * @param cb 回调
- */
-Store.prototype.count = function(where, cb) {
-    var sql = "SELECT COUNT(*) AS count FROM ef_store store where 1=1 "+where;
-    mysql.query(sql, function(err, rs) {
-        if(err) return cb(err);
-        if(!rs.length) return cb(err);
-        cb(err, rs);
-    });
-};
+
 
 /**
  * 创建门店

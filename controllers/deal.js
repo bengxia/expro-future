@@ -323,7 +323,8 @@ exports.index = function(req,res,next){
             Deal.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
                 if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询结果为空！'});
-                ep.trigger('showList', rs);
+                var jsonObj = {deal:rs};
+                ep.trigger('showList', jsonObj);
             });
         };
     }

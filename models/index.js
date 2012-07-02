@@ -10,3 +10,4 @@ exports.Goods = require('./goods')();
 exports.GoodsType = require('./goodstype')();
 exports.Deal = require('./deal')();
 exports.Deal_item = require('./deal_item')();
+exports.Merchant_goods = require('./merchant_goods')();

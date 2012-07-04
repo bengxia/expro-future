@@ -1,4 +1,3 @@
-
 var models = require('../models');
 var Deal = models.Deal;
 var Deal_item = models.Deal_item;

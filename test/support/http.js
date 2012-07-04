@@ -19,8 +19,8 @@ function Request(showRes) {
   this.basePath = '';
   this.addr = {
       port:10080,
+//      address:'192.168.0.115'
       address:'127.0.0.1'
-//      address:'127.0.0.1'
   };
   this.showRes = showRes || false; 
 }

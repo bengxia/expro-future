@@ -17,7 +17,7 @@ function Store() {
 Store.prototype = new SimpleDO('`ef_store`');
 
 Store.prototype.findStaff = function(query, cb) {
-    var options = {schema:'`ef_store_staff`', query:query, field:['member_id']};
+    var options = {schema:'`ef_store_staff`', query:query, field:['member_id AS _id']};
     mysql.find(options, cb);    
 }
 

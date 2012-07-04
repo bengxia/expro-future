@@ -39,12 +39,12 @@ exports.merchant = function(req, res, next) {
                 json.sync_merchant.store = item.store;
             else if(item.member) 
                 json.sync_merchant.member = item.member;
-            else if(item.goods_type) 
-                json.sync_merchant.goods_type = item.goods_type;
             else if(item.goods) 
                 json.sync_merchant.goods = item.goods;
+/*            else if(item.goods_type) 
+                json.sync_merchant.goods_type = item.goods_type;
             else if(item.role) 
-                json.sync_merchant.role = item.role;
+                json.sync_merchant.role = item.role;*/
         });
         return res.json(json);
     });
@@ -85,6 +85,7 @@ exports.merchant = function(req, res, next) {
     };
     GoodsType.find(function(err, goodsTypes) {
         if(err) return next(err);
+        json.goods_type = goodsTypes;
         ep.trigger('goods_type', {goods_type:goodsTypes});
     });
     Merchant.findGoods({merchant_id:id}, function(err, goods) {
@@ -94,6 +95,7 @@ exports.merchant = function(req, res, next) {
     Role.find(function(err, roles) {
         if(err) return next(err);
         ep.after('role_route', roles.length, function() {
+            json.role = roles;
             ep.trigger('role', {role:roles});
         });
         roles.forEach(findRoleRoute);

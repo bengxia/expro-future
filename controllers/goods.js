@@ -35,7 +35,7 @@ var getNow=function(){
 //设置查询区域的查询输入框，规则：{"查询字段名":"页面显示的label文字"}
 var queryInput = {'_id':'编号','name':'名称','code':'资产编号', 'price':'售价', 'type_id':'商品类型'};
 //设置前台页面所要显示的数据字段,用于数据筛选
-var showElement = ['_id', 'name', 'code', 'goods_type_name', 'state', 'price', 'create_time'];
+//var showElement = ['_id', 'name', 'code', 'goods_type_name', 'state', 'price', 'create_time'];
 ////设置前台表格控件说需要的相关对象及参数End
 
 /**
@@ -45,7 +45,6 @@ var showElement = ['_id', 'name', 'code', 'goods_type_name', 'state', 'price', '
  * @param next
  */
 exports.index = function(req,res,next){
-
     if(req.accepts('html')) {
         res.render('goods/index', {queryInput:queryInput});
     }else{
@@ -56,6 +55,7 @@ exports.index = function(req,res,next){
         var et = req.query.et;//交易发生截至时间
         var sidx = req.query.sidx;//排序字段名
         var sord = req.query.sord;//排序方式
+        var type_id = req.query.type_id;//商品类型ID
 
         var ep = EventProxy.create();
 
@@ -66,6 +66,11 @@ exports.index = function(req,res,next){
             if(value != undefined){
                 where += ' and '+key+' like \'%'+value+'%\' ';
             }
+        }
+
+        //增加商品类型ID的查询条件
+        if(type_id){
+            where += ' and type_id='+type_id;
         }
 
         //回调函数
@@ -128,9 +133,9 @@ exports.index = function(req,res,next){
                 if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'当前商户下属的商品列表查询结果为空！'});
                 //rs：获得当前登陆用户所属商户下的所有商品列表
 
-                where += " and operator_id in(";
+                where += " and _id in(";
                 for(var i=0; i<rs.length; i++){
-                    where += " "+rs[i]._id;
+                    where += " "+rs[i].goods_id;
                     if(i != rs.length-1){
                         where += ",";
                     }else{
@@ -158,7 +163,7 @@ exports.index = function(req,res,next){
         //查询count数
         function findCount(where){
             //获得数据行数，用于分页计算
-            WarehouseWarrant.count({where:where, bt:bt, et:et}, function(err, count) {
+            Goods.count({where:where, bt:bt, et:et}, function(err, count) {
                 if(err) { ep.unbind(); return next(err);}
                 if (!count && !count.count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
                 ep.trigger('findAllForWeb', where, count.count);
@@ -167,7 +172,7 @@ exports.index = function(req,res,next){
 
         //转为web服务
         function findAllForWeb(where, count) {
-            var showElement = ['_id', 'recipient_id', 'operator_id', 'source_id', 'create_time', 'comment'];
+            var showElement = ['_id', 'name', 'type_id', 'state', 'code', 'price', 'create_time', 'comment'];
 
             if (!count && !count.count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
 
@@ -192,7 +197,7 @@ exports.index = function(req,res,next){
             // 若起始行为0
             if(start < 0) start = 0;
 
-            WarehouseWarrant.findAllData({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
+            Goods.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
                 if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询结果为空！'});
 
@@ -213,7 +218,6 @@ exports.index = function(req,res,next){
                         var index = showElement.indexOf(key);
                         if(index >= 0){
                             ay[index] = rs[i][key];
-
                         }
                     }
                     rows.cell = ay;
@@ -230,10 +234,11 @@ exports.index = function(req,res,next){
 
         function findAll(where) {
             //start=起始行数&limit=每页显示行数&bt=交易发生时间起点&et=交易发生时间的截至时间&sidx=排序字段名&sord=排序方式asc,desc
-            WarehouseWarrant.findAllData({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
+            Goods.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
                 if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询结果为空！'});
-                ep.trigger('showList', rs);
+                var jsonObj = {goods:rs};
+                ep.trigger('showList', jsonObj);
             });
         };
         /*
@@ -313,6 +318,17 @@ exports.index = function(req,res,next){
     }
 };
 
+
+exports.showGoodsNew = function(req, res, next) {
+    console.log("新建弹出框。。。");
+    // 3个状态： 新增， 查看， 编辑
+    // - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
+    // - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
+    // - 编辑(pageState=2)： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
+    var pageState = 0;
+    res.render('goods/goods', { layout: false, pageState:pageState, method:'post'});
+};
+
 /**
  * 显示新增商品（无_id）,或已有商品（有_id）页面
  * @param req
@@ -358,11 +374,14 @@ exports.showGoods = function(req, res, next) {
  */
 exports.saveGoods = function(req,res,next){
     console.log("saveGoods。。。");
+    //var showElement = ['_id', 'name', 'type_id', 'state', 'code', 'price', 'create_time', 'comment'];
     //开始校验输入数值的正确性
     var name = req.body.name;
     var type_id = req.body.type_id;
     var state = req.body.state;
+    var code = req.body.code;
     var price = req.body.price;
+    var comment = req.body.comment;
 
     if(!name) return res.send({status:400, error:'名字不能为空!'});
     if(!type_id) return res.send({status:400, error:'请选择商品类型!'});
@@ -370,13 +389,23 @@ exports.saveGoods = function(req,res,next){
     if(!price) return res.send({status:400, error:'售价不能为空!'});
 
 
-    //说明是新增
-    //创建时间
-    req.body.create_time = getNow();
-    Goods.create(req.body, function(err, info){
-        if(err) return next(err);
-        res.send({status:201, error:'添加商品信息成功!'});
-    });
+    if(req.session.user.member.org_id){
+        //创建时间
+        req.body.create_time = getNow();
+        Goods.create(req.body, function(err, info){
+            if(err) return next(err);
+            if(!info || !info.insertId) return res.json({error:'商品数据入库出错!'}, 500);
+            Merchant_goods.create({merchant_id:req.session.user.member.org_id, goods_id:info.insertId}, function(err2, info2){
+                if(err2) return next(err2);
+
+                var jsonObj = {goods:{_id:info.insertId}};
+                return res.json(jsonObj, 201);
+            });
+        });
+    }else{
+        return res.json({error:'未登录或当前用户不是商户员工!'}, 405);
+    }
+
 };
 
 /**

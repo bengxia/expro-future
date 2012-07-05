@@ -136,19 +136,37 @@ exports.store = function(req, res, next) {
     function getWarrants(warehouse) {
         WarehouseWarrant.find({recipient_id:warehouse._id}, function(err, warehouseWarrants) {
             if(err) return next(err);
-            if(warehouseWarrants.length > 0) warehouse.warrant = warehouseWarrants;
-            ep.after('warehouseWarrant', warehouseWarrants.length, function() {
-                feedback();
+            if(warehouseWarrants.length > 0) warehouse.stock_in = warehouseWarrants;
+            ep.after('stockIn', warehouseWarrants.length, function() {
+                ep.trigger('stockIns');
             });
             warehouseWarrants.forEach(function(warrant) {
                 WarehouseWarrant.findItems({warehouse_warrant_id:warrant._id}, function(err, warehouseWarrantItems) {
                     if(err) return next(err);
                     if(warehouseWarrantItems.length > 0) warrant.item = warehouseWarrantItems;
-                    ep.trigger('warehouseWarrant', warehouseWarrantItems);
+                    ep.trigger('stockIn', warehouseWarrantItems);
+                });
+            });
+        });
+        WarehouseWarrant.find({source_id:warehouse._id}, function(err, warehouseWarrants) {
+            if(err) return next(err);
+            if(warehouseWarrants.length > 0) warehouse.stock_out = warehouseWarrants;
+            ep.after('stockOut', warehouseWarrants.length, function() {
+                ep.trigger('stockOuts');
+            });
+            warehouseWarrants.forEach(function(warrant) {
+                WarehouseWarrant.findItems({warehouse_warrant_id:warrant._id}, function(err, warehouseWarrantItems) {
+                    if(err) return next(err);
+                    if(warehouseWarrantItems.length > 0) warrant.item = warehouseWarrantItems;
+                    ep.trigger('stockOut', warehouseWarrantItems);
                 });
             });
         });
     };
+    
+    ep.assign('stockIns', 'stockOuts', function() {
+        feedback();
+    });
     
     function feedback() {
         return res.json(json);

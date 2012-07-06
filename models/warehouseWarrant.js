@@ -53,4 +53,14 @@ WarehouseWarrant.prototype.count = function(opt, cb) {
     });
 };
 
+WarehouseWarrant.prototype.create = function(body, cb) {
+    var opt = {
+        table: 'ef_warehouse_warrant',
+        fields: body
+    };
+    mysql.insert(opt, function(err, info) {
+        cb(err, info);
+    });
+};
+
 exports = module.exports = createWarehouseWarrant;

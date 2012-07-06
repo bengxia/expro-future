@@ -92,7 +92,7 @@ exports = module.exports = function(app) {
     app.get('/warehouse_warrant/new', authToMember, warehouseWarrant.showWarehouseWarrant);//显示新建页面
     app.get('/warehouse_warrant/:id', authToMember, warehouseWarrant.index);//查询一条
 
-    app.post('/warehouse_warrant', authToMember, warehouseWarrant.index);//新增一条
+    app.post('/warehouse_warrant', authToMember, warehouseWarrant.creatWarehouseWarrant);//新增一条
     app.put('/warehouse_warrant', authToMember, warehouseWarrant.index);//更新一条
     app.delete('/warehouse_warrant/:id', authToMember, warehouseWarrant.index);//删除一条
 

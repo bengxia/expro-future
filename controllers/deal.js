@@ -332,11 +332,11 @@ exports.index = function(req,res,next){
 exports.addDeal = function(req, res) {
     var json = {};
     json.deal = {};
-    var deal_item = req.body.deal.deal_item;
-    json.deal.lid = req.body.deal.lid;
-    delete req.body.deal.deal_item;
-    delete req.body.deal.lid;
-    req.body.deal.dealer_id = req.session.user._id;			
+    var deal_item = req.body.deal_item;
+    json.deal.lid = req.body.lid;
+    delete req.body.deal_item;
+    delete req.body.lid;
+    req.body.dealer_id = req.session.user._id;			
     var ep = EventProxy.create();
     var feedback = function(result) {
 	    if(201 == result.status) {
@@ -346,7 +346,7 @@ exports.addDeal = function(req, res) {
 	        res.end(result.status);
 	    }		    		
     }	
-    Deal.add(req.body.deal, function(err, info) {		
+    Deal.add(req.body, function(err, info) {		
         if(err) {
 	        feedback({status: 400});
 	    }
@@ -404,11 +404,11 @@ exports.deleteDeal = function(req, res, next) {
 exports.updateDeal = function(req, res) {
     var json = {};
     json.deal = {};
-    var deal_item = req.body.deal.deal_item;
-    json.deal.lid = req.body.deal.lid;
-    delete req.body.deal.deal_item;
-    delete req.body.deal.lid;
-    req.body.deal.dealer_id = req.session.user._id;			
+    var deal_item = req.body.deal_item;
+    json.deal.lid = req.body.lid;
+    delete req.body.deal_item;
+    delete req.body.lid;
+    req.body.dealer_id = req.session.user._id;			
     var ep = EventProxy.create();
     var feedback = function(result) {
 	    if(201 == result.status) {
@@ -418,12 +418,12 @@ exports.updateDeal = function(req, res) {
 	        res.end(result.status);
 	    }		    		
     }	
-    Deal.update(req.body.deal, function(err, info) {		
+    Deal.update(req.body, function(err, info) {		
         if(err) {
 	        feedback({status: 400});
 	    }
 	    else { 								
-            json.deal._id = req.body.deal._id;
+            json.deal._id = req.body._id;
             json.deal.deal_item = [];
 			
             ep.after('deal_item', deal_item.length, function(data) {				
@@ -438,7 +438,7 @@ exports.updateDeal = function(req, res) {
 		                json.deal.deal_item.push({
 			                _id:item._id,
 			                lid:info2.lid,
-			                deal_id:req.body.deal._id});					
+			                deal_id:req.body._id});					
 		            }
 			        ep.trigger('deal_item');
 		        });

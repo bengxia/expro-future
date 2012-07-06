@@ -16,6 +16,27 @@ function updateDeal(id, data, sid, ct) {
 	return session.putData('/deals/'+id, data, sid, ct);	
 }
 
+var postJson = {
+	lid: 123,
+	type: 1,
+	state: 1,
+	store_id: 32,
+	payment: 23.12,
+	cash: 98.12,
+	point: 150,
+	pay_type: 3,
+	create_time: "2012-05-23T08:49:04.000Z",
+	customer_id: 23,
+	deal_item: [{
+		lid: 234,
+		goods_id: 454,
+		num: 2,
+		closing_cost: 98.12,
+		total_cost: 123.32
+	}]
+}
+
+
 describe('addDeal', function() {
     describe('POST /signin', function() {
         it('should succes sign in and return json', function(done) {
@@ -27,36 +48,13 @@ describe('addDeal', function() {
             .end(function(res) {                
                 res.statusCode.should.equal(200);
                 res.body.should.have.property('_id');
-                var sid = session.getSID(res);                                
-                var postJson = {                                	
-					deal: { 
-						lid: 123,
-						dealer_id: res.body._id,
-						type: 1,
-						state: 1,
-						store_id: 32,
-						payment: 23.12,
-						cash: 98.12,
-						point: 150,
-						pay_type: 3,
-						create_time: "2012-05-23T08:49:04.000Z",
-						customer_id: 23,
-						deal_item:[
-						    { 
-						    	lid : 234,
-							    goods_id : 454,
-							    num : 2,
-							    closing_cost : 98.12,
-							    total_cost : 123.32
-						    }
-						]
-					}	
-                }
+                var sid = session.getSID(res);
+                postJson.dealer_id = res.body._id;                               
                 addDeal(postJson, sid)
                 .end(function(res) {
                 	res.statusCode.should.equal(201);
                 	res.should.be.json;
-                	console.log(res.body);
+                	console.log(JSON.stringify(res.body));
                 	res.body.should.have.property('deal');
                 	res.body.deal.should.have.property('deal_item');
                 	done();
@@ -77,31 +75,8 @@ describe('deleteDeal', function() {
             .end(function(res) {                
                 res.statusCode.should.equal(200);
                 res.body.should.have.property('_id');
-                var sid = session.getSID(res);                                
-                var postJson = {                                	
-					deal: { 
-						lid: 123,
-						dealer_id: res.body._id,
-						type: 1,
-						state: 1,
-						store_id: 32,
-						payment: 23.12,
-						cash: 98.12,
-						point: 150,
-						pay_type: 3,
-						create_time: "2012-05-23T08:49:04.000Z",
-						customer_id: 23,
-						deal_item:[
-						    { 
-						    	lid : 234,
-							    goods_id : 454,
-							    num : 2,
-							    closing_cost : 98.12,
-							    total_cost : 123.32
-						    }
-						]
-					}	
-                }
+                var sid = session.getSID(res); 
+                postJson.dealer_id = res.body._id;                                              
                 addDeal(postJson, sid)
                 .end(function(res) {
                 	res.statusCode.should.equal(201);
@@ -131,31 +106,8 @@ describe('updateDeal', function() {
             .end(function(res) {                
                 res.statusCode.should.equal(200);
                 res.body.should.have.property('_id');
-                var sid = session.getSID(res);                                
-                var postJson = {                                	
-					deal: { 
-						lid: 123,
-						dealer_id: res.body._id,
-						type: 1,
-						state: 1,
-						store_id: 32,
-						payment: 23.12,
-						cash: 98.12,
-						point: 150,
-						pay_type: 3,
-						create_time: "2012-05-23T08:49:04.000Z",
-						customer_id: 23,
-						deal_item:[
-						    { 
-						    	lid : 234,
-							    goods_id : 454,
-							    num : 2,
-							    closing_cost : 98.12,
-							    total_cost : 123.32
-						    }
-						]
-					}	
-                }
+                var sid = session.getSID(res); 
+                postJson.dealer_id = res.body._id;                                               
                 addDeal(postJson, sid)
                 .end(function(res) {
                 	res.statusCode.should.equal(201);
@@ -163,8 +115,7 @@ describe('updateDeal', function() {
                 	console.log(JSON.stringify(res.body));
                 	res.body.should.have.property('deal');
                 	res.body.deal.should.have.property('deal_item');
-                	var json = {
-                		deal: { 						
+                	var json = {           						
 							lid: 123,
 							_id: res.body.deal._id,
 							dealer_id: res.body._id,
@@ -186,7 +137,6 @@ describe('updateDeal', function() {
 								total_cost : 123.32
 								}
 							]
-						}	
                 	}
                 	updateDeal(res.body.deal._id, json, sid) 
                 	.end(function(res) {

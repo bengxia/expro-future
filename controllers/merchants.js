@@ -18,10 +18,10 @@ var check = require('validator').check,
  * @param next
  */
 exports.index = function(req,res,next){
-    if(req.accepts('html')) {
+    if(req.accepts('html')) {    	
       res.render('merchants/merchants', {});
     }else{
-        Merchant.count(function(err,ds){
+        Merchant.count(function(err,ds){        	
             if(err) return next(err);
 
             var page = req.query.page; // 取得当前页数,注意这是jqgrid自身的参数
@@ -51,7 +51,7 @@ exports.index = function(req,res,next){
             if(start < 0) start = 0;
 
 
-            Merchant.findAll(sidx, sord, function(err,ds){
+            Merchant.findAll({sidx:sidx, sord:sord}, function(err,ds){           	
                 if(err) return next(err);
                 //-------------------------------------------
                 var jsonObj = new Object();

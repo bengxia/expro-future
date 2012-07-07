@@ -331,9 +331,9 @@ exports.index = function(req,res,next){
 
 exports.addDeal = function(req, res) {
     var json = {};
-    json.deal = {};
+    json.cbdeal = {};
     var deal_item = req.body.deal_item;
-    json.deal.lid = req.body.lid;
+    json.cbdeal.lid = req.body.lid;
     delete req.body.deal_item;
     delete req.body.lid;
     req.body.dealer_id = req.session.user._id;			
@@ -351,8 +351,8 @@ exports.addDeal = function(req, res) {
 	        feedback({status: 400});
 	    }
 	    else { 								
-            json.deal._id = info.insertId;
-            json.deal.deal_item = [];
+            json.cbdeal._id = info.insertId;
+            json.cbdeal.cbdeal_item = [];
 			
             ep.after('deal_item', deal_item.length, function(data) {				
 		        feedback({status: 201, json: json});
@@ -364,7 +364,7 @@ exports.addDeal = function(req, res) {
 		                feedback({status: 400});
 		            }
 		            else {						
-		                json.deal.deal_item.push({
+		                json.cbdeal.cbdeal_item.push({
 			                _id:info2.insertId,
 			                lid:info2.lid,
 			                deal_id:info.insertId});					

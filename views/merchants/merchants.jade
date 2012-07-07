@@ -58,6 +58,9 @@ style
         url:'/merchants/index',
         datatype: "json",
         mtype: 'GET',
+        gridview:true, //加速显示
+        multiselect: true,  //可多选，出现多选框
+        multiselectWidth: 25, //设置多选列宽度
         colNames:['商户编号', '简称', '状态','类型','电话','注册时间','到期时间'],
         colModel:[
             {name:'_id',index:'_id', width:100, align:"center",sortable:true},

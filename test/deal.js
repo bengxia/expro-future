@@ -55,8 +55,8 @@ describe('addDeal', function() {
                 	res.statusCode.should.equal(201);
                 	res.should.be.json;
                 	console.log(JSON.stringify(res.body));
-                	res.body.should.have.property('deal');
-                	res.body.deal.should.have.property('deal_item');
+                	res.body.should.have.property('cbdeal');
+                	res.body.cbdeal.should.have.property('cbdeal_item');
                 	done();
                 })                 
             })
@@ -82,9 +82,9 @@ describe('deleteDeal', function() {
                 	res.statusCode.should.equal(201);
                 	res.should.be.json;
                 	console.log(JSON.stringify(res.body));
-                	res.body.should.have.property('deal');
-                	res.body.deal.should.have.property('deal_item');
-                	deleteDeal(res.body.deal._id, sid) 
+                	res.body.should.have.property('cbdeal');
+                	res.body.cbdeal.should.have.property('cbdeal_item');
+                	deleteDeal(res.body.cbdeal._id, sid) 
                 	.end(function(res) {
                 		res.statusCode.should.equal(202);
                 		done();                		
@@ -113,11 +113,11 @@ describe('updateDeal', function() {
                 	res.statusCode.should.equal(201);
                 	res.should.be.json;
                 	console.log(JSON.stringify(res.body));
-                	res.body.should.have.property('deal');
-                	res.body.deal.should.have.property('deal_item');
+                	res.body.should.have.property('cbdeal');
+                	res.body.cbdeal.should.have.property('cbdeal_item');
                 	var json = {           						
 							lid: 123,
-							_id: res.body.deal._id,
+							_id: res.body.cbdeal._id,
 							dealer_id: res.body._id,
 							type: 1,
 							state: 1,
@@ -130,7 +130,7 @@ describe('updateDeal', function() {
 							customer_id: 23,
 							deal_item:[{							
 								lid : 234,
-								_id: res.body.deal.deal_item[0]._id,
+								_id: res.body.cbdeal.cbdeal_item[0]._id,
 								goods_id : 454,
 								num : 2,
 								closing_cost : 111,
@@ -138,7 +138,7 @@ describe('updateDeal', function() {
 								}
 							]
                 	}
-                	updateDeal(res.body.deal._id, json, sid) 
+                	updateDeal(res.body.cbdeal._id, json, sid) 
                 	.end(function(res) {
                 		res.statusCode.should.equal(201);
                 		res.should.be.json;

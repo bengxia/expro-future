@@ -116,8 +116,7 @@ describe('updateDeal', function() {
                 	res.body.should.have.property('cbdeal');
                 	res.body.cbdeal.should.have.property('cbdeal_item');
                 	var json = {           						
-							lid: 123,
-							_id: res.body.cbdeal._id,
+							lid: 123,							
 							dealer_id: res.body._id,
 							type: 1,
 							state: 1,

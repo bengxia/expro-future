@@ -405,6 +405,7 @@ exports.updateDeal = function(req, res) {
     var json = {};
     json.deal = {};
     var deal_item = req.body.deal_item;
+    req.body._id = req.params.id;
     json.deal.lid = req.body.lid;
     delete req.body.deal_item;
     delete req.body.lid;

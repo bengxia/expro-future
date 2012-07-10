@@ -6,6 +6,7 @@ function createWarehouse() {
 };
 
 function Warehouse() {
+    this.table = '`ef_warehouse`';
 };
 Warehouse.prototype = new SimpleDO('`ef_warehouse`');
 Warehouse.prototype.create = function(name, cb) {
@@ -18,6 +19,43 @@ Warehouse.prototype.create = function(name, cb) {
         else {
             return cb(err, info);
         }
+    });
+};
+
+Warehouse.prototype.findOne = function(opt, cb) {
+    options = {schema:this.table, querys:opt};
+    mysql.findOne(options, cb);
+};
+
+Warehouse.prototype.findAll = function(opt, cb) {
+    options = {schema:this.table, querys:opt};
+    mysql.findAll(options, cb);
+};
+
+Warehouse.prototype.count = function(opt, cb) {
+    var sql = "SELECT COUNT(*) AS count FROM ef_warehouse where 1=1 "
+        +opt.where;
+    //if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    //if(opt.et) sql += " and create_time <= "+ opt.et;
+
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs[0]);
+    });
+};
+
+Warehouse.prototype.findAllData = function(opt, cb) {
+    var sql = " SELECT * FROM ef_warehouse  "
+        +" where 1=1 "+ opt.where;
+    //if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    //if(opt.et) sql += " and create_time <= "+ opt.et;
+    if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;
+    if(opt.limit && opt.start) sql += " LIMIT "+ opt.start + " , "+opt.limit;
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        if(!rs.length) return cb(err);
+        cb(err, rs);
     });
 };
 

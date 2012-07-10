@@ -69,7 +69,7 @@ exports.index = function(req,res,next){
                 where += ' and goods.'+key+' like \'%'+value+'%\' ';
             }
         }
-        Store.count(where, function(err,ds){
+        Store.count({where:where}, function(err,ds){
             if(err) return next(err);
 
             var page = req.query.page; // 取得当前页数,注意这是jqgrid自身的参数
@@ -81,7 +81,7 @@ exports.index = function(req,res,next){
                 sidx = 1;
             }
             // 计算查询结果总行数
-            var count = ds[0].count;
+            var count = ds.count;
             // 查询结果总页数
             var total_pages = 0;
 
@@ -134,74 +134,6 @@ exports.index = function(req,res,next){
                 return res.json(jsonObj, 200);
             });
         });
-        /*
-        var where = ' ';
-        var _id = req.query._id;
-        var name = req.query.name;
-
-        if(_id != undefined){
-            where += ' and store._id like \'%'+_id+'%\' ';
-        }
-        if(name != undefined){
-            where += ' and store.name like \'%'+name+'%\' ';
-        }
-
-        Store.count(where, function(err,ds){
-            if(err) return next(err);
-
-            var page = req.query.page; // 取得当前页数,注意这是jqgrid自身的参数
-            var limit = req.query.rows; // 取得每页显示行数，,注意这是jqgrid自身的参数
-            var sidx = req.query.sidx; //取得排序字段
-            var sord  = req.query.sord;//排序方式asc、desc
-
-            if(!sidx){
-                sidx = 1;
-            }
-            // 计算查询结果总行数
-            var count = ds[0].count;
-            // 查询结果总页数
-            var total_pages = 0;
-
-            // 计算查询结果页数
-            if(count > 0 && limit > 0){
-                total_pages = Math.ceil(count/limit);
-            }
-            // 若请求页大于总页数，设置请求页为最后一页
-            if (page > total_pages) page=total_pages;
-
-            // 计算起始行
-            var start = limit * page - limit;
-            // 若起始行为0
-            if(start < 0) start = 0;
-
-            Store.findAll(where, start, limit, sidx, sord, function(err,ds){
-                if(err) return next(err);
-
-                if (ds == undefined){
-                    return res.json({status:'查询结果为空！'});
-                }
-                var jsonObj = new Object();
-                jsonObj.page = page;  // 当前页
-                jsonObj.total = total_pages;    // 总页数
-                jsonObj.records = count;  // 总记录数
-
-                //定义rows 数组，保存所有rows数据
-                var rowsArray = new Array();
-                for(var i=0; i<ds.length; i++){
-                    // 定义rows
-                    var rows = new Object();
-                    rows.id = ds[i]._id;
-                    rows.cell = [ds[i]._id, ds[i].name, ds[i].merchant_name, ds[i].warehouse_name, ds[i].state, ds[i].create_time];
-                    rowsArray[i] = rows;
-                }
-                //将rows数组赋予jsonObj.rows
-                jsonObj.rows = rowsArray;
-
-                //var jsonStr = JSON.stringify(jsonObj);
-                //console.log('jsonStr:'+jsonStr);
-                return res.json(jsonObj);
-            });
-        });*/
     }
 };
 

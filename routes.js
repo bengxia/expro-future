@@ -14,6 +14,8 @@ var user = require('./controllers/user');
 var deal = require('./controllers/deal');
 var dealItem = require('./controllers/deal_item');
 var sync = require('./controllers/sync');
+var warehouseWarrant = require('./controllers/warehouseWarrant');
+var warehouse = require('./controllers/warehouse');
 
 
 
@@ -59,7 +61,8 @@ exports = module.exports = function(app) {
     app.delete('/goods/type/:_id', authToMember, goods.deleteType);//删除商品类型
 
     //商品管理
-    app.get('/goods/index', authToMember, goods.index);//商品列表
+    app.get('/goods', authToMember, goods.index);//商品列表
+    app.get('/goods/new', authToMember, goods.showGoodsNew);//显示新建页面
     app.get('/goods/:_id?/:isEdit?', authToMember, goods.showGoods);//显示已有商品（有_id）页面(查看 or 编辑:isEdit=true)
     app.post('/goods', authToMember, goods.saveGoods);//保存新增商品（无_id）
     app.put('/goods/:_id?', authToMember, goods.updateGoods);//更新已有商品（有_id）
@@ -94,6 +97,17 @@ exports = module.exports = function(app) {
     app.get('/deals/:id', authToMember, dealItem.index);//查询指定交易的一批交易明细
 
     //仓库管理
+    app.get('/warehouse_warrant', authToMember, warehouseWarrant.index);//查询一批
+    app.get('/warehouse_warrant/new', authToMember, warehouseWarrant.showWarehouseWarrant);//显示新建页面
+    app.get('/warehouse_warrant/:id', authToMember, warehouseWarrant.findWarehouseWarrant);//查询一条
+
+
+    app.post('/warehouse_warrant', authToMember, warehouseWarrant.creatWarehouseWarrant);//新增一条
+    //app.put('/warehouse_warrant', authToMember, warehouseWarrant.index);//更新一条
+    app.delete('/warehouse_warrant/:id', authToMember, warehouseWarrant.deleteWarehouseWarrant);//删除一条
+
+
+    app.get('/warehouse', authToMember, warehouse.index);//查询一批
 
     //Sync同步
     app.get('/sync/merchants/:id', sync.restrict, sync.merchant);//同步一个商户信息

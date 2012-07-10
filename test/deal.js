@@ -1,3 +1,4 @@
+//mocha test/deal.js 
 var session = require('./session.lib.js');
 
 function signin(data, ct) {
@@ -163,9 +164,9 @@ function getDealList(sid, done) {
         });
 }
 
-describe('#Sign', function() {
-    describe('#sign in : POST /signin', function() {
-        it('should succes sign in and return json', function(done) {
+describe('#Deals', function() {
+    describe('#测试返回交易记录数据', function() {
+        it('should succes return deals json', function(done) {
             signin({
                 cellphone:'18912345678',
                 password:'123456',

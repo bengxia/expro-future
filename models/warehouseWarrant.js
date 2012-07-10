@@ -63,4 +63,12 @@ WarehouseWarrant.prototype.create = function(body, cb) {
     });
 };
 
+WarehouseWarrant.prototype.delete = function(ids, cb) {
+    var sql = " delete from ef_warehouse_warrant where _id in(" + ids + ") ";
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        cb(err, rs);
+    });
+};
+
 exports = module.exports = createWarehouseWarrant;

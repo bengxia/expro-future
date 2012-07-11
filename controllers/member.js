@@ -72,10 +72,10 @@ exports.index = function(req,res,next){
     }else{
         var ep = EventProxy.create();
 
-/** for review 
-*  where的脚本应该放到model中去，这样写在controller中耦合行高，例如将来数据库换为mongodb或者在数据持久层中间需要加入中间出来model的时候就需要解耦。
-*  req.query直接作为参数丢给model。
-*/
+        /** for review
+        *  where的脚本应该放到model中去，这样写在controller中耦合行高，例如将来数据库换为mongodb或者在数据持久层中间需要加入中间出来model的时候就需要解耦。
+        *  req.query直接作为参数丢给model。
+        */
         //根据前台页面传入的查询条件，开始拼接where语句
         var where = ' ';
         for(key in queryInput){
@@ -190,15 +190,15 @@ exports.index = function(req,res,next){
                     //console.log('jsonStr:'+jsonStr);
                     ep.trigger('showList', jsonObj);
                 });
-
+                console.log("rs Obj: "+JSON.stringify(rs));
                 //定义rows 数组，保存所有rows数据
                 rs.forEach(function(member) {
                     var ep2 = EventProxy.create();
                     ep2.assign('UserDone', 'RoleDone', 'OrgDone', function(userEvent, roleEvent, orgEvent) {
                         ep.trigger('memberDone');
                     });
-                    //console.log("memberid: "+member["ef_member.user_id"]);
-                    User.findOne({'_id':member[Member.table+".user_id"]}, function(err, user) {
+
+                    User.findOne({'_id':member["ef_member.user_id"]}, function(err, user) {
                         if(err) { ep2.unbind(); return next(err);}
                         if (!user || user == undefined) return ep2.trigger('error', {status:204, error:'查询User结果为空！'});
 
@@ -208,7 +208,7 @@ exports.index = function(req,res,next){
                         ep2.trigger('UserDone', member);
 
                     });
-                    Role.findOneWithRoute({'role':member[Member.table+".role_id"]}, function(err, role) {
+                    Role.findOneWithRoute({'_id':member["ef_member.role_id"]}, function(err, role) {
                         if(err) { ep2.unbind(); return next(err);}
                         if (!role || role == undefined) return ep2.trigger('error', {status:204, error:'查询Role结果为空！'});
 
@@ -218,7 +218,7 @@ exports.index = function(req,res,next){
                         ep2.trigger('RoleDone', member);
 
                     });
-                    Merchant.findOne({'_id':member[Member.table+".org_id"]}, function(err, merchant) {
+                    Merchant.findOne({'_id':member["ef_member.org_id"]}, function(err, merchant) {
                         if(err) { ep2.unbind(); return next(err);}
                         if (!merchant || merchant == undefined) return ep2.trigger('error', {status:204, error:'查询Merchant结果为空！'});
 

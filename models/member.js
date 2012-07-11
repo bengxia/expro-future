@@ -6,6 +6,7 @@ function create() {
 };
 
 function Member() {
+    this.table = 'ef_member';
 };
 Member.prototype = new SimpleDO('ef_member');
 
@@ -18,9 +19,9 @@ Member.prototype.findOne = function(opt, cb) {
         cb(err, rs[0]);
     });*/
 
-/** for view
-    where条件查询具有普遍意义可以封装到mysql.js中，被其他model复用。
-*/
+    /** for view
+        where条件查询具有普遍意义可以封装到mysql.js中，被其他model复用。
+    */
     where = "";
     for(var k in opt) {
         var value = opt[k];

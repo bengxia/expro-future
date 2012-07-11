@@ -6,8 +6,23 @@ function createWarehouseWarrant() {
 };
 
 function WarehouseWarrant() {
+    this.table = '`ef_warehouse_warrant`';
 };
+
 WarehouseWarrant.prototype = new SimpleDO('`ef_warehouse_warrant`');
+
+/**
+ * 以对象形式传递查询条件参数
+ */
+WarehouseWarrant.prototype.findOne = function(opt, cb) {
+    options = {schema:this.table, query:opt};
+    mysql.findOne(options, cb);
+};
+
+WarehouseWarrant.prototype.findAll = function(opt, cb) {
+    options = {schema:this.table, query:opt};
+    mysql.find(options, cb);
+};
 
 WarehouseWarrant.prototype.findAllData = function(opt, cb) {
     var sql = " SELECT * FROM ef_warehouse_warrant  "
@@ -25,7 +40,7 @@ WarehouseWarrant.prototype.findAllData = function(opt, cb) {
 
 WarehouseWarrant.prototype.findItems = function(opt, cb) {
     options = {schema:'`ef_warehouse_warrant_item`', query:opt};
-    mysql.find(options, cb);    
+    mysql.find(options, cb);
 };
 
 WarehouseWarrant.prototype.count = function(opt, cb) {

@@ -29,7 +29,7 @@ Warehouse.prototype.findOne = function(opt, cb) {
 
 Warehouse.prototype.findAll = function(opt, cb) {
     options = {schema:this.table, querys:opt};
-    mysql.findAll(options, cb);
+    mysql.find(options, cb);
 };
 
 Warehouse.prototype.count = function(opt, cb) {

@@ -349,6 +349,10 @@ exports.saveMember = function(req,res,next){
     var birthday = req.body.birthday;
     var due_time = req.body.due_time;
     var user_id = req.body.user_id;
+    var privacy = req.body.privacy;
+    var point = req.body.point;
+    var savings = req.body.savings;
+    var comment = req.body.comment;
 
     var ep = EventProxy.create();
 
@@ -358,70 +362,95 @@ exports.saveMember = function(req,res,next){
 
     //回调函数
     function feedback(result) {
-        res.json(result);
+        res.json(result, 201);
     };
 
     function creatMember(data){
         Member.create(data, function(err, info){
             if(err) return next(err);
-            feedback({status:200, error:'添加员工信息成功!'});
+            feedback({member:{_id:info.insertId}});
         });
     };
     //当有异常发生时触发
     ep.once('error', function(result) {
         ep.unbind();//remove all event
-        return feedback(result);
+        return res.json(result.error, result.status);
     });
 
-    if(!pet_name) return ep.trigger('error', {status:204, error:'昵称不能为空!'});
-    if(!cellphone) return ep.trigger('error', {status:204, error:'手机号码不能为空!'});
-    //if(!password) return ep.trigger('error', {status:204, error:'登陆密码不能为空!'});
-    if(!role_id) return ep.trigger('error', {status:204, error:'角色不能为空!'});
-    if(!state) return ep.trigger('error', {status:204, error:'状态不能为空!'});
-    if(!due_time) return ep.trigger('error', {status:204, error:'到期时间不能为空!'});
+    if(!pet_name) return ep.trigger('error', {status:400, error:'昵称不能为空!'});
+    if(!cellphone) return ep.trigger('error', {status:400, error:'手机号码不能为空!'});
+    if(!role_id) return ep.trigger('error', {status:400, error:'角色不能为空!'});
+    if(!state) return ep.trigger('error', {status:400, error:'状态不能为空!'});
+    if(!due_time) return ep.trigger('error', {status:400, error:'到期时间不能为空!'});
 
-    //判断是否需要新建user
-    if(user_id){
-        //不需要新建用户
-        ep.trigger("creatMember", {"user_id":user_id, "org_id":1, "pet_name":pet_name, "role_id":role_id, "state":state, "create_time":getNow(), "due_time":due_time});
+    if(req.session.user.member.org_id){
+        //判断是否需要新建user
+        if(user_id){
+            //不需要新建用户
+            ep.trigger("creatMember", {"user_id":user_id, "org_id":req.session.user.member.org_id, "pet_name":pet_name, "privacy":privacy,
+                "point":point, "savings":savings, "comment":comment, "role_id":role_id, "state":state, "create_time":getNow(), "due_time":due_time});
+        }else{
+            //新建用户，创建默认密码并对密码进行加密
+            var salt = bcrypt.genSaltSync(10);
+            var pass = bcrypt.hashSync("123456", salt);
+            User.create({"name":pet_name, "pet_name":pet_name, "cellphone":cellphone, "password":pass, "state":"1", "sex":sex, "birthday":birthday, "create_time":getNow()}, function(err, info){
+                if(err) return next(err);
+                console.log("====info:"+JSON.stringify(info));
+                ep.trigger("creatMember", {"user_id":info.insertId, "org_id":req.session.user.member.org_id, "pet_name":pet_name, "privacy":privacy,
+                    "point":point, "savings":savings, "comment":comment, "role_id":role_id, "state":state, "create_time":getNow(), "due_time":due_time});
+            });
+        }
     }else{
-        //新建用户，创建默认密码并对密码进行加密
-        var salt = bcrypt.genSaltSync(10);
-        var pass = bcrypt.hashSync("123456", salt);
-        User.create({"name":pet_name, "pet_name":pet_name, "cellphone":cellphone, "password":pass, "state":"1", "sex":sex, "birthday":birthday, "create_time":getNow()}, function(err, info){
-            if(err) return next(err);
-            ep.trigger("creatMember", {"user_id":info.insertId, "org_id":1, "pet_name":pet_name, "role_id":role_id, "state":state, "create_time":getNow(), "due_time":due_time});
-        });
+        ep.trigger('error', {status:406, error:'获取当前用户所属商户失败。'});
     }
+
 
 };
 
 exports.updateMember = function(req,res,next){
-    console.log("updateMember。。。");
+    console.log("开始进行更新。。。");
     //开始校验输入数值的正确性
-    var _id = req.body._id;
+    var _id = req.params._id;
     var pet_name = req.body.pet_name;
     var role_id = req.body.role_id;
     var state = req.body.state;
     var due_time = req.body.due_time;
     var user_id = req.body.user_id;
-    var sex = req.body.sex;
-    var birthday = req.body.birthday;
+    var privacy = sanitize(req.body.privacy).ifNull(0);
+    var point = sanitize(req.body.point).ifNull(0);
+    var savings = sanitize(req.body.savings).ifNull(0);
+    var comment = sanitize(req.body.comment).ifNull("");
 
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>"+JSON.stringify(req.body));
+    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>state:"+state+" || "+);
+
+    try {
+        check(_id, "更新失败，数据流水号为空！").notNull();
+        check(pet_name, "更新失败，昵称不能为空！").notNull();
+        check(role_id, "角色不能为空!").notNull().isInt();
+        check(state, "状态不能为空!").notNull().isInt();
+        check(due_time, "到期时间不能为空!").notNull().isDate();
+        check(user_id, "会员ID不能为空!").notNull();
+
+        //说明是更新数据
+        Member.update({"_id":_id, "user_id":user_id, "pet_name":pet_name, "privacy":privacy,
+            "point":point, "savings":savings, "comment":comment, "role_id":role_id, "state":state, "due_time":due_time}, function(err,info){
+            if(err) return next(err);
+
+            res.json({member:{_id:info.insertId}}, 200);
+        });
+    }catch(e){
+        res.json({status:204, error:e.message}, 204);
+    }
+    /*
     if(!_id) return res.json({status:204, error:'更新失败，数据流水号为空！'});
     if(!pet_name) return res.json({status:204, error:'更新失败，昵称不能为空！'});
     if(!role_id) return res.json({status:204, error:'角色不能为空!'});
     if(!state) return res.json({status:204, error:'状态不能为空!'});
     if(!due_time) return res.json({status:204, error:'到期时间不能为空!'});
     if(!user_id) return res.json({status:204, error:'会员ID不能为空!'});
+    */
 
-    if(_id){
-        //说明是更新数据
-        Member.update({"_id":_id, "pet_name":pet_name, "role_id":role_id, "state":state, "due_time":due_time}, function(err,info){
-            if(err) return next(err);
-            res.json({status:200, error:'添加员工信息成功!'});
-        });
-    }
 };
 
 exports.deleteMember = function(req,res,next){
@@ -430,7 +459,7 @@ exports.deleteMember = function(req,res,next){
     var _ids = req.params._ids;
     Member.delete(_ids, function(err,ds){
         if(err) return next(err);
-        return res.json({status:200, _ids:_ids, error:'删除员工信息成功!'});
+        return res.json({_ids:_ids}, 202);
     });
 };
 

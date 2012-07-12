@@ -72,7 +72,7 @@ exports = module.exports = function(app) {
     app.get('/member/index', authToMember, member.index);//员工列表
     app.get('/member/:_id?/:isEdit?', authToMember, member.showMember);//显示已有员工（有_id）页面(查看 or 编辑:isEdit=true)
     app.post('/member', authToMember, member.saveMember);//保存新增员工（无_id）
-    app.put('/member/:_id?', authToMember, member.updateMember);//更新已有员工（有_id）
+    app.put('/member/:_id', authToMember, member.updateMember);//更新已有员工（有_id）
     app.delete('/member/:_ids', authToMember, member.deleteMember);//删除员工
     app.get('/findMemberByUserid/:user_id', authToMember, member.findMemberByUserid);//通过会员ID获取员工信息
     app.get('/memberRegJudge/:cellphone', authToMember, member.memberRegJudge);//通过手机号码判断是否允许创建员工信息

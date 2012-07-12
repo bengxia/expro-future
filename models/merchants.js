@@ -96,4 +96,23 @@ Merchant.prototype.count = function(cb) {
     });
 };
 
+Merchant.prototype.delete = function(ids, cb) {
+    var sql = " delete from ef_merchant where _id in(" + ids + ") ";
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        cb(err, rs);
+    });
+};
+
+Merchant.prototype.update = function(body, cb) {	
+    var opt = {
+        table: 'ef_merchant',
+        fields: body
+    };
+    mysql.update(opt, function(err, info) {
+        if(err) return cb(err);
+        cb(err, info);
+    });
+};
+
 exports = module.exports = createMerchant;

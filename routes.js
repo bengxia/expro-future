@@ -40,9 +40,11 @@ exports = module.exports = function(app) {
 
     //商户管理
     app.get('/merchants/index', authToMember, merchants.index);//商户列表
-    app.get('/merchants/showCreatPage', authToMember, merchants.showCreatPage);//显示新增商户页面
-    app.post('/merchants/create', authToMember, merchants.create);//创建商户
+    app.get('/merchants/:id?/:isEdit?', authToMember, merchants.showMerchant);//显示已有商户（有_id）页面(查看 or 编辑:isEdit=true)
+    app.post('/merchants', authToMember, merchants.create);//创建商户
     app.get('/merchants/list', authToMember, merchants.getList);//获得商户列表List（非表格）-new
+    app.put('/merchants/:id?', authToMember, merchants.editMerchant);//更新（有_id）
+    app.delete('/merchants/:id', authToMember, merchants.deleteMerchant);//删除
 
     //门店管理
     app.get('/stores/index', authToMember, stores.index);//门店列表

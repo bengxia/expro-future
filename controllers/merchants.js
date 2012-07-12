@@ -51,9 +51,13 @@ exports.index = function(req,res,next){
             if(start < 0) start = 0;
 
 
-            Merchant.findAll({sidx:sidx, sord:sord}, function(err,ds){           	
+            Merchant.findAll({start:start, limit:limit, sidx:sidx, sord:sord}, function(err,ds){           	
                 if(err) return next(err);
                 //-------------------------------------------
+                if (!ds || ds == undefined){
+                    return res.json({status:'查询结果为空！'}, 204);
+                }
+                
                 var jsonObj = new Object();
                 jsonObj.page = page;  // 当前页
                 jsonObj.total = total_pages;    // 总页数
@@ -116,18 +120,61 @@ exports.create = function(req, res, next) {
     var comment = sanitize(req.body.comment).trim();
     var create_time = new Date().toGMTString();
     var due_time = new Date().toGMTString();
-
+    
     //Merchant.create(merchant);
     Merchant.create(req.body, function(err, info){
         if(err) return next(err);
-        req.body.create_time = getNow();
-        return info.insertId;
+        //req.body.create_time = getNow(); 
+        res.send({status:201, error:'添加商户信息成功!', merchant: {_id: info.insertId}});        
     });
     //res.render('merchants/merchants', {});
 };
-exports.showCreatPage = function(req,res,next){
-    console.log("显示新增商户页面。。。");
-    res.render('merchants/create', { layout: false });
+
+exports.deleteMerchant = function(req,res,next) {
+	var _ids = req.params.id;
+	Merchant.delete(_ids, function(err, rs) {
+		if(err) return next(err);
+		return res.json({"status":200, "error":'删除商户信息成功!', "_ids":_ids});
+	});		
+}
+
+exports.editMerchant = function(req,res,next) {	
+	var _id = req.body._id;
+	if(!_id) return res.json({status:400, error:'更新失败，数据流水号为空!'});
+	if(_id) {
+	    Merchant.update(req.body, function(err) {
+		    if(err) return next(err);
+		    res.json({status:200, error:'更新商户信息成功!'});
+	    });	
+	}	
+}
+
+exports.showMerchant = function(req, res, next) {    
+    var _id = req.params.id;
+    var isEdit = req.params.isEdit?req.params.isEdit:"false";
+    // 本页面有3个状态： 新增， 查看， 编辑
+    // - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
+    // - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
+    // - 编辑(pageState=2)： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
+    var pageState = 2;
+
+    //如果_id不为空，则弹出编辑页面
+    if(_id){
+        //编辑 和 查看
+        if(!isEdit || isEdit != "true"){
+            //查看状态
+            pageState = 1;
+        }
+
+        Merchant.findOne({"_id":_id}, function(err,rs){
+            if(err) return next(err);
+            res.render('merchants/create', { layout: false, merchant:rs, pageState:pageState, method:'put'});
+        });
+    }else{
+        //新增
+        pageState = 0;
+        res.render('merchants/create', { layout: false, pageState:pageState, method:'post'});
+    }
 };
 
 var getNow=function(){

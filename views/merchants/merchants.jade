@@ -37,9 +37,7 @@ style
         li.active 商户管理
     .inner
       .sep10
-      .sep10
-      h2.top_title
-        a(href='http://www.helloweba.com/view-blog-164.html') jqGrid表格应用——读取与查询数据
+      .sep10      
       .grid_table
         #opt
           #query
@@ -49,6 +47,8 @@ style
             input#title.input(type='text')
             input#find_btn.btn(type='submit', value='查 询')
           input#add_btn.btn(type='button', value='新 增')
+          input#view_btn.btn(type='button', value='查 看')
+          input#edit_btn.btn(type='button', value='修 改')
           input#del_btn.btn(type='button', value='删 除')
         table#list
         #pager
@@ -81,6 +81,7 @@ style
                 formoptions:{elmprefix:'是否可用:(*)'}
             },
             {name:'type',index:'type', width:80, align:"center",sortable:true,
+                formatter:function(cellvalue, options, row){if(cellvalue==0){return "连锁商户";}else if(cellvalue==1){return "小型商户";}else if(cellvalue==2){return "中型商户";}else if(cellvalue==3){return "大型商户";}},
                 align:"center",
                 editable:true,
                 edittype:'text',
@@ -114,17 +115,14 @@ style
         rowList:[10,20,30],
         pager: '#pager',
         sortname: 'create_time',
-        viewrecords: true,
-        jsonReader: {
-            repeatitems : true,
-             id: "_id"
-        },
+        sortorder:'desc',
+        viewrecords: true,      
         caption:"商户列表",
         autowidth: true, //自动匹配宽度
         editurl:"/merchants/",
         height: 500,
         loadComplete:function(data){ //完成服务器请求后，回调函数
-          if(data.records==0){ //如果没有记录返回，追加提示信息，删除按钮不可用
+          if(data.records == undefined){ //如果没有记录返回，追加提示信息，删除按钮不可用
               $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
               $("#del_btn").attr("disabled",true);
           }else{ //否则，删除提示，删除按钮可用
@@ -143,19 +141,96 @@ style
                 'title':'新增商户',
                 'autoDimensions':false,
                 'type':'ajax',
-                'href':'/merchants/showCreatPage',
+                'href':'/merchants',
                 'width': 700,
                 'height': 800,
                 'modal':true,
                 'titleShow':true,
-                'titlePosition':'outside',
+                'titlePosition':'over',
                 'showCloseButton':true,
                 'showNavArrows':false,
                 'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
                 'transitionOut': 'elastic',
-                'centerOnScroll':true
+                'centerOnScroll':false,
+                'onComplete': function() {$("#fancybox-title").css({'top':'0px', 'bottom':'auto'});}
             });
         });
+        $("#view_btn").click(function(){
+            var sels = $("#list").jqGrid('getGridParam','selarrrow');
+                if(sels==""){
+                    $().message("请选择要查看的项！");
+                }else{
+                    if(sels.toString().indexOf(',') > 0){
+                        $().message("只可选择一项进行查看！");
+                    }else{
+                        $.fancybox({
+                            'title':'查看门店信息',
+                             'titleFormat': function(title, currentArray, currentIndex, currentOpts) {
+                                                var str = '<span id="fancybox-title-over">'
+                                                    + (currentIndex + 1) + ' / '
+                                                    + currentArray.length
+                                                    + (title.length ? '   ' + title : '')
+                                                    + '</span>';
+                                                return str;
+                                                },
+                            'autoDimensions':false,
+                            'type':'ajax',
+                            'href':'/merchants/'+sels+"/false",
+                            'width': 500,
+                            'height': 800,
+                            'modal':true,
+                            'titleShow':true,
+                            'titlePosition':'over',
+                            'cyclic': true,
+                            'showCloseButton':true,
+                            'showNavArrows':false,
+                            'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
+                            'transitionOut': 'elastic',
+                            'centerOnScroll':false,
+                            'onComplete': function(data) {
+                                $("#fancybox-title").css({'top':'0px', 'bottom':'auto'});
+                            }
+                        });
+                    }
+                }
+        });
+        $("#edit_btn").click(function(){
+            var sels = $("#list").jqGrid('getGridParam','selarrrow');
+            if(sels==""){
+                $().message("请选择要编辑的项！");
+            }else{
+                if(sels.toString().indexOf(',') > 0){
+                    $().message("只可选择一项进行编辑！");
+                }else{
+                    $.fancybox({
+                        'title':'修改门店信息',
+                         'titleFormat': function(title, currentArray, currentIndex, currentOpts) {
+                                            var str = '<span id="fancybox-title-over">'
+                                                + (currentIndex + 1)
+                                                + ' / ' + currentArray.length
+                                                + (title.length ? '   ' + title : '')
+                                                + '</span>';
+                                            return str;
+                                            },
+                        'autoDimensions':false,
+                        'type':'ajax',
+                        'href':'/merchants/'+sels+"/true",
+                        'width': 500,
+                        'height': 800,
+                        'modal':true,
+                        'titleShow':true,
+                        'titlePosition':'over',
+                         'cyclic': true,
+                        'showCloseButton':true,
+                        'showNavArrows':false,
+                        'transitionIn': 'elastic',//（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
+                        'transitionOut': 'elastic',
+                        'centerOnScroll':false,
+                        'onComplete': function() {$("#fancybox-title").css({'top':'0px', 'bottom':'auto'});}
+                    });
+                }
+            }
+        });        
         $("#del_btn").click(function(){
             var sels = $("#list").jqGrid('getGridParam','selarrrow');
             if(sels==""){
@@ -163,9 +238,9 @@ style
             }else{
                 if(confirm("您是否确认删除？")){
                     $.ajax({
-                        type: "POST",
-                        url: "do.php?action=del",
-                        data: "ids="+sels,
+                        type: "delete",
+                        url: "/merchants/"+sels,
+                        //data: "_csrf=#{csrf}",
                         beforeSend: function() {
                             $().message("正在请求...");
                         },
@@ -173,8 +248,8 @@ style
                             $().message("请求失败...");
                         },
                         success: function(msg){
-                            if(msg!=0){
-                                var arr = msg.split(',');
+                            if(msg._ids){
+                                var arr = msg._ids.split(',');
                                 $.each(arr,function(i,n){
                                     if(arr[i]!=""){
                                         $("#list").jqGrid('delRowData',n);
@@ -189,16 +264,8 @@ style
                 }
             }
         });
-        $("#find_btn").click(function(){
-        var title = escape($("#title").val());
-        var sn = escape($("#sn").val());
-        $("#list").jqGrid('setGridParam',{
-        url:"do.php?action=list",
-        postData:{'title':title,'sn':sn},
-        page:1
-        }).trigger("reloadGrid");
-        });
-      });
+       });
+
 
 
 

@@ -421,7 +421,7 @@ exports.updateMember = function(req,res,next){
     var savings = sanitize(req.body.savings).ifNull(0);
     var comment = sanitize(req.body.comment).ifNull("");
 
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>"+JSON.stringify(req.body));
+    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>"+JSON.stringify(req.body));
     //console.log(">>>>>>>>>>>>>>>>>>>>>>>>state:"+state+" || "+);
 
     try {

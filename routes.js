@@ -63,11 +63,13 @@ exports = module.exports = function(app) {
     app.delete('/goods/type/:_id', authToMember, goods.deleteType);//删除商品类型
 
     //商品管理
-    app.get('/goods', authToMember, goods.index);//商品列表
-    app.get('/goods/new', authToMember, goods.showGoodsNew);//显示新建页面
-    app.get('/goods/:_id?/:isEdit?', authToMember, goods.showGoods);//显示已有商品（有_id）页面(查看 or 编辑:isEdit=true)
+    app.get('/goods', authToMember, goods.findAll);//商品列表
+    app.get('/goods/new', authToMember, goods.pageNew);//显示新建页面
+    app.get('/goods/view/:_id', authToMember, goods.pageView);//显示已有商品
+    app.get('/goods/edit/:_id', authToMember, goods.pageEdit);//编辑已有商品
+    app.get('/goods/:_id', authToMember, goods.findOne);//显示已有商品
     app.post('/goods', authToMember, goods.saveGoods);//保存新增商品（无_id）
-    app.put('/goods/:_id?', authToMember, goods.updateGoods);//更新已有商品（有_id）
+    app.put('/goods/:_id', authToMember, goods.updateGoods);//更新已有商品（有_id）
     app.delete('/goods/:_ids', authToMember, goods.deleteGoods);//删除商品
 
     //员工管理

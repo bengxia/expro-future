@@ -1,4 +1,4 @@
-!=partial('stores/sidebar')
+!=partial('sidebar')
 style
     select, input[type="file"] {
         height: 18px;
@@ -20,11 +20,26 @@ style
           span.divider /
         - }
         li.active #{config.description}-首页
-    table(border='1', width='100%')
+    table(border='0', width='100%')
         tr
             td
-                - if(locals.current_user) {
-                <iframe name="content_frame" marginwidth=0 marginheight=0 width=100% height=800 src="http://192.168.0.102/zentaopms/www/" frameborder=0></iframe>
-                - }else{
-                <iframe name="content_frame" marginwidth=0 marginheight=0 width=100% height=800 src="http://localhost:10080/signin" frameborder=0></iframe>
-                - }
+                div.banner_home
+                    embed(src="/images/expo-main.swf",width="100%",height="260",wmode="transparent")
+        tr
+            td
+                .mid1
+                    p
+                        img(src="/images/pic2.jpg",style="float: left; margin: 2px;")
+                        泛盈科技是由资深海外归国人士发起成立的一家国际性软件服务公司，公司推行“高起点技术服务、端到端产业链整合”的发展策略，和众多国际性知名企业建立了广泛的战略合作伙伴关系。在嵌入式软硬件研发、行业应用解决方案方面的技术服务优势日渐凸显。
+        tr
+            td
+                .mid1
+                    p
+                        img(src="/images/pic3.jpg",style="float: left; margin: 2px;")
+                        li “泛盈商惠”是结合时下最新的云技术，利用Nodejs作为服务端开发语言，针对WEB及IOS端开发的一整套面向商户销售过程的管理平台。
+                        li “泛盈商惠”从收银开始，与商户共同打造属于我们自己的云端商圈。
+                        li “泛盈商惠”帮助商户将信息及时准确的推送至消费者手中。
+                        li “泛盈商惠”POS终端利用本地存储，后台同步的机制，保证商户的重要信息永不丢失。
+                        br
+                        br
+                        br

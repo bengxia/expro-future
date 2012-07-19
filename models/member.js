@@ -53,9 +53,12 @@ Member.prototype.findOne = function(opt, cb) {
  */
 Member.prototype.findAll = function(opt, cb) {
     var sql = " SELECT * FROM ef_member  "
-        +" where 1=1 "+ opt.where
-        if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;
-        if(opt.limit) sql += " LIMIT "+ opt.start + " , "+opt.limit;
+        +" where 1=1 "+ opt.where;
+    if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    if(opt.et) sql += " and create_time <= "+ opt.et;
+    if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;
+    if(opt.limit && opt.start) sql += " LIMIT "+ opt.start + " , "+opt.limit;
+
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);
@@ -70,6 +73,9 @@ Member.prototype.findAll = function(opt, cb) {
  */
 Member.prototype.count = function(opt, cb) {
     var sql = "SELECT COUNT(*) AS count FROM ef_member where 1=1 "+opt.where;
+    if(opt.bt) sql += " and create_time >= "+ opt.bt;
+    if(opt.et) sql += " and create_time <= "+ opt.et;
+
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);

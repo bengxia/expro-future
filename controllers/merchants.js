@@ -10,7 +10,9 @@ var models = require('../models'),
     Merchant = models.Merchant;
 
 var check = require('validator').check,
-    sanitize = require('validator').sanitize;
+    sanitize = require('validator').sanitize;    
+    
+var queryInput = {'_id': '编号', 'short_name': '简称'};
 /**
  * 显示商户列表
  * @param req
@@ -19,7 +21,7 @@ var check = require('validator').check,
  */
 exports.index = function(req,res,next){
     if(req.accepts('html')) {    	
-      res.render('merchants/merchants', {});
+      res.render('merchants/merchants', {queryInput: queryInput});
     }else{
         Merchant.count(function(err,ds){        	
             if(err) return next(err);
@@ -27,9 +29,8 @@ exports.index = function(req,res,next){
             var page = req.query.page; // 取得当前页数,注意这是jqgrid自身的参数
             var limit = req.query.rows; // 取得每页显示行数，,注意这是jqgrid自身的参数
             var sidx = req.query.sidx; //取得排序字段
-            var sord  = req.query.sord;//排序方式asc、desc
-            //var total = '1';//总页数
-            //var records = '1';//总记录数
+            var sord = req.query.sord;//排序方式asc、desc                      
+            
             if(!sidx){
                 sidx = 1;
             }
@@ -49,14 +50,21 @@ exports.index = function(req,res,next){
             var start = limit * page - limit;
             // 若起始行为0
             if(start < 0) start = 0;
-
-
-            Merchant.findAll({start:start, limit:limit, sidx:sidx, sord:sord}, function(err,ds){           	
+                
+            var where = ' ';
+            for(key in queryInput) {
+                var value = req.query[key];
+                if(value != undefined) {
+                    where += ' and '+key+' like \'%'+value+'%\' ';
+                }
+            }                            
+            
+            Merchant.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord}, function(err,ds) {           	
                 if(err) return next(err);
                 //-------------------------------------------
                 if (!ds || ds == undefined){
                     return res.json({status:'查询结果为空！'}, 204);
-                }
+                }                                    	               
                 
                 var jsonObj = new Object();
                 jsonObj.page = page;  // 当前页
@@ -69,7 +77,9 @@ exports.index = function(req,res,next){
                 for(var i=0; i<ds.length; i++){
                     // 定义rows
                     var rows = new Object();
-                    rows.id = ds[i]._id;
+                    rows.id = ds[i]._id;                    
+                    ds[i].create_time = formatDate(ds[i].create_time);
+                    ds[i].due_time = formatDate(ds[i].due_time);
                     rows.cell = [ds[i]._id, ds[i].short_name, ds[i].state, ds[i].type, ds[i].phone, ds[i].create_time, ds[i].due_time];
                     rowsArray[i] = rows;
                 }
@@ -80,9 +90,9 @@ exports.index = function(req,res,next){
                 var jsonStr = JSON.stringify(jsonObj);
                 console.log('jsonStr:'+jsonStr);
                 return res.json(jsonObj);
-            });
+            });                             
         });
-    }
+    };
 };
 
 /**
@@ -102,6 +112,7 @@ exports.getList = function(req,res,next){
 exports.create = function(req, res, next) {
     console.log("保存并新增商户数据******");
     //开始校验输入数值的正确性
+    /*
     var short_name = sanitize(req.body.short_name).trim();
     var full_name = sanitize(req.body.full_name).trim();
     var state = sanitize(req.body.state).trim();
@@ -118,23 +129,32 @@ exports.create = function(req, res, next) {
     var district_code = sanitize(req.body.district_code).trim();
     var merchant_level_id = sanitize(req.body.merchant_level_id).trim();
     var comment = sanitize(req.body.comment).trim();
-    var create_time = new Date().toGMTString();
-    var due_time = new Date().toGMTString();
-    
+    var create_time = getNow();
+    var due_time = sanitize(req.body.due_time).trim();
+    */
     //Merchant.create(merchant);
-    Merchant.create(req.body, function(err, info){
-        if(err) return next(err);
-        //req.body.create_time = getNow(); 
-        res.send({status:201, error:'添加商户信息成功!', merchant: {_id: info.insertId}});        
-    });
-    //res.render('merchants/merchants', {});
+    var where = 'and short_name = '+req.body.short_name;
+    
+    Merchant.findAll({where: where}, function(err, rs) {
+    	if(err) return next(err);
+    	if(!rs) {
+            Merchant.create(req.body, function(err, info){
+                if(err) return next(err);
+                //req.body.create_time = getNow(); 
+                res.send({status:201, error:'添加商户信息成功!', merchant: {_id: info.insertId}}, 201);        
+            });
+        }
+        else {
+        	res.send({status: 404, error:'该商户简称已存在!'});
+        }
+    }); 
 };
 
 exports.deleteMerchant = function(req,res,next) {
 	var _ids = req.params.id;
 	Merchant.delete(_ids, function(err, rs) {
 		if(err) return next(err);
-		return res.json({"status":200, "error":'删除商户信息成功!', "_ids":_ids});
+		return res.json({"status":202, "error":'删除商户信息成功!', "_ids":_ids}, 202);
 	});		
 }
 
@@ -144,36 +164,55 @@ exports.editMerchant = function(req,res,next) {
 	if(_id) {
 	    Merchant.update(req.body, function(err) {
 		    if(err) return next(err);
-		    res.json({status:200, error:'更新商户信息成功!'});
+		    res.json({status:201, error:'更新商户信息成功!'});
 	    });	
 	}	
 }
 
-exports.showMerchant = function(req, res, next) {    
-    var _id = req.params.id;
-    var isEdit = req.params.isEdit?req.params.isEdit:"false";
-    // 本页面有3个状态： 新增， 查看， 编辑
-    // - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
-    // - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
-    // - 编辑(pageState=2)： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
-    var pageState = 2;
+exports.showMerchant = function(req, res, next) {
+	if(req.accepts('html')) {   
+		var _id = req.params.id;
+		var isEdit = req.params.isEdit?req.params.isEdit:"false";
+		// 本页面有3个状态： 新增， 查看， 编辑
+		// - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
+		// - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
+		// - 编辑(pageState=2)： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
+		var pageState = 2;
 
-    //如果_id不为空，则弹出编辑页面
-    if(_id){
-        //编辑 和 查看
-        if(!isEdit || isEdit != "true"){
-            //查看状态
-            pageState = 1;
-        }
+		//如果_id不为空，则弹出编辑页面
+		if(_id) {
+			//编辑 和 查看
+			if(!isEdit || isEdit != "true") {
+				//查看状态
+				pageState = 1;
+			}
 
-        Merchant.findOne({"_id":_id}, function(err,rs){
-            if(err) return next(err);
-            res.render('merchants/create', { layout: false, merchant:rs, pageState:pageState, method:'put'});
-        });
-    }else{
-        //新增
-        pageState = 0;
-        res.render('merchants/create', { layout: false, pageState:pageState, method:'post'});
+			Merchant.findOne({"_id": _id}, function(err, rs) {
+				if(err) return next(err);				
+				rs.create_time = formatDate(rs.create_time);
+				rs.due_time = formatDate(rs.due_time);
+				res.render('merchants/create', {layout: false, merchant: rs, pageState: pageState, method: 'put'});
+			});
+		} else {
+			//新增
+			pageState = 0;
+			res.render('merchants/create', {layout: false, pageState: pageState, method: 'post'});
+		}
+    }
+    else {
+    	var _id = req.params.id;
+    	if(_id) {
+    		Merchant.findOne({"_id": _id}, function(err, rs) {
+    		    if(err) return next(err); 
+    		    res.json({merchant: rs}, 200); 
+    		});  		     
+    	}
+    	else {
+    		Merchant.findAll({}, function(err, rs) {
+    			if(err) return next(err); 
+    		    res.json({merchant: rs}, 200);
+    		});    			   			
+        }    			
     }
 };
 
@@ -183,3 +222,13 @@ var getNow=function(){
     return (year+'-'+(now.getMonth()+1)+'-'+now.getDate()+' '+
         now.getHours()+':'+now.getMinutes()+':'+now.getSeconds());
 };
+
+var formatDate = function(date) {
+	if(!date || date =='Invalid Date') {
+		return '';
+    }
+	else {		
+		var year = date.getFullYear();
+		return (year + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());              
+    }	
+}

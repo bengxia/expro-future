@@ -3,7 +3,7 @@ br
 br
 #wrapper
     .form-container
-        form#add_form(action='/merchants/#{locals.test?'?_id='+test._id:''}', method='#{method}')
+        form#add_form(action='/merchants/#{locals.merchant?'?_id='+merchant._id:''}', method='#{method}')
             p.legend
                 strong 注意:
                     em 红色
@@ -19,9 +19,9 @@ br
                 legend(style='color: #C00; font-style: normal;') 商户信息
                 div
                     label.error   商户简称：
-                    input#short_name.allowInput(type='text', name='short_name', value='#{locals.merchant?merchant.short_name:''}')
+                    input#short.allowInput(type='text', name='short_name', value='#{locals.merchant?merchant.short_name:''}')
                 div
-                    label.error   商户全称：
+                    label         商户全称：
                     input#full_name.allowInput(type='text', name='full_name', value='#{locals.merchant?merchant.full_name:''}')                
                 div
                     label.error   状态：
@@ -42,10 +42,10 @@ br
                                 str = "<option value='"+types[i].id+"' selected='selected'>"+types[i].value + " </option>"
                             |!{str}             
                 div
-                    label.error   商户LOGO路径：
+                    label         商户LOGO路径：
                     input#logo_img_path.allowInput(type='text', name='logo_img_path', value='#{locals.merchant?merchant.logo_img_path:''}')
                 div
-                    label   营业执照号：
+                    label.error   营业执照号：
                     input#charter_num.allowInput(type='text', name='charter_num', value='#{locals.merchant?merchant.charter_num:''}')
                 div
                     label   营业执照图片上传：
@@ -69,27 +69,36 @@ br
                     label   会员待遇：
                     input#member_intro.allowInput(type='text', name='member_intro', value='#{locals.merchant?merchant.member_intro:''}')  
                 div
-                    label   地区编号：
-                    input#district_code.allowInput(type='text', name='district_code', value='#{locals.merchant?merchant.district_code:''}')  
+                    label.error   地区编号：
+                    input#district_code.allowInput(type='text', name='district_code', value='#{locals.merchant?merchant.district_code:''}')
+                div#create_time_div
+                    label         开户时间：
+                    input#create_time.allowInput(type='text', name='create_time', value='#{locals.merchant?merchant.create_time:''}', readonly)
+                div
+                    label.error   到期时间：
+                    input#due_time.allowInput(type='text', name='due_time', value='#{locals.merchant?merchant.due_time:''}')                   
                 div
                     label.error   商户级别（no sql）：
-                    select#merchant_level_id.allowInput(name='merchant_level_id')
-                        - var levels = [{id:1,value:'单体店'},{id:2,value:'连锁店'}];
-                        - for (var i in levels)
-                            - var str = "<option value='"+levels[i].id+"' >"+levels[i].value + " </option>"
-                            - if(locals.merchant && levels[i].id == merchant.merchant_level_id)
-                                str = "<option value='"+levels[i].id+"' selected='selected'>"+levels[i].value + " </option>"
-                            |!{str}   
+                    select#merchant_level_id.allowInput(name='merchant_level_id')                                                                                            
                 div
                     label  备注：
                     textarea#comment.allowInput(rows='5', cols='40', name='comment') #{locals.merchant?merchant.comment:''}
 
 script(type='text/javascript')
-    $(document).ready(function(){
-        pageInit();
+    $(document).ready(function(){    
+        pageInit();               
     });
 
     $(function(){
+        $("#due_time").datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true,
+            showOn: "button",
+            buttonImage: "/images/calendar.gif",
+            buttonImageOnly: true
+        });
+        
         $('#add_form').ajaxForm({
             beforeSubmit: validate,
                 success: function(msg){
@@ -104,35 +113,44 @@ script(type='text/javascript')
         });
 
         //提交表单进行保存
-        $("#save").click(function(){
+        $("#save").click(function(){            
             $('#add_form').submit();
         });
 
-        function validate(formData, jqForm, options) {
-            //$('#add_form').remove("warehouse_name");
-        /*
-            var name = $("#name").val();
-            var type_id = $("#type_id").attr("value");
+        function validate(formData, jqForm, options) {                              
             var state = $("#state").attr("value");
-            var price = $("#price").attr("value");
-
-            if(!name || name.trim() == ""){
-                $().message("<b>请输入'名称'！</b>");
-                return false;
-            }else if(!type_id || type_id.trim() == ""){
-                $().message("<b>请选择'商品类型'！</b>");
+            var short_name = $("#short").attr("value");                       
+            var type = $("#type").attr("value");
+            var charter_num = $("#charter_num").attr("value");
+            var district_code = $("#district_code").attr("value");
+            var due_time = $("#due_time").attr("value");
+            var merchant_level_id = $("#merchant_level_id").attr("value");
+                        
+            if(!short_name || short_name.trim() == ""){
+                $().message("<b>请输入'商户简称'！</b>");
                 return false;
             }else if(!state || state.trim() == ""){
-                $().message("<b>请选择'商品状态'！</b>");
+                $().message("<b>请选择'状态'！</b>");
                 return false;
-            }else if(!price || price.trim() == ""){
-                $().message("<b>请输入'商品售价'！</b>");
+            }else if(!type || type.trim() == ""){
+                $().message("<b>请选择'类型'！</b>");
+                return false;
+            }else if(!charter_num || charter_num.trim() == ""){
+                $().message("<b>请输入'营业执照号'！</b>");
+                return false;
+            }else if(!district_code || district_code.trim() == ""){
+                $().message("<b>请输入'地区编号'！</b>");
+                return false;
+            }else if(!due_time || due_time.trim() == ""){
+                $().message("<b>请输入'到期时间'！</b>");
+                return false;
+            }else if(!merchant_level_id || merchant_level_id.trim() == ""){
+                $().message("<b>请输入'商户级别'！</b>");
                 return false;
             }else{
                 $.fancybox.close();//为防止因为网络延时造成对话框不关闭，再次输入，提前关闭对话框。
                 $().message("正在提交...");
-            }
-        */
+            }            
         };
     });
 
@@ -147,12 +165,35 @@ script(type='text/javascript')
             //新增
             $("#save").show();
             $("#create_time_div").hide();
+            merchant_levelInit();
         }else if(#{pageState} == 1){
             //查看
             $(".allowInput").attr("readonly","readonly");
-            $("#save").hide();//启动时隐藏保存按钮
+            $("#save").hide();//启动时隐藏保存按钮 
+            merchant_levelInit();          
         }else if(#{pageState} == 2){
             //编辑
             $("#save").show();//显示save
         }
     };
+    
+    function merchant_levelInit() {
+        $.ajax({
+        type: "Get",
+        url: '/merchantLevels',
+        dataType: "json",
+        global: false,
+        async: false,
+        success: function (result) {
+            console.log(JSON.stringify(result));
+            if(result.length){                
+                for(var i = 0; i < result.length; i++) {                                                                                                                  
+                    $("#merchant_level_id").append("<option value='"+result[i]._id+"'>"+result[i].name+"</option>");             
+                }
+            }
+        },
+        error: function () {
+            alert("Ajax请求数据失败!");
+        }
+    });
+    }

@@ -14,3 +14,4 @@ exports.Merchant_goods = require('./merchant_goods')();
 exports.WarehouseWarrantItem = require('./warehouseWarrantItem')();
 exports.RoleRoute = require('./RoleRoute')();
 exports.Route = require('./Route')();
+exports.MerchantLevel = require('./merchantLevel')();

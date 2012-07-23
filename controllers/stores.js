@@ -27,29 +27,7 @@ var getNow=function(){
  */
 //设置查询区域的查询输入框，规则：{"查询字段名":"页面显示的label文字"}
 var queryInput = {'_id':'编号','name':'名称'};
-//设置前台页面显示的表格列头
-var colNames = ['门店编号', '门店名称', '所属商户','仓库名称','状态','创建时间'];
-//设置前台页面显示的表格数据
-var colModel = [
-    {name:'_id',index:'_id', width:100, align:"center",sortable:true},
-    {name:'name',index:'name', width:120, align:"center",sortable:true},
-    {name:'merchant_name',index:'merchant_id', width:120,align:"center",sortable:true},
-    {name:'warehouse_name',index:'warehouse_id', width:150, align:"center",sortable:true},
-    {name:'state',index:'state', width:80, align:"center",sortable:true,formatter:'select', editoptions:{value:"0:封闭;1:正常;2:公开;3:不公开"}},
-    {name:'create_time',index:'create_time', width:200, align:"center",sortable:true,
-        formatter : 'date', formatoptions : {srcformat : 'Y-m-d H:i:s',newformat : 'Y-m-d H:i:s'}
-    }];
 
-//设置前台页面所要显示的数据字段,用于数据筛选
-var showElement = getShowElement();
-//同上
-function getShowElement(){
-    var ar = new Array();
-    for(var i=0; i<colModel.length; i++){
-        ar[i] = colModel[i].name;
-    }
-    return ar;
-}
 ////设置前台表格控件说需要的相关对象及参数End
 
 /**
@@ -60,8 +38,21 @@ function getShowElement(){
  */
 exports.index = function(req,res,next){
     if(req.accepts('html')) {
-        res.render('stores/index', {queryInput:queryInput, colModel:colModel, colNames:colNames});
+        res.render('stores/index', {queryInput:queryInput});
     }else{
+        console.log("获取所有门店信息。。。");
+        //start=起始行数&limit=每页显示行数&bt=交易发生时间起点&et=交易发生时间的截至时间&sidx=排序字段名&sord=排序方式asc,desc
+        var page = req.query.page; // 取得当前页数,注意这是jqgrid自身的参数
+        var start = req.query.start;//起始行数
+        var limit = req.query.limit;//每页显示行数
+        var bt = req.query.bt;//交易发生时间起点
+        var et = req.query.et;//交易发生截至时间
+        var sidx = req.query.sidx;//排序字段名
+        var sord = req.query.sord;//排序方式
+
+        var ep = EventProxy.create();
+
+
         var where = ' ';
         for(key in queryInput){
             var value = req.query[key];
@@ -69,6 +60,176 @@ exports.index = function(req,res,next){
                 where += ' and goods.'+key+' like \'%'+value+'%\' ';
             }
         }
+
+        //回调函数
+        function feedback(result) {
+            if(200 == result.status) {
+                if(result.jsonObj) {
+                    var jsonStr = JSON.stringify(result.jsonObj);
+                    console.log('jsonStr:'+jsonStr);
+                    res.json(result.jsonObj, result.status);
+                }else{
+                    ep.trigger('error', {status:204, error:'查询结果为空!'});
+                }
+            }
+            else {
+                return res.json(result, result.status);
+            }
+        };
+
+        //当有异常发生时触发
+        ep.once('error', function(result) {
+            ep.unbind();//remove all event
+            return feedback(result);
+        });
+        ep.on('findByOrgId', function(org_id) {
+            findByOrgId(org_id);
+        });
+
+        ep.on('findCount', function(where) {
+            findCount(where);
+        });
+
+        //查询当前所有会员的信息
+        ep.on('findAll', function(where) {
+            findAll(where);
+        });
+
+        //查询当前所有会员的信息，在此方法内部会关联user，role，merchant表，并进行分页处理
+        ep.on('findAllForWeb', function(where, count) {
+            findAllForWeb(where, count);
+        });
+        //将传入的json对象发布到前台页面进行表格展示。
+        ep.on('showList', function(jsonObj) {
+            feedback({status:200, error:'获取数据成功', jsonObj:jsonObj});
+        });
+
+        //查询当前登陆用户所属商户
+        //  首先获取当前登陆用户的org_id，查询当前用户的商户id
+        if(req.session.user.member.org_id){
+            ep.trigger('findByOrgId', req.session.user.member.org_id);
+        }else{
+            ep.trigger('error', {status:400, error:'获取当前用户所属商户失败。'});
+        }
+
+        function findByOrgId(org_id){
+            where += " and merchant_id = "+org_id;
+            //判断当前请求的是客户端还是web端
+            var isWeb = req.query.isWeb;
+            //开始检查传入参数
+            try{
+                check(isWeb).notNull().isInt();
+                if(1 == isWeb){
+                    ep.trigger('findCount', where);
+                }else{
+                    ep.trigger('findAll', where);
+                }
+            }catch(e){
+                ep.trigger('findAll', where);
+            }
+        };
+
+        function findCount(where) {
+            //获得数据行数，用于分页计算
+            Store.count({where:where}, function(err, count) {
+                if(err) { ep.unbind(); return next(err);}
+                if (!count && !count.count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
+                ep.trigger('findAllForWeb', where, count.count);
+            });
+        };
+
+        function findAllForWeb(where, count) {
+            //var showElement = ['_id', 'name', 'merchant_name', 'warehouse_name', 'state', 'create_time'];
+            var showElement = ['_id', 'name', 'inventar_num', 'warehouse_id', 'warehouse_name', 'state', 'create_time'];
+
+            if (!count && !count.count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
+
+            if(!sidx){
+                sidx = 1;
+            }
+
+            // 查询结果总页数
+            var total_pages = 0;
+
+            // 计算查询结果页数
+            if(count > 0 && limit > 0){
+                total_pages = Math.ceil(count/limit);
+            }
+            // 若请求页大于总页数，设置请求页为最后一页
+            if (page > total_pages) page=total_pages;
+
+            // 计算起始行
+            var start = limit * page - limit;
+            // 若起始行为0
+            if(start < 0) start = 0;
+
+            Store.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
+                if(err) { ep.unbind(); return next(err);}
+                if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询结果为空！'});
+                //开始汇总
+                ep.after('storeDone', rs.length, function() {
+                    //当memberDone被触发rs.length次后，执行以下语句。
+                    var jsonObj = new Object();
+
+                    jsonObj.page = page;  // 当前页
+                    jsonObj.total = total_pages;    // 总页数
+                    jsonObj.records = count;  // 总记录数
+
+                    var rowsArray = new Array();
+                    //开始判断：如果rs中包含前台需要显示的数据（showElement包含的名称），则赋值给ay数组并开始拼装json对象。
+
+                    for(var i=0; i<rs.length; i++){
+                        // 定义rows
+                        var rows = new Object();
+                        rows.id = rs[i]._id;
+                        //rows.cell = rs[i];
+                        var ay = new Array();
+                        for(key in rs[i]){
+                            var index = showElement.indexOf(key);
+                            if(index >= 0){
+                                ay[index] = rs[i][key];
+                            }
+                        }
+                        rows.cell = ay;
+                        rowsArray[i] = rows;
+                    }
+
+                    //将rows数组赋予jsonObj.rows
+                    jsonObj.rows = rowsArray;
+
+                    var jsonStr = JSON.stringify(jsonObj);
+                    console.log('jsonStr2:'+jsonStr);
+                    return res.json(jsonObj, 200);
+                });
+
+                //定义rows 数组，保存所有rows数据
+                rs.forEach(function(store) {
+                    var ep2 = EventProxy.create();
+
+                    ep2.assign('WarehouseDone', function(warehouseEvent) {
+                        ep.trigger('storeDone');
+                    });
+
+                    Warehouse.findOne({'_id':store.warehouse_id}, function(err, data) {
+                        if(err) { ep2.unbind(); return next(err);}
+                        if (!data || data == undefined) return ep2.trigger('error', {status:204, error:'查询Warehouse结果为空！'});
+                        store.warehouse_name = data.name;
+                        ep2.trigger('WarehouseDone', data);
+                    });
+                });
+            });
+        };
+
+        function findAll(where) {
+            //start=起始行数&limit=每页显示行数&bt=交易发生时间起点&et=交易发生时间的截至时间&sidx=排序字段名&sord=排序方式asc,desc
+            Store.find({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
+                if(err) { ep.unbind(); return next(err);}
+                if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询结果为空！'});
+                var jsonObj = {stores:rs};
+                ep.trigger('showList', jsonObj);
+            });
+        };
+        /*
         Store.count({where:where}, function(err,ds){
             if(err) return next(err);
 
@@ -133,7 +294,7 @@ exports.index = function(req,res,next){
                 console.log('jsonStr:'+jsonStr);
                 return res.json(jsonObj, 200);
             });
-        });
+        });*/
     }
 };
 

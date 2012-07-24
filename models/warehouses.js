@@ -22,10 +22,10 @@ Warehouse.prototype.create = function(name, cb) {
     });
 };
 
-Warehouse.prototype.findOne = function(opt, cb) {
-    options = {schema:this.table, querys:opt};
-    mysql.findOne(options, cb);
-};
+//Warehouse.prototype.findOne = function(opt, cb) {
+//    options = {schema:this.table, querys:opt};
+//    mysql.findOne(options, cb);
+//};
 
 Warehouse.prototype.findAll = function(opt, cb) {
     options = {schema:this.table, querys:opt};

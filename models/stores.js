@@ -104,33 +104,33 @@ Store.prototype.findAllData = function(opt, cb) {
  * @param opt 包含_id属性
  * @param cb
  */
-Store.prototype.findOne = function(opt, cb) {
-    /*
-     _id
-     inventar_num       资产编号
-     name
-     warehouse_id       仓库
-     merchant_id        所属商户
-     state
-     district_code      国家-省-市-区编号
-     address
-     transit_info       公交说明
-     map_info
-     notice             门店公告
-     create_time
-     comment
-     */
-    var sql = " SELECT store._id _id, store.inventar_num inventar_num, store.name name, store.warehouse_id warehouse_id, store.merchant_id merchant_id, warehouse.name warehouse_name, "
-        +"merchant.short_name merchant_name, store.state state, store.district_code district_code, store.address address, "
-        +"store.transit_info transit_info, store.map_info map_info, store.notice notice, store.create_time create_time, store.comment comment "
-        +" FROM ef_store store, ef_merchant merchant, ef_warehouse warehouse "
-        +" where store.merchant_id = merchant._id and store.warehouse_id = warehouse._id  and store._id="+ opt._id;
-    mysql.query(sql, function(err, rs) {
-        if(err) return cb(err);
-        if(!rs.length) return cb(err);
-        cb(err, rs[0]);
-    });
-};
+//Store.prototype.findOne = function(opt, cb) {
+//    /*
+//     _id
+//     inventar_num       资产编号
+//     name
+//     warehouse_id       仓库
+//     merchant_id        所属商户
+//     state
+//     district_code      国家-省-市-区编号
+//     address
+//     transit_info       公交说明
+//     map_info
+//     notice             门店公告
+//     create_time
+//     comment
+//     */
+//    var sql = " SELECT store._id _id, store.inventar_num inventar_num, store.name name, store.warehouse_id warehouse_id, store.merchant_id merchant_id, warehouse.name warehouse_name, "
+//        +"merchant.short_name merchant_name, store.state state, store.district_code district_code, store.address address, "
+//        +"store.transit_info transit_info, store.map_info map_info, store.notice notice, store.create_time create_time, store.comment comment "
+//        +" FROM ef_store store, ef_merchant merchant, ef_warehouse warehouse "
+//        +" where store.merchant_id = merchant._id and store.warehouse_id = warehouse._id  and store._id="+ opt._id;
+//    mysql.query(sql, function(err, rs) {
+//        if(err) return cb(err);
+//        if(!rs.length) return cb(err);
+//        cb(err, rs[0]);
+//    });
+//};
 
 
 

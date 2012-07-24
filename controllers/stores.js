@@ -298,40 +298,75 @@ exports.index = function(req,res,next){
     }
 };
 
+
+exports.pageNew = function(req, res, next) {
+    console.log("新建弹出框。。。");
+    // 3个状态： 新增， 查看， 编辑
+    // - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
+    // - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
+    // - 编辑(pageState=2)： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
+    var pageState = 0;
+    res.render('stores/store', { layout: false, pageState:pageState});
+};
+
 /**
- * 显示新增门店（无_id）,或已有门店（有_id）页面
+ * 显示新增商品（无_id）,或已有商品（有_id）页面
  * @param req
  * @param res
  * @param next
  * @return {*}
  */
-exports.showStore = function(req, res, next) {
-    console.log("开始显示 新建||编辑||查看 弹出框。。。");
+exports.pageView = function(req, res, next) {
+    console.log("开始 pageView 。。。");
     var _id = req.params._id;
-    var isEdit = req.params.isEdit?req.params.isEdit:"false";
     // 本页面有3个状态： 新增， 查看， 编辑
-    // - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
-    // - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
-    // - 编辑(pageState=2)： _id不为空，isReadonly=false， 输入框有数据，显示：保存按钮 + 关闭按钮
+    // - 新增(pageState=0)： 所有输入框为空，显示：保存按钮
+    // - 查看(pageState=1)： 输入框有数据，显示：关闭按钮
+    // - 编辑(pageState=2)： 输入框有数据，显示：保存按钮 + 关闭按钮
+    var pageState = 1;
+    try {
+        check(_id, "流水号不能为空！").notNull();
+        res.render('stores/store', { layout: false, _id:_id, pageState:pageState});
+    }catch(e){
+        res.json({status:400, error:e.message}, 400);
+    }
+};
+
+exports.pageEdit = function(req, res, next) {
+    console.log("开始 pageEdit 。。。");
+    var _id = req.params._id;
+    // 本页面有3个状态： 新增， 查看， 编辑
+    // - 新增(pageState=0)： 所有输入框为空，显示：保存按钮
+    // - 查看(pageState=1)： 输入框有数据，显示：关闭按钮
+    // - 编辑(pageState=2)： 输入框有数据，显示：保存按钮 + 关闭按钮
     var pageState = 2;
+    try {
+        check(_id, "流水号不能为空！").notNull();
+        res.render('stores/store', { layout: false, _id:_id, pageState:pageState});
+    }catch(e){
+        res.json({status:400, error:e.message}, 400);
+    }
+};
 
-    //如果_id不为空，则弹出编辑页面
-    if(_id){
-        //编辑 和 查看
-        if(!isEdit || isEdit != "true"){
-            //查看状态
-            pageState = 1;
-        }
-
-
-        Store.findOne({"_id":_id}, function(err,ds){
+exports.findOne = function(req, res, next) {
+    console.log("开始 findOne 。。。");
+    var _id = req.params._id;
+    try {
+        check(_id, "流水号不能为空！").notNull();
+        Store.findOne({"_id":_id}, function(err,store){
             if(err) return next(err);
-            res.render('stores/store', { layout: false, store:ds, pageState:pageState, method:'put'});
+            if(!store) return res.json({status:400, error:"查询门店结果为空!"}, 400);
+            if(!store.warehouse_id) return res.json({status:400, error:"关联仓库为空!"}, 400);
+            Warehouse.findOne({"_id":store.warehouse_id}, function(err,warehouse){
+                if(err) return next(err);
+                if(!warehouse) return res.json({status:400, error:"查询仓库结果为空!"}, 400);
+                store.warehouse_name = warehouse.name;
+                var jsonObj = {store:store};
+                res.json(jsonObj, 200);
+            });
         });
-    }else{
-        //新增
-        pageState = 0;
-        res.render('stores/store', { layout: false, pageState:pageState, method:'post'});
+    }catch(e){
+        res.json({status:400, error:e.message}, 400);
     }
 };
 
@@ -346,27 +381,29 @@ exports.saveStore = function(req,res,next){
     console.log("saveStore。。。");
     //开始校验输入数值的正确性
     var name = req.body.name;
-    //var type_id = req.body.type_id;
-    //var state = req.body.state;
-    //var price = req.body.price;
 
-    if(!name) return res.send({status:400, error:'名字不能为空!'});
-    //if(!type_id) return res.send({status:400, error:'请选择商品类型!'});
-    //if(!state) return res.send({status:400, error:'状态不能为空!'});
-    //if(!price) return res.send({status:400, error:'售价不能为空!'});
+    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 405);
 
-    //创建门店仓库
-    Warehouse.create(name, function(err, info){
-        if(err) return next(err);
-        //获得门店仓库的ID，并与门店关联
-        req.body.warehouse_id = info.insertId;
-        req.body.create_time = getNow();
+    try {
+        check(name, "保存失败，名称不能为空！").notNull();
 
-        Store.create(req.body, function(err, info){
+        //创建门店仓库
+        Warehouse.create(name, function(err, info){
             if(err) return next(err);
-            res.send({status:201, error:'添加商品信息成功!'});
+            //获得门店仓库的ID，并与门店关联
+            req.body.warehouse_id = info.insertId;
+            req.body.create_time = getNow();
+            req.body.merchant_id = req.session.user.member.org_id;
+
+            Store.create(req.body, function(err, info){
+                if(err) return next(err);
+                var jsonObj = {store:{_id:info.insertId}};
+                return res.json(jsonObj, 201);
+            });
         });
-    });
+    }catch(e){
+        res.json({status:400, error:e.message}, 400);
+    }
 };
 
 /**
@@ -382,15 +419,17 @@ exports.updateStore = function(req,res,next){
     var _id = req.body._id;
     var name = req.body.name;
 
-    if(!_id) return res.json({status:400, error:'更新失败，数据流水号为空!'});
-    if(!name) return res.json({status:400, error:'名字不能为空!'});
+    try {
+        check(_id, "更新失败，数据流水号为空！").notNull();
+        check(name, "更新失败，名称不能为空！").notNull();
 
-    if(_id){
         //说明是更新数据
         Store.update(req.body, function(err,info){
             if(err) return next(err);
             res.json({status:200, error:'更新门店信息成功!'});
         });
+    }catch(e){
+        res.json({status:400, error:e.message}, 400);
     }
 };
 
@@ -456,36 +495,6 @@ exports.create = function(req, res, next) {
             });
         });
     }
-};
-
-/**
- * 显示新增页面
- * @param req
- * @param res
- * @param next
- */
-exports.showCreatPage = function(req,res,next){
-    Merchant.findAll(null, null, function(err,ds){
-        if(err) return next(err);
-        res.render('stores/create', { layout: false, merchants:ds});
-    });
-};
-
-/**
- * 显示修改页面
- * @param req
- * @param res
- * @param next
- */
-exports.showEditPage = function(req,res,next){
-    var _id = req.query._id;
-    Store.findOne({'_id':_id},function(err,store){
-        if(err) return next(err);
-        Merchant.findAll(null, null, function(err,rs){
-          if(err) return next(err);
-          res.render('stores/create', { layout: false, merchants:rs, store:store});
-        });
-    });
 };
 
 /**

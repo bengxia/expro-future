@@ -31,6 +31,7 @@ describe('#Sign', function() {
 //                console.log(res.body);
                 res.statusCode.should.equal(200);
                 res.body.should.have.property('name');
+                console.log(JSON.stringify(res.body));
                 done();
                 signout(res);
             })

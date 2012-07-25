@@ -160,7 +160,8 @@ exports.login = function(req, res, next) {
                 var data = {
                     _id:user._id,
                     name:user.name,
-                    sex:user.sex
+                    sex:user.sex,
+                    role:user.role
                 };
                 res.json(data, result.status);
             }

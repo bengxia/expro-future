@@ -390,6 +390,7 @@ exports.saveStore = function(req,res,next){
         //创建门店仓库
         Warehouse.create(name, function(err, info){
             if(err) return next(err);
+            if(!info || !info.insertId) return res.json({error:'数据入库出错!'}, 500);
             //获得门店仓库的ID，并与门店关联
             req.body.warehouse_id = info.insertId;
             req.body.create_time = getNow();

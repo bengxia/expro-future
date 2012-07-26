@@ -10,6 +10,9 @@ style
         height: 18px;
         line-height: 28px;
     }
+    #toolbar {
+        padding: 10px 4px;
+    }
 #content
   .panel
     .header
@@ -17,50 +20,47 @@ style
             li
                 a(href='/') 主页
                 span.divider /
-            li.active 商品管理
-    table(border='0', width='100%')
-        tr
-            td
-                .inner
-                    form#goods_type_form(action='/goods/type', method='post')
+            li.active 商品类型管理
+    #wrapper
+        .form-container
+            div
+                form#goods_type_form(action='/goods/type', method='post')
+                    fieldset
                         p.legend
                             strong 注意:
-                                em 红色
-                                |为必填字段！
-                        fieldset
-                            legend
-                            div(style="float:right;")
-                                input(type='hidden', name='_csrf', value='#{csrf}')
-                                input#close.btn(type='button', value=' 关 闭 ', onclick='$.fancybox.close();')
-                        fieldset(style="float:left;width: 180px;")
-                            legend(style='color: #C00; font-style: normal;') 商品类型
-                            div(style='overflow: auto;')
-                                ul#tree.ztree
-                        fieldset#type_detail_div(style="float:right;width: 220px;")
-                            legend 详细信息
-                            #operate_div
-                                input#addNewType.btn(type='button', value='新增')
-                                input#updateType.btn(type='button', value='更新')
-                                input#saveNewType.btn(type='button', value='保存')
-                                input#delType.btn(type='button', value='删除')
-                            #_id_div
-                                label.error(style="width:70px;") 流水号：
-                                input#_id.noAllowInput(type='text', name='_id', readonly)
-                            #parent_id_div
-                                label.error(style="width:70px;") 父ID：
-                                input#parent_id.noAllowInput(type='text', name='parent_id', readonly)
-                            #name_div
-                                label.error(style="width:70px;") 名称：
-                                input#name.allowInput(type='text', name='name')
-                            #create_time_div
-                                label.error(style="width:70px;") 创建时间：
-                                input#create_time.noAllowInput(type='text', name='create_time', readonly)
-                            #isleaf_div
-                                label.error(style="width:70px;") 叶子：
-                                input#isleaf.noAllowInput(type='text', name='isleaf', readonly)
-                            #level_div
-                                label.error(style="width:70px;") 层次：
-                                input#level.noAllowInput(type='text', name='level', readonly)
-                            #comment_div
-                                label.error(style="width:70px;") 备注：
-                                textarea#comment.allowInput(rows='5', cols='20', name='comment')
+                                em 删除
+                            |一个“商品类型”将会影响到与其关联的所有商品！
+                        div(style="float:right;")
+                            input(type='hidden', name='_csrf', value='#{csrf}')
+                            input#addNewType.btn(type='button', value='新增子节点')
+                            input#editType.btn(type='button', value='编辑节点')
+                            input#updateType.btn(type='button', value='更新')
+                            input#saveNewType.btn(type='button', value='保存')
+                            input#delType.btn(type='button', value='删除')
+                    fieldset(style="float:left;width: 40%;")
+                        legend(style='color: #C00; font-style: normal;') 商品类型
+                        div(style='overflow: auto;')
+                            ul#tree.ztree
+                    fieldset#type_detail_div(style="float:right;width: 50%;")
+                        legend 详细信息
+                        #_id_div.noAllowShow
+                            label.error(style="width:70px;") 流水号：
+                            input#_id.noAllowInput(type='text', name='_id', readonly)
+                        #parent_id_div.noAllowShow
+                            label.error(style="width:70px;") 父ID：
+                            input#parent_id.noAllowInput(type='text', name='parent_id', readonly)
+                        #isleaf_div.noAllowShow
+                            label.error(style="width:70px;") 叶子：
+                            input#isleaf.noAllowInput(type='text', name='isleaf', readonly)
+                        #level_div.noAllowShow
+                            label.error(style="width:70px;") 层次：
+                            input#level.noAllowInput(type='text', name='level', readonly)
+                        #name_div
+                            label.error(style="width:70px;") 名称：
+                            input#name.allowInput(type='text', name='name')
+                        #create_time_div
+                            label.error(style="width:70px;") 创建时间：
+                            input#create_time.noAllowInput(type='text', name='create_time')
+                        #comment_div
+                            label.error(style="width:70px;") 备注：
+                            textarea#comment.allowInput(rows='8', cols='35', name='comment')

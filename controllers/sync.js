@@ -112,19 +112,21 @@ exports.store = function(req, res, next) {
     var id = parseInt(sanitize(req.params.id).trim());
     var ep = EventProxy.create();
     var json = {sync_store:{_id:id}};
-    
+
     ep.once('error', function(result) {
         ep.unbind();
         return res.send(result.status);
     });
-    
+    console.log("--------");
     Store.findOne({_id:id}, function(err, store) {
+        console.log("---store："+store);
         if(err) return next(err);
         if(!store) return ep.trigger('error', {status:404});
         getWarehouse(store);
     });
     
     function getWarehouse(store) {
+        console.log("---getWarehouse");
         Warehouse.findOne({_id:store.warehouse_id}, function(err, warehouse) {
             if(err) return next(err);
             if(!warehouse) return ep.trigger('error', {status:404});
@@ -134,6 +136,7 @@ exports.store = function(req, res, next) {
     };
     
     function getWarrants(warehouse) {
+        console.log("---getWarrants");
         WarehouseWarrant.find({recipient_id:warehouse._id}, function(err, warehouseWarrants) {
             if(err) return next(err);
             if(warehouseWarrants.length > 0) warehouse.stock_in = warehouseWarrants;

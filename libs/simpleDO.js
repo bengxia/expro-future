@@ -14,7 +14,7 @@ SimpleDO.prototype.findOne = function(query, cb) {
     if(argLen < 1) return;
     var callback = arguments[argLen-1];
     arguments[argLen-1] = function(err, rs, fields) {
-        if(err || !rs || !rs.length) cb(err);
+        if(err || !rs.length) cb(err);
         else callback(err, rs[0], fields);
     };
     this.find.apply(this, Array.prototype.slice.call(arguments));

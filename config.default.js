@@ -20,9 +20,9 @@ exports.config = {
 	site_static_host: '', // 静态文件存储域名
 
         mysql: {
-              host: 'exprofuture.mysql.aliyun.com'
+              host: '192.168.0.115'
             , port:3306
-            , user: 'exprofuture'
+            , user: 'root'
             , password: '123456'
             , database:'exprofuture'
             , timezone:'Asia/Shanghai'

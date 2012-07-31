@@ -57,7 +57,7 @@ exports.index = function(req,res,next){
         for(key in queryInput){
             var value = req.query[key];
             if(value != undefined){
-                where += ' and goods.'+key+' like \'%'+value+'%\' ';
+                where += ' and '+key+' like \'%'+value+'%\' ';
             }
         }
 
@@ -69,7 +69,7 @@ exports.index = function(req,res,next){
                     console.log('jsonStr:'+jsonStr);
                     res.json(result.jsonObj, result.status);
                 }else{
-                    ep.trigger('error', {status:204, error:'查询结果为空!'});
+                    ep.trigger('error', {status:400, error:'查询结果为空!'});
                 }
             }
             else {
@@ -133,7 +133,7 @@ exports.index = function(req,res,next){
             //获得数据行数，用于分页计算
             Store.count({where:where}, function(err, count) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!count && !count.count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
+                if (!count && !count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
                 ep.trigger('findAllForWeb', where, count.count);
             });
         };
@@ -142,7 +142,7 @@ exports.index = function(req,res,next){
             //var showElement = ['_id', 'name', 'merchant_name', 'warehouse_name', 'state', 'create_time'];
             var showElement = ['_id', 'name', 'inventar_num', 'warehouse_id', 'warehouse_name', 'state', 'create_time'];
 
-            if (!count && !count.count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
+            if (!count && !count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
 
             if(!sidx){
                 sidx = 1;
@@ -165,7 +165,7 @@ exports.index = function(req,res,next){
 
             Store.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空！'});
                 //开始汇总
                 ep.after('storeDone', rs.length, function() {
                     //当memberDone被触发rs.length次后，执行以下语句。
@@ -212,7 +212,7 @@ exports.index = function(req,res,next){
 
                     Warehouse.findOne({'_id':store.warehouse_id}, function(err, data) {
                         if(err) { ep2.unbind(); return next(err);}
-                        if (!data || data == undefined) return ep2.trigger('error', {status:204, error:'查询Warehouse结果为空！'});
+                        if (!data || data == undefined) return ep2.trigger('error', {status:400, error:'查询Warehouse结果为空！'});
                         store.warehouse_name = data.name;
                         ep2.trigger('WarehouseDone', data);
                     });
@@ -222,9 +222,9 @@ exports.index = function(req,res,next){
 
         function findAll(where) {
             //start=起始行数&limit=每页显示行数&bt=交易发生时间起点&et=交易发生时间的截至时间&sidx=排序字段名&sord=排序方式asc,desc
-            Store.find({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
+            Store.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空！'});
                 var jsonObj = {stores:rs};
                 ep.trigger('showList', jsonObj);
             });
@@ -396,9 +396,9 @@ exports.saveStore = function(req,res,next){
             req.body.create_time = getNow();
             req.body.merchant_id = req.session.user.member.org_id;
 
-            Store.create(req.body, function(err, info){
+            Store.create(req.body, function(err, info2){
                 if(err) return next(err);
-                var jsonObj = {store:{_id:info.insertId}};
+                var jsonObj = {store:{_id:info2.insertId, warehouse:{_id:info.insertId}}};
                 return res.json(jsonObj, 201);
             });
         });
@@ -427,7 +427,7 @@ exports.updateStore = function(req,res,next){
         //说明是更新数据
         Store.update(req.body, function(err,info){
             if(err) return next(err);
-            res.json({status:200, error:'更新门店信息成功!'});
+            res.json({status:200, error:'更新门店信息成功!'}, 200);
         });
     }catch(e){
         res.json({status:400, error:e.message}, 400);
@@ -444,12 +444,73 @@ exports.deleteStore = function(req,res,next){
     //开始校验输入数值的正确性
     console.log("开始进行删除。。。。");
     var _ids = req.params._ids;
-    //console.log('_ids:'+_ids);
-    //console.log('parent._ids:'+parent._ids);
-    Store.delete(_ids, function(err,ds){
-        if(err) return next(err);
-        return res.json({"status":200, "error":'删除门店信息成功!', "_ids":_ids});
+
+    var ep = EventProxy.create();
+
+    //回调函数
+    function feedback(result) {
+        if(202 == result.status) {
+            return res.json({store:{_ids:_ids}}, 202);
+        }
+        else {
+            return res.json(result, result.status);
+        }
+    };
+
+    //当有异常发生时触发
+    ep.once('error', function(result) {
+        ep.unbind();//remove all event
+        return feedback(result);
     });
+
+    ep.on('findAllStore', function(org_id) {
+        findAllStore(org_id);
+    });
+
+    ep.on('deleteWarehouse', function(warehouse_ids) {
+        deleteWarehouse(warehouse_ids);
+    });
+
+    ep.on('deleteStore', function(warehouse_ids) {
+        deleteStore(warehouse_ids);
+    });
+
+    if(req.session.user.member.org_id){
+        ep.trigger('findAllStore', req.session.user.member.org_id);
+    }else{
+        ep.trigger('error', {status:400, error:'获取当前用户所属商户失败。'});
+    }
+
+    function findAllStore(org_id){
+        Store.findAll({where:" and _id in ("+_ids+") and merchant_id="+org_id}, function(err, rs) {
+            if(err) return next(err);
+            if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空!'});
+            var warehouse_ids = "";
+            for(var i = 0; i < rs.length; i++){
+                var so = rs[i];
+                if(so && so.warehouse_id){
+                    if(i > 0) warehouse_ids += ",";
+                    warehouse_ids += so.warehouse_id;
+                }
+            }
+            ep.trigger('deleteWarehouse', warehouse_ids);
+        });
+    };
+
+    function deleteWarehouse(warehouse_ids){
+        Warehouse.delete(warehouse_ids, function(err,info){
+            if(err) return next(err);
+            ep.trigger('deleteStore', warehouse_ids);
+        });
+    };
+
+    function deleteStore(warehouse_ids){
+        Store.delete(_ids, function(err,ds){
+            if(err) return next(err);
+            //todo 需要删除相关的门店仓库。
+            return res.json({store:{_ids:_ids, warehouse:{_ids:warehouse_ids}}}, 202);
+        });
+    };
 };
 
 

@@ -59,4 +59,12 @@ Warehouse.prototype.findAllData = function(opt, cb) {
     });
 };
 
+Warehouse.prototype.delete = function(ids, cb) {
+    var sql = " delete from ef_warehouse where _id in(" + ids + ") ";
+    mysql.query(sql, function(err, rs) {
+        if(err) return cb(err);
+        cb(err, rs);
+    });
+};
+
 exports = module.exports = createWarehouse;

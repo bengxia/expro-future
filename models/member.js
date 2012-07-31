@@ -10,7 +10,7 @@ function Member() {
 };
 Member.prototype = new SimpleDO('ef_member');
 
-Member.prototype.findOne = function(opt, cb) {
+Member.prototype.findOne_bak = function(opt, cb) {
     /*
     var sql = 'SELECT * FROM ef_member WHERE org_id = '+opt.org+' AND user_id = '+opt.user;
     mysql.query(sql, function(err, rs) {

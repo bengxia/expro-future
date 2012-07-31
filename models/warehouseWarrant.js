@@ -14,7 +14,7 @@ WarehouseWarrant.prototype = new SimpleDO('`ef_warehouse_warrant`');
 /**
  * 以对象形式传递查询条件参数
  */
-WarehouseWarrant.prototype.findOne = function(opt, cb) {
+WarehouseWarrant.prototype.findOne_bak = function(opt, cb) {
     options = {schema:this.table, query:opt};
     mysql.findOne(options, cb);
 };

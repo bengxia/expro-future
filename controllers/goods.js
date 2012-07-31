@@ -317,7 +317,7 @@ exports.findOne = function(req, res, next) {
 
     try {
         check(_id, "流水号不能为空！").notNull();
-        Goods.findOne({"_id":_id}, function(err,data){
+        Goods.findOneGoods({"_id":_id}, function(err,data){
             if(err) return next(err);
             if(!data) return res.json({status:400, error:"查询结果为空!"}, 400);
 

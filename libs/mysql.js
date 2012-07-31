@@ -32,19 +32,18 @@ exports.find = function(opt, cb) {
             }
         }
     }
-    console.log(sql);
     exports.query(sql, cb);
 }
 
 exports.findOne = function(opt, cb) {
     exports.find(opt, function(err, rs, fields) {
-        if(err || rs.length == 0) cb(err);
+        if(err || !rs.length) cb(err);
         else cb(err, rs[0], fields);
     });
 };
 
 exports.insert = function(opt, cb) {
-    //如果提交的保单中有_csrf字段（防止跨站攻击用），则去除。Modify by Mengwei
+    //如果提交的表单中有_csrf字段（防止跨站攻击用），则去除。Modify by Mengwei
     if(opt.fields && opt.fields._csrf) delete opt.fields._csrf;
     var sql = 'insert into '+opt.table+' set ';
     var values = [];

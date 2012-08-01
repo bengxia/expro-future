@@ -361,9 +361,9 @@ exports.saveGoods = function(req,res,next){
             var merchantGoodsObj = {merchant_id:req.session.user.member.org_id, goods_id:info.insertId};
             Merchant_goods.create(merchantGoodsObj, function(err2, info2){
                 if(err2) return next(err2);
-                goodsObj._id = info.insertId;
-                goodsObj.merchant = {_id:req.session.user.member.org_id};
-                var jsonObj = {goods:goodsObj};
+                //goodsObj._id = info.insertId;
+                //goodsObj.merchant = {_id:req.session.user.member.org_id};
+                var jsonObj = {goods:{_id:info.insertId}};
                 return res.json(jsonObj, 201);
             });
         });

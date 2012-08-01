@@ -499,8 +499,8 @@ exports.showTypeDetail = function(req,res,next){
             check(_id, "数据的流水号不能为空！").notNull();
             GoodsType.findOne({_id:_id}, function(err, rs){
                 if(err) return next(err);
-                var jsonStr = JSON.stringify(rs);
-                console.log('jsonStr:'+jsonStr);
+                //var jsonStr = JSON.stringify(rs);
+                //console.log('jsonStr:'+jsonStr);
                 return res.json(rs, 200);
             });
         }catch(e){
@@ -526,17 +526,14 @@ exports.creatType = function(req,res,next){
     var name = req.body.name;
     var comment = sanitize(req.body.comment).ifNull("");
 
-//    if(!name) return res.json({status:400, error:'名字不能为空!'}, 400);
-
     try {
         check(name, "名称不能为空!").notNull();
         check(level, "节点等级不能为空!").notNull();
         check(isleaf, "是否叶子节点标记不能为空!").notNull();
-        //创建
-        //req.body.create_time = getNow();
 
         GoodsType.create({parent_id:parent_id, isleaf:isleaf, level:level, name:name, comment:comment, create_time:getNow()}, function(err, info){
             if(err) return next(err);
+            if(!info || !info.insertId) return res.json({error:'数据入库出错!'}, 500);
             if(parent_id && parent_id != ""){
                 //新类型为叶子节点，如果有父（非root），并且父为叶子，则设置父类型为枝节点。
                 GoodsType.findOne({_id:parent_id}, function(err, parent){
@@ -545,10 +542,10 @@ exports.creatType = function(req,res,next){
                         parent.isleaf = 0;
                         GoodsType.update(parent, function(err, rs){
                             if(err) return next(err);
-                            res.json({status:201, error:'创建成功!'}, 201);
+                            res.json({goodstype:{_id:info.insertId}}, 201);
                         });
                     }else{
-                        return res.json({status:500, error:'未找到对应父节点！'}, 500);
+                        return res.json({error:'未找到对应父节点！'}, 500);
                     }
                 });
             }
@@ -581,7 +578,7 @@ exports.updateType = function(req,res,next){
         //流水号不为空，说明是更新
         GoodsType.update({_id:_id, parent_id:parent_id, isleaf:isleaf, level:level, name:name, comment:comment}, function(err, rs){
             if(err) return next(err);
-            res.json({status:200, error:'更新成功!'}, 200);
+            res.json({goodstype:{_id:_id}}, 200);
         });
     }catch(e){
         res.json({status:400, error:e.message}, 400);
@@ -595,19 +592,13 @@ exports.deleteType = function(req,res,next){
     try {
         check(_id, "流水号为空，删除失败!").notNull();
         delChildren(_id);
-        //console.log('parent._ids:'+parent._ids);
         GoodsType.delete({_ids:_id}, function(err,ds){
             if(err) return next(err);
-            return res.json({status:200, error:'删除成功!'}, 200);
+            return res.json({goodstype:{_ids:_id}}, 202);
         });
     }catch(e){
         res.json({status:400, error:e.message}, 400);
     }
-    //console.log('_id:'+_id);
-    //var parent = new Object();
-    //parent._id = _id;
-    //parent._ids = _id;
-
 };
 
 /**

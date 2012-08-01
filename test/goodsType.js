@@ -4,13 +4,11 @@ var logEnable = true;
 var sid;
 var dataId;
 var newJson = {
-    name:"测试-商品-将被删除",
-    type_id:1,
-    state:1,
-    code:"0001",
-    price:11.22,
-    create_time:"2012-12-30",
-    comment:"备注一下"
+    parent_id:1,
+    isleaf:1,
+    level:1,
+    name:"测试新增-手机套-测试后删除",
+    comment:"用于测试"
 };
 
 function log(obj){
@@ -30,18 +28,18 @@ function signin(data, done, ct) {
 };
 
 function addData(data, sid, done, ct) {
-    session.postData('/goods', data, sid, ct)
+    session.postData('/goods/type', data, sid, ct)
         .end(function(res2) {
         res2.statusCode.should.equal(201);
         res2.should.be.json;
         log(res2.body);
-        dataId = res2.body.goods._id;
+        dataId = res2.body.goodstype._id;
         done();
     })
 };
 
 function findOneData(id, sid, done, ct) {
-    session.getData('/goods/'+id, sid)
+    session.getData('/goods/type/'+id, sid)
         .end(function(res2) {
             res2.statusCode.should.equal(200);
             res2.should.be.json;
@@ -51,7 +49,7 @@ function findOneData(id, sid, done, ct) {
 };
 
 function deleteData(id, sid, done, ct) {
-    session.deleteData('/goods/'+id, '', sid, ct)
+    session.deleteData('/goods/type/'+id, '', sid, ct)
         .end(function(res2) {
             res2.statusCode.should.equal(202);
             res2.should.be.json;
@@ -61,7 +59,7 @@ function deleteData(id, sid, done, ct) {
 };
 
 function updateData(data, sid, done, ct) {
-    session.putData('/goods', data, sid, ct)
+    session.putData('/goods/type', data, sid, ct)
         .end(function(res2) {
             res2.statusCode.should.equal(200);
             res2.should.be.json;
@@ -71,7 +69,7 @@ function updateData(data, sid, done, ct) {
 };
 
 function getList(sid, done) {
-    session.getData('/goods', sid)
+    session.getData('/goods/type', sid)
         .end(function(res) {
             res.statusCode.should.equal(200);
             res.should.be.json;
@@ -81,7 +79,7 @@ function getList(sid, done) {
 };
 
 
-describe('----商户商品测试模块----', function() {
+describe('----商品类型测试模块----', function() {
     it('验证用户登录，并获得sid。', function(done) {
         signin({
             cellphone:'18912345678',
@@ -89,24 +87,24 @@ describe('----商户商品测试模块----', function() {
             org:'1'
         }, done);
     });
-    it('返回当前商户的所有商品信息列表。', function(done) {
+    it('返回当前所有商品类型信息列表。', function(done) {
         getList(sid, done);
     });
-    it('创建商品并关联商户', function(done) {
+    it('创建商品类型', function(done) {
         addData(newJson, sid, done);
     });
-    it('查询新增的商品', function(done) {
+    it('查询新增的商品类型', function(done) {
         findOneData(dataId, sid, done);
     });
-    it('更新商品', function(done) {
+    it('更新商品类型', function(done) {
         newJson._id = dataId;
         newJson.name = "测试更新-商品-将被删除";
         updateData(newJson, sid, done);
     });
-    it('查询更新的商品', function(done) {
+    it('查询更新的商品类型', function(done) {
         findOneData(dataId, sid, done);
     });
-    it('取消商品与商户的关联，删除数据。', function(done) {
+    it('取消商品类型，删除数据。', function(done) {
         deleteData(dataId, sid, done);
     })
 });

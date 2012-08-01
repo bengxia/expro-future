@@ -9,12 +9,16 @@ function addData(data, sid, ct) {
     return session.postData('/goods', data, sid, ct);
 };
 
+function findOneData(id, sid, ct) {
+    return session.getData('/goods/'+id, sid);
+};
+
 function deleteData(id, sid, ct) {
     return session.deleteData('/goods/'+id, '', sid, ct);
 };
 
-function updateData(id, data, sid, ct) {
-    return session.putData('/goods/'+id, data, sid, ct);
+function updateData(data, sid, ct) {
+    return session.putData('/goods', data, sid, ct);
 };
 
 function getList(sid, done) {
@@ -68,11 +72,77 @@ describe('商户商品测试模块。', function() {
                 res.body.should.have.property('name');
                 var sid = session.getSID(res);
                 addData(newJson, sid)
+                .end(function(res2) {
+                    res2.statusCode.should.equal(201);
+                    res2.should.be.json;
+                    console.log(JSON.stringify(res2.body));
+                    dataId = res2.body.goods._id;
+                    done();
+                })
+            })
+        })
+    });
+    describe('#查询新增的商品', function() {
+        it('返回查询的商品Json数据', function(done) {
+            signin({
+                cellphone:'18912345678',
+                password:'123456',
+                org:'1'
+            })
+            .end(function(res) {
+                res.statusCode.should.equal(200);
+                res.body.should.have.property('name');
+                var sid = session.getSID(res);
+                findOneData(dataId, sid)
+                .end(function(res2) {
+                    res2.statusCode.should.equal(200);
+                    res2.should.be.json;
+                    console.log(JSON.stringify(res2.body));
+                    done();
+                })
+            })
+        })
+    });
+    describe('#更新商品', function() {
+        it('返回更新商品后的Json数据', function(done) {
+            signin({
+                cellphone:'18912345678',
+                password:'123456',
+                org:'1'
+            })
+            .end(function(res) {
+                res.statusCode.should.equal(200);
+                res.body.should.have.property('name');
+                var sid = session.getSID(res);
+                newJson._id = dataId;
+                newJson.name = "测试更新-商品-将被删除";
+                updateData(newJson, sid)
                     .end(function(res2) {
-                        res2.statusCode.should.equal(201);
+                        res2.statusCode.should.equal(200);
                         res2.should.be.json;
                         console.log(JSON.stringify(res2.body));
-                        dataId = res2.body.goods._id;
+                        //dataId = res2.body.goods._id;
+                        done();
+                    })
+            })
+        })
+    });
+    describe('#查询更新的商品', function() {
+        it('返回查询的商品Json数据', function(done) {
+            signin({
+                cellphone:'18912345678',
+                password:'123456',
+                org:'1'
+            })
+            .end(function(res) {
+                res.statusCode.should.equal(200);
+                res.body.should.have.property('name');
+                var sid = session.getSID(res);
+                findOneData(dataId, sid)
+                    .end(function(res2) {
+                        res2.statusCode.should.equal(200);
+                        res2.should.be.json;
+                        console.log(JSON.stringify(res2.body));
                         done();
                     })
             })

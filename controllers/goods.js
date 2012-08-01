@@ -79,7 +79,7 @@ exports.findAll = function(req,res,next){
                     //console.log('jsonStr:'+jsonStr);
                     res.json(result.jsonObj, result.status);
                 }else{
-                    ep.trigger('error', {status:204, error:'查询结果为空!'});
+                    ep.trigger('error', {status:404, error:'查询结果为空!'});
                 }
             }
             else {
@@ -128,7 +128,7 @@ exports.findAll = function(req,res,next){
         function findGoodsByOrgId(org_id){
             Merchant_goods.findAll({where:' and merchant_id='+org_id}, function(err, rs){
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'当前商户下属的商品列表查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:404, error:'当前商户下属的商品列表查询结果为空！'});
                 //rs：获得当前登陆用户所属商户下的所有商品列表
 
                 where += " and _id in(";
@@ -172,7 +172,7 @@ exports.findAll = function(req,res,next){
         function findAllForWeb(where, count) {
             var showElement = ['_id', 'name', 'type_id', 'type_name', 'state', 'code', 'price', 'create_time', 'comment'];
 
-            if (!count && !count.count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
+            if (!count && !count.count) return ep.trigger('error', {status:404, error:'查询结果为空!'});
 
             if(!sidx){
                 sidx = 1;
@@ -226,8 +226,8 @@ exports.findAll = function(req,res,next){
                     //将rows数组赋予jsonObj.rows
                     jsonObj.rows = rowsArray;
 
-                    var jsonStr = JSON.stringify(jsonObj);
-                    console.log('jsonStr2:'+jsonStr);
+                    //var jsonStr = JSON.stringify(jsonObj);
+                    //console.log('jsonStr2:'+jsonStr);
                     return res.json(jsonObj, 200);
                 });
 
@@ -319,7 +319,7 @@ exports.findOne = function(req, res, next) {
         check(_id, "流水号不能为空！").notNull();
         Goods.findOneGoods({"_id":_id}, function(err,data){
             if(err) return next(err);
-            if(!data) return res.json({status:400, error:"查询结果为空!"}, 400);
+            if(!data) return res.json({status:404, error:"查询结果为空!"}, 404);
 
             var jsonObj = {goods:data};
             res.json(jsonObj, 200);
@@ -338,7 +338,7 @@ exports.findOne = function(req, res, next) {
  */
 exports.saveGoods = function(req,res,next){
     console.log("saveGoods。。。");
-    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 405);
+    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
 
     //开始校验输入数值的正确性
     var name = req.body.name;
@@ -354,15 +354,16 @@ exports.saveGoods = function(req,res,next){
         check(state, "保存失败，状态不能为空！").notNull();
         check(price, "保存失败，售价不能为空！").notNull();
 
-        //创建时间
-        Goods.create({name:name, type_id:type_id, state:state, code:code, price:price, create_time:getNow(), comment:comment}, function(err, info){
+        var goodsObj = {name:name, type_id:type_id, state:state, code:code, price:price, create_time:getNow(), comment:comment};
+        Goods.create(goodsObj, function(err, info){
             if(err) return next(err);
             if(!info || !info.insertId) return res.json({error:'数据入库出错!'}, 500);
-
-            Merchant_goods.create({merchant_id:req.session.user.member.org_id, goods_id:info.insertId}, function(err2, info2){
+            var merchantGoodsObj = {merchant_id:req.session.user.member.org_id, goods_id:info.insertId};
+            Merchant_goods.create(merchantGoodsObj, function(err2, info2){
                 if(err2) return next(err2);
-
-                var jsonObj = {goods:{_id:info.insertId}};
+                goodsObj._id = info.insertId;
+                goodsObj.merchantgoods = merchantGoodsObj;
+                var jsonObj = {goods:goodsObj};
                 return res.json(jsonObj, 201);
             });
         });
@@ -379,9 +380,9 @@ exports.saveGoods = function(req,res,next){
  * @return {*}
  */
 exports.updateGoods = function(req,res,next){
-    console.log("updateGoods。。。");
+    console.log(" ---------开始 updateGoods。。。");
 
-    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 405);
+    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
 
     //开始校验输入数值的正确性
     var _id = req.body._id;
@@ -399,11 +400,12 @@ exports.updateGoods = function(req,res,next){
         check(price, "保存失败，售价不能为空！").notNull();
 
         //说明是更新数据
-        Goods.update({_id:_id, name:name, type_id:type_id, state:state, code:code, price:price, create_time:getNow(), comment:comment}, function(err,info){
+        var goods = {_id:_id, name:name, type_id:type_id, state:state, code:code, price:price, comment:comment};
+        Goods.update(goods, function(err,info){
             if(err) return next(err);
 
             //res.json({status:200, error:'更新商品信息成功!'}, 200);
-            var jsonObj = {goods:{_id:info.insertId}};
+            var jsonObj = {goods:goods};
             return res.json(jsonObj, 200);
         });
     }catch(e){
@@ -420,7 +422,7 @@ exports.updateGoods = function(req,res,next){
 exports.deleteGoods = function(req,res,next){
     //开始校验输入数值的正确性
     console.log("开始进行删除。。。。");
-    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 405);
+    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
 
     var _ids = req.params._ids;
 
@@ -431,7 +433,7 @@ exports.deleteGoods = function(req,res,next){
             if(err) return next(err);
             Merchant_goods.delete({merchant_id:req.session.user.member.org_id, ids:_ids}, function(err2, ds2){
                 if(err2) return next(err2);
-                return res.json({"status":202, "error":'删除商品信息成功!', "_ids":_ids}, 202);
+                return res.json({goods:{_ids:_ids}}, 202);
             });
         });
     }catch(e){

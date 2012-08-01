@@ -65,8 +65,8 @@ exports.index = function(req,res,next){
         function feedback(result) {
             if(200 == result.status) {
                 if(result.jsonObj) {
-                    var jsonStr = JSON.stringify(result.jsonObj);
-                    console.log('jsonStr:'+jsonStr);
+                    //var jsonStr = JSON.stringify(result.jsonObj);
+                    //console.log('jsonStr:'+jsonStr);
                     res.json(result.jsonObj, result.status);
                 }else{
                     ep.trigger('error', {status:400, error:'查询结果为空!'});
@@ -229,72 +229,6 @@ exports.index = function(req,res,next){
                 ep.trigger('showList', jsonObj);
             });
         };
-        /*
-        Store.count({where:where}, function(err,ds){
-            if(err) return next(err);
-
-            var page = req.query.page; // 取得当前页数,注意这是jqgrid自身的参数
-            var limit = req.query.rows; // 取得每页显示行数，,注意这是jqgrid自身的参数
-            var sidx = req.query.sidx; //取得排序字段
-            var sord  = req.query.sord;//排序方式asc、desc
-
-            if(!sidx){
-                sidx = 1;
-            }
-            // 计算查询结果总行数
-            var count = ds.count;
-            // 查询结果总页数
-            var total_pages = 0;
-
-            // 计算查询结果页数
-            if(count > 0 && limit > 0){
-                total_pages = Math.ceil(count/limit);
-            }
-            // 若请求页大于总页数，设置请求页为最后一页
-            if (page > total_pages) page=total_pages;
-
-            // 计算起始行
-            var start = limit * page - limit;
-            // 若起始行为0
-            if(start < 0) start = 0;
-
-            Store.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord}, function(err,ds){
-                if(err) return next(err);
-
-                if (!ds || ds == undefined){
-                    return res.json({status:'查询结果为空！'}, 204);
-                }
-                var jsonObj = new Object();
-                jsonObj.page = page;  // 当前页
-                jsonObj.total = total_pages;    // 总页数
-                jsonObj.records = count;  // 总记录数
-
-                //定义rows 数组，保存所有rows数据
-                var rowsArray = new Array();
-                for(var i=0; i<ds.length; i++){
-                    // 定义rows
-                    var rows = new Object();
-                    rows.id = ds[i]._id;
-                    //rows.cell = [ds[i]._id, ds[i].name, ds[i].code, ds[i].goods_type_name, ds[i].state, ds[i].price, ds[i].create_time];
-                    var ay = new Array();
-                    for(key in ds[i]){
-                        var index = showElement.indexOf(key);
-                        if(index >= 0){
-                            ay[index] = ds[i][key];
-
-                        }
-                    }
-                    rows.cell = ay;
-                    rowsArray[i] = rows;
-                }
-                //将rows数组赋予jsonObj.rows
-                jsonObj.rows = rowsArray;
-
-                var jsonStr = JSON.stringify(jsonObj);
-                console.log('jsonStr:'+jsonStr);
-                return res.json(jsonObj, 200);
-            });
-        });*/
     }
 };
 
@@ -382,7 +316,7 @@ exports.saveStore = function(req,res,next){
     //开始校验输入数值的正确性
     var name = req.body.name;
 
-    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 405);
+    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
 
     try {
         check(name, "保存失败，名称不能为空！").notNull();
@@ -427,7 +361,7 @@ exports.updateStore = function(req,res,next){
         //说明是更新数据
         Store.update(req.body, function(err,info){
             if(err) return next(err);
-            res.json({status:200, error:'更新门店信息成功!'}, 200);
+            res.json({store:{_id:_id}}, 200);
         });
     }catch(e){
         res.json({status:400, error:e.message}, 400);

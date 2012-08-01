@@ -362,7 +362,7 @@ exports.saveGoods = function(req,res,next){
             Merchant_goods.create(merchantGoodsObj, function(err2, info2){
                 if(err2) return next(err2);
                 goodsObj._id = info.insertId;
-                goodsObj.merchantgoods = merchantGoodsObj;
+                goodsObj.merchant = {_id:req.session.user.member.org_id};
                 var jsonObj = {goods:goodsObj};
                 return res.json(jsonObj, 201);
             });

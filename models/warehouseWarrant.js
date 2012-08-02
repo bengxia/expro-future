@@ -66,6 +66,17 @@ WarehouseWarrant.prototype.create = function(body, cb) {
     });
 };
 
+WarehouseWarrant.prototype.update = function(body, cb) {
+    var opt = {
+        table: 'ef_warehouse_warrant',
+        fields: body
+    };
+    mysql.update(opt, function(err, info) {
+        if(err) return cb(err);
+        return cb(err, info);
+    });
+};
+
 WarehouseWarrant.prototype.delete = function(ids, cb) {
     var sql = " delete from ef_warehouse_warrant where _id in(" + ids + ") ";
     mysql.query(sql, function(err, rs) {

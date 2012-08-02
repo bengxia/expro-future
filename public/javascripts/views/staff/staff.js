@@ -242,7 +242,7 @@ $(function(){
     });
 
     $("#update").click(function(){
-        var member_id = $("#member_id").val();
+        var _id = $("#_id").val();
         var user_id = $("#user_id").val();
         var pet_name = $("#pet_name").val();
         var store_id = $("#store_id").val();
@@ -254,14 +254,14 @@ $(function(){
         var due_time = $("#due_time").val();
         var comment =  $("#comment").val();
 
-        var member_update_json = {pet_name:pet_name, user_id:user_id, store_id:store_id, role_id:role_id, state:state, privacy:privacy, point:point,
+        var member_update_json = {_id:_id, pet_name:pet_name, user_id:user_id, store_id:store_id, role_id:role_id, state:state, privacy:privacy, point:point,
             savings:savings, due_time:due_time, comment:comment};
 
-        console.log("member_update_json:"+JSON.stringify(member_update_json));
+        //console.log("member_update_json:"+JSON.stringify(member_update_json));
 
         $.ajax({
             type: "put",
-            url: '/staff/'+member_id+'?_csrf='+$("#_csrf").val(),
+            url: '/staff?_csrf='+$("#_csrf").val(),
             dataType: "json",
             global: false,
             async: false,

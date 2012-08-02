@@ -12,8 +12,7 @@ script(type='text/javascript', src='/javascripts/views/staff/staff.js')
             legend
             div
                 input#_csrf(type='hidden', name='_csrf', value='#{csrf}')
-                //input#_id(type='text', name='_id', value='#{locals._id?_id:''}')
-                input#member_id(type='hidden', name='member_id', value='#{locals._id?_id:''}')
+                input#_id(type='hidden', name='_id', value='#{locals._id?_id:''}')
                 input#user_id(type='hidden', name='user_id')
                 input#pageState(type='hidden', name='pageState', value='#{pageState}')
                 input#save.btn(type='button', value=' 保 存 ')

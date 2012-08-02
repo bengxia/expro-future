@@ -79,7 +79,7 @@ exports.findAll = function(req,res,next){
                     //console.log('jsonStr:'+jsonStr);
                     res.json(result.jsonObj, result.status);
                 }else{
-                    ep.trigger('error', {status:404, error:'查询结果为空!'});
+                    ep.trigger('error', {status:400, error:'查询结果为空!'});
                 }
             }
             else {
@@ -128,7 +128,7 @@ exports.findAll = function(req,res,next){
         function findGoodsByOrgId(org_id){
             Merchant_goods.findAll({where:' and merchant_id='+org_id}, function(err, rs){
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:404, error:'当前商户下属的商品列表查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'当前商户下属的商品列表查询结果为空！'});
                 //rs：获得当前登陆用户所属商户下的所有商品列表
 
                 where += " and _id in(";
@@ -163,7 +163,7 @@ exports.findAll = function(req,res,next){
             //获得数据行数，用于分页计算
             Goods.count({where:where, bt:bt, et:et}, function(err, count) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!count || !count.count || 0 == count.count) return ep.trigger('error', {status:404, error:'查询结果为空!'});
+                if (!count || !count.count || 0 == count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
                 ep.trigger('findAllForWeb', where, count.count);
             });
         }
@@ -172,7 +172,7 @@ exports.findAll = function(req,res,next){
         function findAllForWeb(where, count) {
             var showElement = ['_id', 'name', 'type_id', 'type_name', 'state', 'code', 'price', 'create_time', 'comment'];
 
-            if (!count && !count.count) return ep.trigger('error', {status:404, error:'查询结果为空!'});
+            if (!count && !count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
 
             if(!sidx){
                 sidx = 1;
@@ -196,7 +196,7 @@ exports.findAll = function(req,res,next){
 
             Goods.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined || 0 == rs.length) return ep.trigger('error', {status:404, error:'查询结果为空！'});
+                if (!rs || rs == undefined || 0 == rs.length) return ep.trigger('error', {status:400, error:'查询结果为空！'});
 
                 //开始汇总
                 ep.after('goodsDone', rs.length, function() {
@@ -234,9 +234,11 @@ exports.findAll = function(req,res,next){
                 rs.forEach(function(goods) {
                     GoodsType.findOne({'_id':goods["type_id"]}, function(err, goodsType) {
                         if(err) { ep.unbind(); return next(err);}
-                        if (!goodsType || goodsType == undefined) return ep.trigger('error', {status:404, error:'查询商品类型结果为空！'});
-
-                        goods.type_name = goodsType.name;
+                        if (!goodsType || goodsType == undefined) {//return ep.trigger('error', {status:400, error:'查询商品类型结果为空！'});
+                            goods.type_name = "";
+                        }else{
+                            goods.type_name = goodsType.name;
+                        }
                         ep.trigger('goodsDone', goods);
                     });
                 });
@@ -247,7 +249,7 @@ exports.findAll = function(req,res,next){
             //start=起始行数&limit=每页显示行数&bt=交易发生时间起点&et=交易发生时间的截至时间&sidx=排序字段名&sord=排序方式asc,desc
             Goods.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:404, error:'查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空！'});
                 var jsonObj = {goods:rs};
                 ep.trigger('showList', jsonObj);
             });

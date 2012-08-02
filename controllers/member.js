@@ -71,11 +71,11 @@ exports.findAll = function(req,res,next){
         function feedback(result) {
             if(200 == result.status) {
                 if(result.jsonObj) {
-                    var jsonStr = JSON.stringify(result.jsonObj);
-                    console.log('jsonStr:'+jsonStr);
+                    //var jsonStr = JSON.stringify(result.jsonObj);
+                    //console.log('jsonStr:'+jsonStr);
                     res.json(result.jsonObj, result.status);
                 }else{
-                    ep.trigger('error', {status:204, error:'查询结果为空!'});
+                    ep.trigger('error', {status:400, error:'查询结果为空!'});
                 }
             }else {
                 return res.json(result, result.status);
@@ -138,7 +138,7 @@ exports.findAll = function(req,res,next){
             //获得数据行数，用于分页计算
             Member.count({where:where}, function(err, count) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!count || !count.count || 0 == count.count) return ep.trigger('error', {status:404, error:'查询结果为空!'});
+                if (!count || !count.count || 0 == count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
                 console.log("---count.count:"+count.count);
                 ep.trigger('findAllForWeb', where, count.count);
             });
@@ -148,7 +148,7 @@ exports.findAll = function(req,res,next){
             console.log("---start findAllForWeb。");
             var showElement = ['_id', 'pet_name', 'merchant_short_name', 'role_name', 'state', 'create_time', 'due_time'];
 
-            if (!count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
+            if (!count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
 
             if(!sidx){
                 sidx = 1;
@@ -172,7 +172,7 @@ exports.findAll = function(req,res,next){
 
             Member.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined || 0 == rs.length) return ep.trigger('error', {status:404, error:'查询结果为空！'});
+                if (!rs || rs == undefined || 0 == rs.length) return ep.trigger('error', {status:400, error:'查询结果为空！'});
                 console.log("---rs.length:"+rs.length);
                 //开始汇总
                 ep.after('memberDone', rs.length, function() {
@@ -220,21 +220,21 @@ exports.findAll = function(req,res,next){
 
                     User.findOne({'_id':member.user_id}, function(err, user) {
                         if(err) { ep2.unbind(); return next(err);}
-                        if (!user || user == undefined) return ep2.trigger('error', {status:404, error:'查询User结果为空！'});
+                        if (!user || user == undefined) return ep2.trigger('error', {status:400, error:'查询User结果为空！'});
                         member.user_pet_name = user.pet_name;
                         ep2.trigger('UserDone', member);
 
                     });
                     Role.findOne({'_id':member.role_id}, function(err, role) {
                         if(err) { ep2.unbind(); return next(err);}
-                        if (!role || role == undefined) return ep2.trigger('error', {status:404, error:'查询Role结果为空！'});
+                        if (!role || role == undefined) return ep2.trigger('error', {status:400, error:'查询Role结果为空！'});
                         member.role_name = role.name;
                         ep2.trigger('RoleDone', member);
 
                     });
                     Merchant.findOne({'_id':member.org_id}, function(err, merchant) {
                         if(err) { ep2.unbind(); return next(err);}
-                        if (!merchant || merchant == undefined) return ep2.trigger('error', {status:404, error:'查询Merchant结果为空！'});
+                        if (!merchant || merchant == undefined) return ep2.trigger('error', {status:400, error:'查询Merchant结果为空！'});
                         member.merchant_short_name = merchant.short_name;
                         ep2.trigger('OrgDone', member);
                     });
@@ -246,7 +246,7 @@ exports.findAll = function(req,res,next){
             //start=起始行数&limit=每页显示行数&bt=交易发生时间起点&et=交易发生时间的截至时间&sidx=排序字段名&sord=排序方式asc,desc
             Member.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:404, error:'查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空！'});
                 var jsonObj = {members:rs};
                 ep.trigger('showList', jsonObj);
             });
@@ -510,7 +510,7 @@ exports.saveMember = function(req,res,next){
                 });
             }
         }else{
-            ep.trigger('error', {status:406, error:'获取当前用户所属商户失败。'});
+            ep.trigger('error', {status:400, error:'获取当前用户所属商户失败。'});
         }
     }catch(e){
         res.json({status:400, error:e.message}, 400);
@@ -520,7 +520,7 @@ exports.saveMember = function(req,res,next){
 exports.updateMember = function(req,res,next){
     console.log("开始进行更新。。。");
     //开始校验输入数值的正确性
-    var _id = req.params._id;
+    var _id = req.body._id;
     var pet_name = req.body.pet_name;
     var role_id = req.body.role_id;
     var state = req.body.state;
@@ -547,10 +547,10 @@ exports.updateMember = function(req,res,next){
             "point":point, "savings":savings, "comment":comment, "role_id":role_id, "state":state, "due_time":due_time}, function(err,info){
             if(err) return next(err);
 
-            res.json({member:{_id:info.insertId}}, 200);
+            res.json({member:{_id:_id}}, 200);
         });
     }catch(e){
-        res.json({status:204, error:e.message}, 204);
+        res.json({status:400, error:e.message}, 400);
     }
 };
 
@@ -558,10 +558,15 @@ exports.deleteMember = function(req,res,next){
     //开始校验输入数值的正确性
     console.log("开始进行删除。。。。");
     var _ids = req.params._ids;
-    Member.delete(_ids, function(err,ds){
-        if(err) return next(err);
-        return res.json({member:{_ids:_ids}}, 202);
-    });
+    try {
+        check(_ids, "删除失败，数据流水号为空！").notNull();
+        Member.delete(_ids, function(err,ds){
+            if(err) return next(err);
+            return res.json({member:{_ids:_ids}}, 202);
+        });
+    }catch(e){
+        res.json({status:400, error:e.message}, 400);
+    }
 };
 
 /**

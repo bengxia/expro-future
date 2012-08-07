@@ -1,4 +1,5 @@
 var mysql = require('../libs/mysql.js');
+var SimpleDO = require('../libs/simpleDO');
 
 function create() {
     return new Deal();
@@ -8,14 +9,16 @@ function Deal(){
     this.table = 'ef_deal';
 };
 
-Deal.prototype.add = function(deal, cb) {	
+Deal.prototype = new SimpleDO('`ef_deal`');
+
+Deal.prototype.create = function(deal, cb) {
 	var options = {
 		table: 'ef_deal',
 		fields: deal 
 	};	    
 	mysql.insert(options, function(err, info) {
 		if(err) return cb(err);
-		cb(err, info);		
+		return cb(err, info);
 	}); 
 };
 
@@ -26,14 +29,15 @@ Deal.prototype.update = function(deal, cb) {
 	};	    
 	mysql.update(options, function(err, info) {
 		if(err) return cb(err);
-		cb(err, info);		
+		return cb(err, info);
 	}); 
 };
 
-Deal.prototype.delete = function(opt, cb) {
-	var sql = 'delete from ef_deal where _id = '+opt._id;    
+Deal.prototype.delete = function(ids, cb) {
+	var sql = 'delete from ef_deal where _id in(' + ids + ') ';
 	mysql.query(sql, function(err) {
-		cb(err);		
+        if(err) return cb(err);
+		return cb(err);
 	}); 
 };
 
@@ -46,28 +50,28 @@ Deal.prototype.query = function(opt, cb) {
 	}); 
 };
 
-Deal.prototype.findOne = function(opt, cb) {
-    where = "";
-    for(var k in opt) {
-        var value = opt[k];
-        if(typeof value != 'object' && typeof value != 'array') {
-            if( typeof value == 'number') {
-                where += " AND " + k + " = " + value;
-            }
-            else {
-                where += " AND " + k + " LIKE  '" + value + "'";
-            }
-        }
-    }
-
-    var sql = "SELECT * FROM `ef_deal` WHERE 1=1"+where;
-    mysql.query(sql, function(err, rs) {
-        if(err) return cb(err);
-        if(!rs.length) return cb(err);
-        cb(err, rs[0]);
-    });
-
-};
+//Deal.prototype.findOne = function(opt, cb) {
+//    where = "";
+//    for(var k in opt) {
+//        var value = opt[k];
+//        if(typeof value != 'object' && typeof value != 'array') {
+//            if( typeof value == 'number') {
+//                where += " AND " + k + " = " + value;
+//            }
+//            else {
+//                where += " AND " + k + " LIKE  '" + value + "'";
+//            }
+//        }
+//    }
+//
+//    var sql = "SELECT * FROM `ef_deal` WHERE 1=1"+where;
+//    mysql.query(sql, function(err, rs) {
+//        if(err) return cb(err);
+//        if(!rs.length) return cb(err);
+//        cb(err, rs[0]);
+//    });
+//
+//};
 
 /**
  * 查询所有的数据
@@ -84,7 +88,7 @@ Deal.prototype.findAll = function(opt, cb) {
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);
-        cb(err, rs);
+        return cb(err, rs);
     });
 };
 
@@ -103,7 +107,7 @@ Deal.prototype.count = function(opt, cb) {
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);
-        cb(err, rs[0]);
+        return cb(err, rs[0]);
     });
 };
 

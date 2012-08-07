@@ -77,7 +77,7 @@ exports.findAll = function(req,res,next){
                 if(result.jsonObj) {
                     //var jsonStr = JSON.stringify(result.jsonObj);
                     //console.log('jsonStr:'+jsonStr);
-                    res.json(result.jsonObj, result.status);
+                    return res.json(result.jsonObj, result.status);
                 }else{
                     ep.trigger('error', {status:400, error:'查询结果为空!'});
                 }

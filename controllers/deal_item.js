@@ -150,7 +150,7 @@ exports.index = function(req,res,next){
 
             ep.assign('findDealByIdDone', 'findDealItemsByDealIdDone', function(deal, dealItems) {
                 var jsonObj = new Object();
-                deal["deal_item"] = dealItems;
+                deal["deal_items"] = dealItems;
                 jsonObj["deal"] = deal;
                 ep.trigger('showList', jsonObj);
             });

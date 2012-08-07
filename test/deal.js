@@ -1,183 +1,140 @@
 //mocha test/deal.js 
 var session = require('./session.lib.js');
+var logEnable = true;
+var sid;
+var dataId;
+var newJson = {
+    type: 1,
+    state: 1,
+    store_id: 111,
+    payment: 12000.00,
+    cash: 12000.00,
+    point: 0.00,
+    pay_type: 0,
+    customer_id: 23,
+    deal_items: [{
+        goods_id: 82,
+        num: 2,
+        closing_cost: 4000.00,
+        total_cost: 8000.00
+    },{
+        goods_id: 86,
+        num: 1,
+        closing_cost: 3000.00,
+        total_cost: 3000.00
+    }]
+};
 
-function signin(data, ct) {
-    return session.postData('/signin', data, '', ct);
-}
+function log(obj){
+    if(logEnable){
+        console.log(JSON.stringify(obj));
+    }
+};
 
-function addDeal(data, sid, ct) {
-	return session.postData('/deals', data, sid, ct);	
-}
+function signin(data, done, ct) {
+    session.postData('/signin', data, '', ct)
+        .end(function(res) {
+            res.statusCode.should.equal(200);
+            res.body.should.have.property('name');
+            sid = session.getSID(res);
+            done();
+        });
+};
 
-function deleteDeal(id, sid, ct) {
-	return session.deleteData('/deals/'+id, '', sid, ct);	
-}
+function count(sid, done) {
+    session.getData('/deal/count', sid)
+        .end(function(res) {
+            res.statusCode.should.equal(200);
+            res.should.be.json;
+            log(res.body);
+            done();
+        });
+};
 
-function updateDeal(id, data, sid, ct) {
-	return session.putData('/deals/'+id, data, sid, ct);	
-}
-
-var postJson = {
-	lid: 123,
-	type: 1,
-	state: 1,
-	store_id: 32,
-	payment: 23.12,
-	cash: 98.12,
-	point: 150,
-	pay_type: 3,
-	create_time: "2012-05-23T08:49:04.000Z",
-	customer_id: 23,
-	deal_item: [{
-		lid: 234,
-		goods_id: 454,
-		num: 2,
-		closing_cost: 98.12,
-		total_cost: 123.32
-	}]
-}
-
-
-describe('addDeal', function() {
-    describe('POST /signin', function() {
-        it('should succes sign in and return json', function(done) {
-            signin({
-                cellphone:'18912345678',
-                password:'123456',
-                org:'1'
-            })
-            .end(function(res) {                
-                res.statusCode.should.equal(200);
-                res.body.should.have.property('_id');
-                var sid = session.getSID(res);
-                postJson.dealer_id = res.body._id;                               
-                addDeal(postJson, sid)
-                .end(function(res) {
-                	res.statusCode.should.equal(201);
-                	res.should.be.json;
-                	console.log(JSON.stringify(res.body));
-                	res.body.should.have.property('cbdeal');
-                	res.body.cbdeal.should.have.property('cbdeal_item');
-                	done();
-                })                 
-            })
+function addData(data, sid, done, ct) {
+    session.postData('/deal', data, sid, ct)
+        .end(function(res) {
+            res.statusCode.should.equal(201);
+            res.should.be.json;
+            res.body.should.have.property('deal');
+//            res.body.should.have.property('deal_item');
+            log(res.body);
+            dataId = res.body.deal._id;
+            done();
         })
-    })
-})
+};
 
-describe('deleteDeal', function() {
-    describe('POST /signin', function() {
-        it('should succes sign in and return json', function(done) {
-            signin({
-                cellphone:'18912345678',
-                password:'123456',
-                org:'1'
-            })
-            .end(function(res) {                
-                res.statusCode.should.equal(200);
-                res.body.should.have.property('_id');
-                var sid = session.getSID(res); 
-                postJson.dealer_id = res.body._id;                                              
-                addDeal(postJson, sid)
-                .end(function(res) {
-                	res.statusCode.should.equal(201);
-                	res.should.be.json;
-                	console.log(JSON.stringify(res.body));
-                	res.body.should.have.property('cbdeal');
-                	res.body.cbdeal.should.have.property('cbdeal_item');
-                	deleteDeal(res.body.cbdeal._id, sid) 
-                	.end(function(res) {
-                		res.statusCode.should.equal(202);
-                		done();                		
-                	})                		                	
-                })                 
-            })
+function findOneData(id, sid, done, ct) {
+    session.getData('/deal/'+id, sid)
+        .end(function(res2) {
+            res2.statusCode.should.equal(200);
+            res2.should.be.json;
+            log(res2.body);
+            done();
         })
-    })
-})
+};
 
-describe('updateDeal', function() {
-    describe('POST /signin', function() {
-        it('should succes sign in and return json', function(done) {
-            signin({
-                cellphone:'18912345678',
-                password:'123456',
-                org:'1'
-            })
-            .end(function(res) {                
-                res.statusCode.should.equal(200);
-                res.body.should.have.property('_id');
-                var sid = session.getSID(res); 
-                postJson.dealer_id = res.body._id;                                               
-                addDeal(postJson, sid)
-                .end(function(res) {
-                	res.statusCode.should.equal(201);
-                	res.should.be.json;
-                	console.log(JSON.stringify(res.body));
-                	res.body.should.have.property('cbdeal');
-                	res.body.cbdeal.should.have.property('cbdeal_item');
-                	var json = {           						
-							lid: 123,							
-							dealer_id: res.body._id,
-							type: 1,
-							state: 1,
-							store_id: 32,
-							payment: 44,
-							cash: 98.12,
-							point: 150,
-							pay_type: 3,
-							create_time: "2012-05-23T08:49:04.000Z",
-							customer_id: 23,
-							deal_item:[{							
-								lid : 234,
-								_id: res.body.cbdeal.cbdeal_item[0]._id,
-								goods_id : 454,
-								num : 2,
-								closing_cost : 111,
-								total_cost : 123.32
-								}
-							]
-                	}
-                	updateDeal(res.body.cbdeal._id, json, sid) 
-                	.end(function(res) {
-                		res.statusCode.should.equal(201);
-                		res.should.be.json;
-                	    console.log(JSON.stringify(res.body));
-                	    res.body.should.have.property('deal');
-                	    res.body.deal.should.have.property('deal_item');
-                		done();                		
-                	})                		                	
-                })                 
-            })
+function deleteData(id, sid, done, ct) {
+    session.deleteData('/deal/'+id, '', sid, ct)
+        .end(function(res2) {
+            res2.statusCode.should.equal(202);
+            res2.should.be.json;
+            log(res2.body);
+            done();
+        });
+};
+
+function updateData(data, sid, done, ct) {
+    session.putData('/deal', data, sid, ct)
+        .end(function(res2) {
+            res2.statusCode.should.equal(200);
+            res2.should.be.json;
+            log(res2.body);
+            done();
         })
-    })
-})
+};
 
-function getDealList(sid, done) {
+function getList(sid, done) {
     session.getData('/deals', sid)
         .end(function(res) {
             res.statusCode.should.equal(200);
             res.should.be.json;
-
-            console.log(JSON.stringify(res.body));
+            log(res.body);
             done();
         });
-}
+};
 
-describe('#Deals', function() {
-    describe('#测试返回交易记录数据', function() {
-        it('should succes return deals json', function(done) {
-            signin({
-                cellphone:'18912345678',
-                password:'123456',
-                org:'1'
-            })
-            .end(function(res) {
-                res.statusCode.should.equal(200);
-                res.body.should.have.property('name');
-                var sid = session.getSID(res);
-                getDealList(sid, done);
-            })
-        })
-    })
-})
+describe('----商户交易测试模块----', function() {
+    it('验证用户登录，并获得sid。', function(done) {
+        signin({
+            cellphone:'18912345678',
+            password:'123456',
+            org:'1'
+        }, done);
+    });
+    it('返回当前商户的所有交易条数。', function(done) {
+        count(sid, done);
+    });
+    it('返回当前商户的所有交易信息列表。', function(done) {
+        getList(sid, done);
+    });
+    it('创建交易', function(done) {
+        addData(newJson, sid, done);
+    });
+    it('查询新增的交易', function(done) {
+        findOneData(dataId, sid, done);
+    });
+    it('更新交易', function(done) {
+        newJson._id = dataId;
+        newJson.cash = 1000.00;
+        newJson.point = 2000.00;
+        newJson.pay_type = 3;
+        updateData(newJson, sid, done);
+    });
+    it('查询更新的交易', function(done) {
+        findOneData(dataId, sid, done);
+    });
+    it('删除交易记录。', function(done) {
+        deleteData(dataId, sid, done);
+    });
+});

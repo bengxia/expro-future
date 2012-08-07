@@ -8,20 +8,15 @@ function Deal_item() {
     this.table = 'ef_deal_item';
 };
 
-Deal_item.prototype.add = function(deal_item, cb) {
+Deal_item.prototype.create = function(deal_item, cb) {
 	var opt = {
 		table : 'ef_deal_item',
 		fields : deal_item
-	}
-	var lid = 0;
-	if(deal_item.lid) {
-		lid = deal_item.lid;
-		delete deal_item.lid;
-	} 	    
+	};
+
 	mysql.insert(opt, function(err, info) {
 		if(err) return cb(err);
-		if(lid != 0) info.lid = lid; 
-		cb(err, info);		
+		return cb(err, info);
 	}); 
 };
 
@@ -43,7 +38,7 @@ Deal_item.prototype.update = function(deal_item, cb) {
 };
 
 Deal_item.prototype.delete = function(opt, cb) {
-	var sql = 'delete from ef_deal_item where deal_id = '+opt.deal_id;    
+	var sql = 'delete from ef_deal_item where deal_id in('+opt.deal_id+') ';
 	mysql.query(sql, function(err) {
 		cb(err);		
 	}); 

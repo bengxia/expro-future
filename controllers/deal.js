@@ -42,6 +42,15 @@ exports.count = function(req,res,next){
 
     var ep = EventProxy.create();
 
+    var where = ' ';
+
+    //查询
+    var customer_id = req.query.customer_id;//会员ID
+    var type = req.query.type;//交易类型
+
+    if(customer_id) where += " and customer_id="+customer_id;
+    if(type) where += " and type="+type;
+
     //当有异常发生时触发
     ep.once('error', function(result) {
         ep.unbind();//remove all event
@@ -92,7 +101,7 @@ exports.count = function(req,res,next){
         Member.findAll({where:' and org_id='+org_id}, function(err, rs){
             if(err) { ep.unbind(); return next(err);}
             if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'商户查询结果为空！'});
-            var where = " and dealer_id in(";
+            where += " and dealer_id in(";
             for(var i=0; i<rs.length; i++){
                 where += " "+rs[i]._id;
                 if(i != rs.length-1){
@@ -139,20 +148,19 @@ exports.index = function(req,res,next){
 
         //根据前台页面传入的查询条件，开始拼接where语句
         var where = ' ';
-        for(key in queryInput){
-            var value = req.query[key];
-            if(value != undefined){
-                where += ' and '+key+' like \'%'+value+'%\' ';
-            }
-        }
-
-        //开始检查传入参数
-//        try{
-//            check(start).notNull().isInt();
-//            check(limit).notNull().isInt();
-//        }catch(e){
-//            ep.trigger('error', {status:400, error:'start&limit参数不可为空。'});
+//        for(key in queryInput){
+//            var value = req.query[key];
+//            if(value != undefined){
+//                where += ' and '+key+' like \'%'+value+'%\' ';
+//            }
 //        }
+
+        //查询
+        var customer_id = req.query.customer_id;//会员ID
+        var type = req.query.type;//交易类型
+
+        if(customer_id) where += " and customer_id="+customer_id;
+        if(type) where += " and type="+type;
 
         //回调函数
         function feedback(result) {
@@ -162,7 +170,7 @@ exports.index = function(req,res,next){
 //                    console.log('jsonStr:'+jsonStr);
                     return res.json(result.jsonObj, result.status);
                 }else{
-                    ep.trigger('error', {status:400, error:'查询结果为空!'});
+                    ep.trigger('error', {status:400, error:'未获得数据!'});
                 }
             }
             else {
@@ -245,7 +253,7 @@ exports.index = function(req,res,next){
             //获得数据行数，用于分页计算
             Deal.count({where:where, bt:bt, et:et}, function(err, count) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!count && !count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
+                if (!count && !count.count) return ep.trigger('error', {status:400, error:'交易数量查询结果为空!'});
                 ep.trigger('findAllDealForWeb', where, count.count);
             });
         }
@@ -254,7 +262,7 @@ exports.index = function(req,res,next){
         function findAllDealForWeb(where, count) {
             var showElement = ['_id', 'type', 'state', 'store_id', 'dealer_id', 'payment', 'cash', 'point', 'pay_type', 'create_time', 'customer_id'];
 
-            if (!count && !count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
+            if (!count && !count.count) return ep.trigger('error', {status:400, error:'交易数量查询结果为空!'});
 
 //            var page = req.query.page;//起始行数 for jqgrid
 //            console.log("page："+page);
@@ -282,7 +290,7 @@ exports.index = function(req,res,next){
 
             Deal.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'交易查询结果为空！'});
 
                 var jsonObj = new Object();
                 jsonObj.page = page;  // 当前页
@@ -321,7 +329,7 @@ exports.index = function(req,res,next){
                 if(err) { ep.unbind(); return next(err);}
 //                var jsonStr111 = JSON.stringify(rs);
 //                console.log('jsonStr44444:'+jsonStr111);
-                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, where:where, error:'查询结果为空！'});
                 var jsonObj = {deals:rs};
                 //ep.trigger('showList', jsonObj);
                 feedback({status:200, error:'获取数据成功', jsonObj:jsonObj});

@@ -1,7 +1,7 @@
 !=partial('stores/sidebar')
 
 //以下是本页面引入的js文件
-script(type='text/javascript', src='/javascripts/dealitem/index.js')
+script(type='text/javascript', src='/javascripts/views/dealitem/index.js')
 style
     select, input[type="file"] {
         height: 18px;
@@ -19,7 +19,7 @@ style
           span.divider /
         li.active 交易明细
     table(border='0', width='100%')
-        input#_id(type='hidden', value='#{id}')
+        input#_id(type='hidden', value='#{_id}')
         tr
             td
                 form

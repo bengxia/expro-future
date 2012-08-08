@@ -27,14 +27,14 @@ function getShowElement(){
         ar[i] = colModel[i].name;
     }
     return ar;
-}
+};
 
 var jsonCondition = {};
 
 function search() {
     jsonCondition = array2Json(jQuery("#frmSearchCustomer").serializeArray());
     jQuery("#list").trigger("reloadGrid");
-}
+};
 
 function mergeObject(src, dest) {
     var i;
@@ -42,40 +42,8 @@ function mergeObject(src, dest) {
         dest[i]=src[i];
     }
     return dest;
-}
+};
 
-$(document).ready(function(){
-    //start=起始行数&limit=每页显示行数&bt=交易发生时间起点&et=交易发生时间的截至时间&sidx=排序字段名&sord=排序方式asc,desc
-    /*
-    $.get("/deal/index",
-        {start:0, limit:10, sidx:"create_time", sord:"desc"},
-        function(data, textStatus){
-            console.log("111data.status:"+data.status);
-            if (200 == data.status) {
-                for(var i=0;i<data.jsonObj.length;i++){
-                    $("#list").jqGrid('addRowData',i+1,data.jsonObj[i]);
-                }
-                jQuery("#list").setGridParam({total:2, page:1, records:44}).trigger("reloadGrid");
-            } else {
-                console.log("/deal/index:"+textStatus);
-            }
-        },"json");
-
-    $.get("/deal/count",
-        {start:0, limit:10},
-        function(data, textStatus){
-            if (200 == data.status) {
-                console.log("total:data.jsonObj.count:"+data.jsonObj.count);
-                jQuery("#list").setGridParam({total:2, page:1, records:44, rows:100}).trigger("reloadGrid");
-                //$("#list").jqGrid('setGridParam', {"page":"1","total":2,"records":44}).trigger("reloadGrid");
-            } else {
-                console.log(textStatus);
-            }
-        }, "json");
-*/
-});
-
-//按钮事件Start
 $(function(){
     jQuery("#list").jqGrid({
         url:'/deals?isWeb=1',
@@ -99,17 +67,11 @@ $(function(){
             rows:"limit" // 表示请求行数的参数名称
         },
         loadComplete:function(data){ //完成服务器请求后，回调函数
-            console.log(data);
-            if(data.records == undefined || data.records == 0){ //如果没有记录返回，追加提示信息，删除按钮不可用
-                $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
-                $("#del_btn").attr("disabled",true);
-            }else{ //否则，删除提示，删除按钮可用
-                $("p.nodata").remove();
-                $("#del_btn").removeAttr("disabled");
-            }
+            $("p.nodata").remove();
+            $("#del_btn").removeAttr("disabled");
         },
         loadError:function(xhr,status,error){
-            $("p").appendTo($("#list")).addClass("nodata").html('查询数据出错！');
+            $("p").appendTo($("#list")).addClass("nodata").html('找不到相关数据！');
             $("#del_btn").attr("disabled",true);
         }
     });
@@ -122,7 +84,7 @@ $(function(){
             if(sels.toString().indexOf(',') > 0){
                 $().message("只可选择一项进行查看！");
             }else{
-                window.location.href='/deals/'+sels;
+                window.location.href='/deal/'+sels;
             }
         }
     });

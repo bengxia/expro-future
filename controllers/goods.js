@@ -32,7 +32,7 @@ var getNow=function(){
  */
 //设置查询区域的查询输入框，规则：{"查询字段名":"页面显示的label文字"}
 var queryInput = {'_id':'编号','name':'名称','code':'资产编号', 'price':'售价', 'type_id':'商品类型'};
-
+var showElement = ['_id', 'name', 'type_id', 'type_name', 'state', 'code', 'price', 'create_time', 'comment'];
 ////设置前台表格控件说需要的相关对象及参数End
 
 /**
@@ -170,7 +170,6 @@ exports.findAll = function(req,res,next){
 
         //转为web服务
         function findAllForWeb(where, count) {
-            var showElement = ['_id', 'name', 'type_id', 'type_name', 'state', 'code', 'price', 'create_time', 'comment'];
 
             if (!count && !count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
 

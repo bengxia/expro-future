@@ -45,11 +45,22 @@ function signin(data, done, ct) {
 };
 
 function count(sid, done) {
-    session.getData('/deal/count', sid)
+    session.getData('/deal/count?customer_id=23&type=2', sid)
         .end(function(res) {
             res.statusCode.should.equal(200);
             res.should.be.json;
             log(res.body);
+            done();
+        });
+};
+
+function getList(sid, done) {
+    session.getData('/deals?customer_id=23&type=2', sid)
+        .end(function(res) {
+            log(res.body);
+            res.statusCode.should.equal(200);
+            res.should.be.json;
+            //log(res.body);
             done();
         });
 };
@@ -132,15 +143,7 @@ function updateData(data, sid, done, ct) {
         })
 };
 
-function getList(sid, done) {
-    session.getData('/deals', sid)
-        .end(function(res) {
-            res.statusCode.should.equal(200);
-            res.should.be.json;
-            log(res.body);
-            done();
-        });
-};
+
 
 describe('----商户交易测试模块----', function() {
     it('验证用户登录，并获得sid。', function(done) {

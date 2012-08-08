@@ -57,7 +57,7 @@ function getShowElement(){
  */
 exports.index = function(req,res,next){
     var id = req.params.id;
-    if(!id) return next('error', {status:400, error:'交易号不能为空！'});
+    if(!id) return next('error', {status:400, error:'交易ID不能为空！'});
 
     if(req.accepts('html')) {
         res.render('deal/deal_items', {queryInput:queryInput, id:id});
@@ -77,15 +77,14 @@ exports.index = function(req,res,next){
         function feedback(result) {
             if(200 == result.status) {
                 if(result.jsonObj) {
-                    var jsonStr = JSON.stringify(result.jsonObj);
-                    console.log('jsonStr:'+jsonStr);
+                    //var jsonStr = JSON.stringify(result.jsonObj);
+                    //console.log('jsonStr:'+jsonStr);
                     res.json(result.jsonObj, result.status);
                 }else{
-                    ep.trigger('error', {status:204, error:'查询结果为空!'});
+                    ep.trigger('error', {status:400, error:'查询结果为空!'});
                 }
-            }
-            else {
-                return res.json(result);
+            }else {
+                return res.json(result, result.status);
             }
         };
         //当有异常发生时触发
@@ -139,7 +138,7 @@ exports.index = function(req,res,next){
         function findDealItemsCount(where){
             Deal_item.count({where:where}, function(err, count) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!count && !count.count) return ep.trigger('error', {status:204, error:'查询结果为空!'});
+                if (!count && !count.count) count.count = 0;//return ep.trigger('error', {status:400, error:'查询结果为空!'});
                 ep.trigger('findAllDealItemsForWeb', count.count, where);
             });
         }
@@ -149,9 +148,11 @@ exports.index = function(req,res,next){
             ep.trigger('findDealItemsByDealId');
 
             ep.assign('findDealByIdDone', 'findDealItemsByDealIdDone', function(deal, dealItems) {
-                var jsonObj = new Object();
-                deal["deal_items"] = dealItems;
-                jsonObj["deal"] = deal;
+                deal.deal_items = dealItems;
+                var jsonObj = {deal:deal};
+//                var jsonObj = new Object();
+//                deal["deal_items"] = dealItems;
+//                jsonObj["deals"] = deal;
                 ep.trigger('showList', jsonObj);
             });
         }
@@ -159,7 +160,7 @@ exports.index = function(req,res,next){
         function findDealById(){
             Deal.findOne({_id:parseInt(id)}, function(err, rs){
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询交易结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询交易结果为空！'});
                 ep.trigger('findDealByIdDone', rs);
             });
         }
@@ -167,7 +168,7 @@ exports.index = function(req,res,next){
         function findDealItemsByDealId(){
             Deal_item.findAll({where:" and deal_id="+id}, function(err, rs){
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询交易明细结果为空！'});
+                //if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询交易明细结果为空！'});
                 ep.trigger('findDealItemsByDealIdDone', rs);
             });
         }
@@ -200,7 +201,7 @@ exports.index = function(req,res,next){
 
             Deal_item.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
-                if (!rs || rs == undefined) return ep.trigger('error', {status:204, error:'查询结果为空！'});
+                if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空！'});
                 for(var i=0; i<rs.length; i++){
                     for ( key in rs[i]) {
                         rs[i]["ef_deal_item."+key] = rs[i][key];
@@ -247,7 +248,7 @@ exports.index = function(req,res,next){
                     });
                     Goods.findOne({'_id':deal_item[Deal_item.table+".goods_id"]}, function(err, goods) {
                         if(err) { ep2.unbind(); return next(err);}
-                        if (!goods || goods == undefined) return ep2.trigger('error', {status:204, error:'查询商品结果为空！'});
+                        if (!goods || goods == undefined) return ep2.trigger('error', {status:400, error:'查询商品结果为空！'});
                         deal_item[Deal_item.table+".goods_name"] = goods["name"];
                         ep2.trigger('GoodsDone', deal_item);
                     });

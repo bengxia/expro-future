@@ -158,8 +158,8 @@ exports.index = function(req,res,next){
         function feedback(result) {
             if(200 == result.status) {
                 if(result.jsonObj) {
-                    var jsonStr = JSON.stringify(result.jsonObj);
-                    console.log('jsonStr:'+jsonStr);
+//                    var jsonStr = JSON.stringify(result.jsonObj);
+//                    console.log('jsonStr:'+jsonStr);
                     return res.json(result.jsonObj, result.status);
                 }else{
                     ep.trigger('error', {status:400, error:'查询结果为空!'});
@@ -301,7 +301,6 @@ exports.index = function(req,res,next){
                         var index = showElement.indexOf(key);
                         if(index >= 0){
                             ay[index] = rs[i][key];
-
                         }
                     }
                     rows.cell = ay;
@@ -323,7 +322,7 @@ exports.index = function(req,res,next){
 //                var jsonStr111 = JSON.stringify(rs);
 //                console.log('jsonStr44444:'+jsonStr111);
                 if (!rs || rs == undefined) return ep.trigger('error', {status:400, error:'查询结果为空！'});
-                var jsonObj = {deal:rs};
+                var jsonObj = {deals:rs};
                 //ep.trigger('showList', jsonObj);
                 feedback({status:200, error:'获取数据成功', jsonObj:jsonObj});
             });
@@ -331,10 +330,43 @@ exports.index = function(req,res,next){
     }
 };
 
+/**
+ * 实现保存交易
+ * @param postObj
+ * @param res
+ * @param next
+ */
+function saveDealAndDealItems(postObj,res,next){
+    var ep = EventProxy.create();
+    var deal_items = postObj.deal_items;
+    delete postObj.deal_items;
+    Deal.create(postObj, function(err, info){
+        var returnObj = {_id:info.insertId};
+        if(err) return next(err);
+        if(!info || !info.insertId) return res.json({error:'数据入库出错!'}, 500);
+        if(postObj.type == 2 || postObj.type == 3 || postObj.type == 4 || postObj.type == 8){
+            return res.json(returnObj, 201);
+        }else{
+            if(!deal_items || !deal_items.length || deal_items.length <= 0) return res.json({status:400, error:"保存失败，交易明细不能为空！"}, 400);
+            var i = 0;
+            deal_items.forEach(function(item) {
+                item.deal_id = info.insertId;
+                Deal_item.create(item, function(err2, info2) {
+                    if(err2) return next(err2);
+                    if(!info2 || !info2.insertId) return res.json({error:'数据入库出错!'}, 500);
+                    //returnObj.deal.deal_items[i]={_id:info2.insertId};
+                    i++;
+                    ep.trigger('done', returnObj);
+                });
+            });
+            ep.after('done', deal_items.length, function(obj) {
+                return res.json(returnObj, 201);
+            });
+        }
+    });
+};
 exports.saveDeal = function(req,res,next){
     console.log("saveDeal。。。");
-    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
-
     //开始校验输入数值的正确性
     var type = req.body.type;
     var state = req.body.state;
@@ -346,39 +378,73 @@ exports.saveDeal = function(req,res,next){
     var deal_items = req.body.deal_items;
     var repeal_id = req.body.repeal_id;
     var customer_id = req.body.customer_id;
+    var saving_due_time = req.body.saving_due_time;
+    var org_id = req.session.user.member.org_id;
 
-    var ep = EventProxy.create();
+    if(!org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
 
+    try {
+
+        check(type, "保存失败，交易类型不能为空！").notNull();
+        check(state, "保存失败，交易状态不能为空！").notNull();
+        check(store_id, "保存失败，门店不能为空！").notNull();
+        var postObj = {type:type, state:state, store_id:store_id, payment:payment, cash:cash, point:point,
+            pay_type:pay_type, deal_items:deal_items, repeal_id:repeal_id, customer_id:customer_id, create_time:getNow()};
+        if(type == 2 || type == 3){
+            check(customer_id, "会员ID不能为空！").notNull();
+            check(cash, "储值金额不能为空！").notNull();
+            check(saving_due_time, "储值有效期不能为空！").notNull();
+            check(org_id, "获取当前用户所属商户失败！").notNull();
+            Member.findOne({_id:customer_id, org_id:org_id}, function(err, member){
+                if(err) return next(err);
+                var savings = parseFloat(sanitize(member.savings).ifNull(0.00));
+                if(type == 2){
+                    savings += parseFloat(cash);
+                }else if(type == 3){
+                    savings -= parseFloat(cash);
+                }
+                var memberObj = {_id:customer_id, savings:savings, saving_due_time:saving_due_time};
+                console.log("111111111111111111111111");
+                //充值
+                MQClient.pub('doSaving', memberObj);
+            });
+        }
+        saveDealAndDealItems(postObj,res,next);
+    }catch(e){
+        return res.json({status:400, error:e.message}, 400);
+    }
+};
+
+/**
+ * 保存一次退货交易
+ * @param req
+ * @param res
+ * @param next
+ * @return {*}
+ */
+exports.saverRepealDeal = function(req,res,next){
+    console.log("saverRepealDeal。。。");
+    if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
+    //开始校验输入数值的正确性
+    var type = req.body.type;
+    var state = req.body.state;
+    var store_id = req.body.store_id;
+    var payment = sanitize(req.body.payment).ifNull(0.00);
+    var cash = sanitize(req.body.cash).ifNull(0.00);
+    var point = sanitize(req.body.point).ifNull(0.00);
+    var pay_type = req.body.pay_type;
+    var deal_items = req.body.deal_items;
+    var repeal_id = req.body.repeal_id;
+    var customer_id = req.body.customer_id;
     if(!deal_items || !deal_items.length || deal_items.length <= 0) return res.json({status:400, error:"保存失败，交易明细不能为空！"}, 400);
-
     try {
         check(type, "保存失败，交易类型不能为空！").notNull();
         check(state, "保存失败，交易状态不能为空！").notNull();
         check(store_id, "保存失败，门店不能为空！").notNull();
-//        check(customer_id, "保存失败，消费者不能为空！").notNull();
-
+        check(repeal_id, "保存失败，退款关联交易单不能为空！").notNull();
         var postObj = {type:type, state:state, store_id:store_id, payment:payment, cash:cash, point:point,
             pay_type:pay_type, deal_items:deal_items, repeal_id:repeal_id, customer_id:customer_id, create_time:getNow()};
-
-        Deal.create(postObj, function(err, info){
-            if(err) return next(err);
-            if(!info || !info.insertId) return res.json({error:'数据入库出错!'}, 500);
-            var returnObj = {deal:{_id:info.insertId, deal_items:[]}};
-            var i = 0;
-            deal_items.forEach(function(item) {
-                item.deal_id = info.insertId;
-                Deal_item.create(item, function(err2, info2) {
-                    if(err2) return next(err2);
-                    if(!info2 || !info2.insertId) return res.json({error:'数据入库出错!'}, 500);
-                    returnObj.deal.deal_items[i]={_id:info2.insertId};
-                    i++;
-                    ep.trigger('done', returnObj);
-                });
-            });
-            ep.after('done', deal_items.length, function(obj) {
-                return res.json(returnObj, 201);
-            });
-        });
+        saveDealAndDealItems(postObj,res,next);
     }catch(e){
         return res.json({status:400, error:e.message}, 400);
     }
@@ -463,14 +529,15 @@ exports.updateDeal = function(req,res,next) {
     };
 
     function createDealItems(obj){
-        var returnObj = {deal:{_id:_id, deal_items:[]}};
+//        var returnObj = {deal:{_id:_id, deal_items:[]}};
+        var returnObj = {_id:_id};
         var i = 0;
         obj.deal_items.forEach(function(item) {
             item.deal_id = obj._id;
             Deal_item.create(item, function(err, info) {
                 if(err) return next(err);
                 if(!info || !info.insertId) return res.json({error:'数据入库出错!'}, 500);
-                returnObj.deal.deal_items[i]={_id:info.insertId}; //////
+                //returnObj.deal.deal_items[i]={_id:info.insertId}; //////
                 i++;
                 ep.trigger('done', obj);
             });

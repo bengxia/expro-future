@@ -134,12 +134,10 @@ exports.findAll = function(req,res,next){
         };
 
         function findCount(where) {
-            console.log("---where:"+where);
             //获得数据行数，用于分页计算
             Member.count({where:where}, function(err, count) {
                 if(err) { ep.unbind(); return next(err);}
                 if (!count || !count.count || 0 == count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
-                console.log("---count.count:"+count.count);
                 ep.trigger('findAllForWeb', where, count.count);
             });
         };
@@ -168,8 +166,6 @@ exports.findAll = function(req,res,next){
             var start = limit * page - limit;
             // 若起始行为0
             if(start < 0) start = 0;
-            console.log("---start findAllForWeb2222。");
-
             Member.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
                 if (!rs || rs == undefined || 0 == rs.length) return ep.trigger('error', {status:400, error:'查询结果为空！'});
@@ -517,9 +513,7 @@ exports.saveMember = function(req,res,next){
     }
 };
 
-exports.updateMember = function(req,res,next){
-    console.log("开始进行更新。。。");
-    //开始校验输入数值的正确性
+function update(req,res,next){
     var _id = req.body._id;
     var pet_name = req.body.pet_name;
     var role_id = req.body.role_id;
@@ -529,10 +523,31 @@ exports.updateMember = function(req,res,next){
     var privacy = sanitize(req.body.privacy).ifNull(0);
     var point = sanitize(req.body.point).ifNull(0);
     var savings = sanitize(req.body.savings).ifNull(0);
+    var saving_due_time = req.body.saving_due_time;
     var comment = sanitize(req.body.comment).ifNull("");
 
-    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>"+JSON.stringify(req.body));
-    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>state:"+state+" || "+);
+    var obj = {"_id":_id, "user_id":user_id, "pet_name":pet_name, "privacy":privacy,
+        "point":point, "savings":savings, "comment":comment, "role_id":role_id, "state":state, "due_time":due_time};
+    if(saving_due_time){
+        obj.saving_due_time = saving_due_time;
+    }
+    //说明是更新数据
+    Member.update(obj, function(err,info){
+        if(err) return next(err);
+
+        res.json({member:{_id:_id}}, 200);
+    });
+};
+
+exports.updateMember = function(req,res,next){
+    console.log("开始进行更新。。。");
+    //开始校验输入数值的正确性
+    var _id = req.body._id;
+    var pet_name = req.body.pet_name;
+    var role_id = req.body.role_id;
+    var state = req.body.state;
+    var due_time = req.body.due_time;
+    var user_id = req.body.user_id;
 
     try {
         check(_id, "更新失败，数据流水号为空！").notNull();
@@ -542,13 +557,8 @@ exports.updateMember = function(req,res,next){
         check(due_time, "到期时间不能为空!").notNull().isDate();
         check(user_id, "会员ID不能为空!").notNull();
 
-        //说明是更新数据
-        Member.update({"_id":_id, "user_id":user_id, "pet_name":pet_name, "privacy":privacy,
-            "point":point, "savings":savings, "comment":comment, "role_id":role_id, "state":state, "due_time":due_time}, function(err,info){
-            if(err) return next(err);
+        update(req,res,next);
 
-            res.json({member:{_id:_id}}, 200);
-        });
     }catch(e){
         res.json({status:400, error:e.message}, 400);
     }
@@ -637,3 +647,17 @@ exports.findMemberByCellphone = function(req,res,next){
         });
     });
 };
+
+/**
+ * 进行储值，增加/减少储值
+ * @param num
+ */
+function doSaving(memberObj) {
+    log.info("增加的储值金额为："+console.log(JSON.stringify(memberObj))+" \t");
+
+    Member.update(memberObj, function(err,info){
+        if(err) return res.json(500);
+    });
+};
+
+MQClient.sub('doSaving', doSaving);

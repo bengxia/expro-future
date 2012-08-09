@@ -1,6 +1,6 @@
 $(function(){
     jQuery("#list").jqGrid({
-        url:'/merchants/index',
+        url:'/merchants?isWeb=1',
         datatype: "json",
         mtype: 'GET',
         gridview:true, //加速显示

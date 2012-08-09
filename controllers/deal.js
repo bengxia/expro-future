@@ -6,7 +6,6 @@ var Member = models.Member;
 var check = require('validator').check,
     sanitize = require('validator').sanitize;
 
-var config = require('../config').config;
 var EventProxy = require('eventproxy').EventProxy;
 
 var Log = require('../log.js');
@@ -25,7 +24,7 @@ var getNow=function(){
  */
 //设置查询区域的查询输入框，规则：{"查询字段名":"页面显示的label文字"}
 var queryInput = {'_id_01':'编号','payment_01':'应付账款','cash_01':'现金支付','point_01':'积分支付'};
-
+var showElement = ['_id', 'type', 'state', 'store_id', 'dealer_id', 'payment', 'cash', 'point', 'pay_type', 'create_time', 'customer_id'];
 ////设置前台表格控件说需要的相关对象及参数End
 
 
@@ -76,7 +75,7 @@ exports.count = function(req,res,next){
         if(200 == result.status) {
             if(result.jsonObj) {
                 //var jsonStr = JSON.stringify(result.jsonObj);
-                //console.log('jsonStr:'+jsonStr);
+                //log.info('jsonStr:'+jsonStr);
                 return res.json(result.jsonObj, result.status);
             }else{
                 ep.trigger('error', {status:400, error:'查询结果为空!'});
@@ -167,7 +166,7 @@ exports.index = function(req,res,next){
             if(200 == result.status) {
                 if(result.jsonObj) {
 //                    var jsonStr = JSON.stringify(result.jsonObj);
-//                    console.log('jsonStr:'+jsonStr);
+//                    log.info('jsonStr:'+jsonStr);
                     return res.json(result.jsonObj, result.status);
                 }else{
                     ep.trigger('error', {status:400, error:'未获得数据!'});
@@ -260,14 +259,12 @@ exports.index = function(req,res,next){
 
         //转为web服务
         function findAllDealForWeb(where, count) {
-            var showElement = ['_id', 'type', 'state', 'store_id', 'dealer_id', 'payment', 'cash', 'point', 'pay_type', 'create_time', 'customer_id'];
-
             if (!count && !count.count) return ep.trigger('error', {status:400, error:'交易数量查询结果为空!'});
 
 //            var page = req.query.page;//起始行数 for jqgrid
-//            console.log("page："+page);
-//            console.log("limit："+limit);
-            //console.log("page："+page);
+//            log.info("page："+page);
+//            log.info("limit："+limit);
+            //log.info("page："+page);
 
             if(!sidx){
                 sidx = 1;
@@ -318,7 +315,8 @@ exports.index = function(req,res,next){
                 jsonObj.rows = rowsArray;
 
                 var jsonStr = JSON.stringify(jsonObj);
-                console.log('jsonStr2:'+jsonStr);
+//                log.info('jsonStr2:'+jsonStr);
+                log.info('findAllDealForWeb-Json:'+jsonStr);
                 return res.json(jsonObj, 200);
             });
         };
@@ -328,7 +326,7 @@ exports.index = function(req,res,next){
             Deal.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
 //                var jsonStr111 = JSON.stringify(rs);
-//                console.log('jsonStr44444:'+jsonStr111);
+//                log.info('jsonStr44444:'+jsonStr111);
                 if (!rs || rs == undefined) return ep.trigger('error', {status:400, where:where, error:'查询结果为空！'});
                 var jsonObj = {deals:rs};
                 //ep.trigger('showList', jsonObj);
@@ -374,7 +372,7 @@ function saveDealAndDealItems(postObj,res,next){
     });
 };
 exports.saveDeal = function(req,res,next){
-    console.log("saveDeal。。。");
+    log.info("saveDeal。。。");
     //开始校验输入数值的正确性
     var type = req.body.type;
     var state = req.body.state;
@@ -412,7 +410,6 @@ exports.saveDeal = function(req,res,next){
                     savings -= parseFloat(cash);
                 }
                 var memberObj = {_id:customer_id, savings:savings, saving_due_time:saving_due_time};
-                console.log("111111111111111111111111");
                 //充值
                 MQClient.pub('doSaving', memberObj);
             });
@@ -431,7 +428,7 @@ exports.saveDeal = function(req,res,next){
  * @return {*}
  */
 exports.saverRepealDeal = function(req,res,next){
-    console.log("saverRepealDeal。。。");
+    log.info("saverRepealDeal。。。");
     if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
     //开始校验输入数值的正确性
     var type = req.body.type;
@@ -459,7 +456,7 @@ exports.saverRepealDeal = function(req,res,next){
 };
 
 exports.deleteDeal = function(req, res, next) {
-    console.log("开始进行删除。。。。");
+    log.info("开始进行删除。。。。");
     if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
     var _ids = req.params._ids;
     try {
@@ -478,7 +475,7 @@ exports.deleteDeal = function(req, res, next) {
 }
 
 exports.updateDeal = function(req,res,next) {
-    console.log("updateDeal。。。");
+    log.info("updateDeal。。。");
     if(!req.session.user.member.org_id) return res.json({error:'未登录或当前用户不是商户员工!'}, 400);
 
     //开始校验输入数值的正确性

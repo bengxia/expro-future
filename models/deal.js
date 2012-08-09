@@ -1,6 +1,9 @@
 var mysql = require('../libs/mysql.js');
 var SimpleDO = require('../libs/simpleDO');
 
+var Log = require('../log.js');
+var log = Log.create(Log.INFO, {'file':'public/node.debug'});
+
 function create() {
     return new Deal();
 };
@@ -81,8 +84,8 @@ Deal.prototype.query = function(opt, cb) {
 Deal.prototype.findAll = function(opt, cb) {
     var sql = " SELECT * FROM ef_deal  "
         +" where 1=1 "+ opt.where;
-    if(opt.bt) sql += " and create_time >= "+ opt.bt;
-    if(opt.et) sql += " and create_time <= "+ opt.et;
+    if(opt.bt) sql += " and create_time >= '"+ opt.bt + "' ";
+    if(opt.et) sql += " and create_time <= '"+ opt.et + "' ";
     if(opt.sidx && opt.sord) sql += " ORDER BY "+opt.sidx+" "+opt.sord;
     if(opt.limit && opt.start) sql += " LIMIT "+ opt.start + " , "+opt.limit;
     mysql.query(sql, function(err, rs) {
@@ -101,9 +104,10 @@ Deal.prototype.count = function(opt, cb) {
 
     var sql = "SELECT COUNT(*) AS count FROM ef_deal where 1=1 "
         +opt.where;
-    if(opt.bt) sql += " and create_time >= "+ opt.bt;
-    if(opt.et) sql += " and create_time <= "+ opt.et;
-
+    if(opt.bt) sql += " and create_time >= '"+ opt.bt + "' ";
+    if(opt.et) sql += " and create_time <= '"+ opt.et + "' ";
+    //log.info(sql);
+    console.log(sql);
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);

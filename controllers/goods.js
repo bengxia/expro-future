@@ -323,10 +323,10 @@ exports.findOne = function(req, res, next) {
             if(!data) return res.json({status:404, error:"查询结果为空!"}, 404);
 
             var jsonObj = {goods:data};
-            res.json(jsonObj, 200);
+            return res.json(jsonObj, 200);
          });
     }catch(e){
-        res.json({status:400, error:e.message}, 400);
+        return res.json({status:400, error:e.message}, 400);
     }
 };
 

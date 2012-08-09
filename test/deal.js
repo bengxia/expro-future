@@ -45,7 +45,7 @@ function signin(data, done, ct) {
 };
 
 function count(sid, done) {
-    session.getData('/deal/count?customer_id=23&type=2', sid)
+    session.getData('/deal/count', sid)
         .end(function(res) {
             res.statusCode.should.equal(200);
             res.should.be.json;
@@ -55,7 +55,7 @@ function count(sid, done) {
 };
 
 function getList(sid, done) {
-    session.getData('/deals?customer_id=23&type=2', sid)
+    session.getData('/deals', sid)
         .end(function(res) {
             log(res.body);
             res.statusCode.should.equal(200);

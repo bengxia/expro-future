@@ -311,7 +311,7 @@ exports.findStaff = function(req, res, next) {
             StoreStaff.findOne({member_id:_id}, function(err2,storeStaff){
                 if(err2) return next(err2);
                 member.store_id = storeStaff.store_id;
-                res.json({member:member}, 200);
+                res.json({staff:member}, 200);
             });
         });
     }catch(e){

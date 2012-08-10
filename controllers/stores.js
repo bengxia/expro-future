@@ -26,7 +26,8 @@ var getNow=function(){
  * 开始设置前台表格控件说需要的相关对象及参数Start
  */
 //设置查询区域的查询输入框，规则：{"查询字段名":"页面显示的label文字"}
-var queryInput = {'_id':'编号','name':'名称'};
+var queryInput = {'_id_0':'编号','name_0':'名称'};
+var showElement = ['_id', 'name', 'inventar_num', 'warehouse_id', 'warehouse_name', 'state', 'create_time'];
 
 ////设置前台表格控件说需要的相关对象及参数End
 
@@ -140,7 +141,7 @@ exports.index = function(req,res,next){
 
         function findAllForWeb(where, count) {
             //var showElement = ['_id', 'name', 'merchant_name', 'warehouse_name', 'state', 'create_time'];
-            var showElement = ['_id', 'name', 'inventar_num', 'warehouse_id', 'warehouse_name', 'state', 'create_time'];
+
 
             if (!count && !count.count) return ep.trigger('error', {status:400, error:'查询结果为空!'});
 

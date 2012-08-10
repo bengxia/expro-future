@@ -82,143 +82,97 @@ $(function(){
             $("#del_btn").attr("disabled",true);
         }
     });
-     
-      
-	$("#add_btn").click(function() {
-		$.fancybox({
-			'title': '新增商户',
-			'autoDimensions': false,
-			'type': 'ajax',
-			'href': '/merchants',
-			'width': 700,
-			'height': 800,
-			'modal': true,
-			'titleShow': true,
-			'titlePosition': 'over',
-			'showCloseButton': true,
-			'showNavArrows': false,
-			'transitionIn': 'elastic', //（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
-			'transitionOut': 'elastic',
-			'centerOnScroll': false,
-			'onComplete': function() {
-				$("#fancybox-title").css({
-					'top': '0px',
-					'bottom': 'auto'
-				});
-			}
-		});
-	}); 
 
-        
-	$("#view_btn").click(function() {
-		var sels = $("#list").jqGrid('getGridParam', 'selarrrow');
-		if(sels == "") {
-			$().message("请选择要查看的项！");
-		} else {
-			if(sels.toString().indexOf(',') > 0) {
-				$().message("只可选择一项进行查看！");
-			} else {
-				$.fancybox({
-					'title': '查看门店信息',
-					'titleFormat': function(title, currentArray, currentIndex, currentOpts) {
-						var str = '<span id="fancybox-title-over">' + (currentIndex + 1) + ' / ' + currentArray.length + (title.length ? '   ' + title : '') + '</span>';
-						return str;
-					},
-					'autoDimensions': false,
-					'type': 'ajax',
-					'href': '/merchants/' + sels + "/false",
-					'width': 500,
-					'height': 800,
-					'modal': true,
-					'titleShow': true,
-					'titlePosition': 'over',
-					'cyclic': true,
-					'showCloseButton': true,
-					'showNavArrows': false,
-					'transitionIn': 'elastic', //（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
-					'transitionOut': 'elastic',
-					'centerOnScroll': false,
-					'onComplete': function(data) {
-						$("#fancybox-title").css({
-							'top': '0px',
-							'bottom': 'auto'
-						});
-					}
-				});
-			}
-		}
-	});
-	$("#edit_btn").click(function() {
-		var sels = $("#list").jqGrid('getGridParam', 'selarrrow');
-		if(sels == "") {
-			$().message("请选择要编辑的项！");
-		} else {
-			if(sels.toString().indexOf(',') > 0) {
-				$().message("只可选择一项进行编辑！");
-			} else {
-				$.fancybox({
-					'title': '修改门店信息',
-					'titleFormat': function(title, currentArray, currentIndex, currentOpts) {
-						var str = '<span id="fancybox-title-over">' + (currentIndex + 1) + ' / ' + currentArray.length + (title.length ? '   ' + title : '') + '</span>';
-						return str;
-					},
-					'autoDimensions': false,
-					'type': 'ajax',
-					'href': '/merchants/' + sels + "/true",
-					'width': 500,
-					'height': 800,
-					'modal': true,
-					'titleShow': true,
-					'titlePosition': 'over',
-					'cyclic': true,
-					'showCloseButton': true,
-					'showNavArrows': false,
-					'transitionIn': 'elastic', //（效果出入）属性值有三个：fade,elastic,none,含义分别为淡入淡出、弹性缩放、无，默认值为fade。
-					'transitionOut': 'elastic',
-					'centerOnScroll': false,
-					'onComplete': function() {
-						$("#fancybox-title").css({
-							'top': '0px',
-							'bottom': 'auto'
-						});
-					}
-				});
-			}
-		}
-	});
-	$("#del_btn").click(function() {
-		var sels = $("#list").jqGrid('getGridParam', 'selarrrow');
-		if(sels == "") {
-			alert('请选择要删除的项！')
-		} else {
-			if(confirm("您是否确认删除？")) {
-				$.ajax({
-					type: "delete",
-					url: "/merchants/" + sels,
-					//data: "_csrf=#{csrf}",
-					beforeSend: function() {
-						$().message("正在请求...");
-					},
-					error: function() {
-						$().message("请求失败...");
-					},
-					success: function(msg) {
-						if(msg._ids) {
-							var arr = msg._ids.split(',');
-							$.each(arr, function(i, n) {
-								if(arr[i] != "") {
-									$("#list").jqGrid('delRowData', n);
-								}
-							});
-							$().message("已成功删除!");
-						} else {
-							$().message("操作失败！");
-						}
-					}
-				});
-			}
-		}
-	});
+
+    $("#popDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        height: 800,
+        width: 600
+    });
+
+    $("#add_btn").click(function(){
+        $("#popDialog").dialog({
+            open: function(event, ui) {
+                $(this).load('/merchant/new');
+            },
+            title: '添加新商户'
+        });
+        $("#popDialog").dialog("open");
+        return false;
+    });
+
+    $("#view_btn").click(function(){
+        var sels = $("#list").jqGrid('getGridParam','selarrrow');
+        if(sels==""){
+            $().message("请选择要查看的项！");
+        }else{
+            if(sels.toString().indexOf(',') > 0){
+                $().message("只可选择一项进行查看！");
+            }else{
+                $("#popDialog").dialog({
+                    open: function(event, ui) {
+                        $(this).load('/merchant/view/'+sels);
+                    },
+                    title: '查看商户信息'
+                });
+                $("#popDialog").dialog("open");
+                return false;
+            }
+        }
+    });
+    $("#edit_btn").click(function(){
+        var sels = $("#list").jqGrid('getGridParam','selarrrow');
+        if(sels==""){
+            $().message("请选择要编辑的项！");
+        }else{
+            if(sels.toString().indexOf(',') > 0){
+                $().message("只可选择一项进行编辑！");
+            }else{
+                $("#popDialog").dialog({
+                    open: function(event, ui) {
+                        $(this).load('/merchant/edit/'+sels);
+                    },
+                    title: '修改商户信息'
+                });
+                $("#popDialog").dialog("open");
+                return false;
+            }
+        }
+    });
+    $("#del_btn").click(function(){
+        var sels = $("#list").jqGrid('getGridParam','selarrrow');
+        if(sels==""){
+            $().message("请选择要删除的项！");
+        }else{
+            if(confirm("您是否确认删除？")){
+                $.ajax({
+                    type: "delete",
+                    url: "/merchant/"+sels,
+                    data: "_csrf=#{csrf}",
+                    beforeSend: function() {
+                        $().message("正在请求...");
+                    },
+                    error:function(){
+                        $().message("请求失败...");
+                    },
+                    success: function(data){
+                        if(data.merchant._ids){
+                            var arr = data.merchant._ids.split(',');
+                            $.each(arr,function(i,n){
+                                if(arr[i]!=""){
+                                    $("#list").jqGrid('delRowData',n);
+                                }
+                            });
+                            $().message("已成功删除!");
+                        }else{
+                            $().message("操作失败！");
+                        }
+                    }
+                });
+            }
+        }
+    });
 	$("#find_btn").click(function() {
 		var obj = new Object();
 		$(".query_input").each(function() {

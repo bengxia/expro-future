@@ -4,7 +4,7 @@ var sid;
 var dataId;
 
 var newJson = {
-    short_name: "一汽大众",
+    short_name: "一汽大众汽车-测试可删",
     full_name: "一汽大众汽车有限公司",
     state: 1,
     type: 2,
@@ -42,9 +42,51 @@ function signin(data, done, ct) {
 function getList(sid, done) {
     session.getData('/merchants', sid)
         .end(function(res) {
+            log(res.body);
             res.statusCode.should.equal(200);
             res.should.be.json;
+            done();
+        });
+};
+
+function addData(data, sid, done, ct) {
+    session.postData('/merchant', data, sid, ct)
+        .end(function(res) {
             log(res.body);
+            res.statusCode.should.equal(201);
+            res.should.be.json;
+            res.body.should.have.property('_id');
+            dataId = res.body._id;
+            done();
+        })
+};
+
+function findOneData(id, sid, done, ct) {
+    session.getData('/merchant/'+id, sid)
+        .end(function(res) {
+            log(res.body);
+            res.statusCode.should.equal(200);
+            res.should.be.json;
+            done();
+        })
+};
+
+function updateData(data, sid, done, ct) {
+    session.putData('/merchant', data, sid, ct)
+        .end(function(res) {
+            log(res.body);
+            res.statusCode.should.equal(200);
+            res.should.be.json;
+            done();
+        })
+};
+
+function deleteData(id, sid, done, ct) {
+    session.deleteData('/merchant/'+id, '', sid, ct)
+        .end(function(res) {
+            log(res.body);
+            res.statusCode.should.equal(202);
+            res.should.be.json;
             done();
         });
 };
@@ -61,5 +103,26 @@ describe('----商户管理测试模块----', function() {
     });
     it('返回当前平台的所有商户信息列表。', function(done) {
         getList(sid, done);
+    });
+    it('创建商户', function(done) {
+        addData(newJson, sid, done);
+    });
+    it('查询创建的商户', function(done) {
+        findOneData(dataId, sid, done);
+    });
+    it('更新商户', function(done) {
+        newJson._id = dataId;
+        newJson.short_name = "一汽大众汽车-update测试可删";
+        newJson.due_time = "2018-06-23";
+        newJson.address = "南京路2号";
+        newJson.website = "http://www.google.com/";
+        newJson.phone = "4008-171-999";
+        updateData(newJson, sid, done);
+    });
+    it('查询更新的商户', function(done) {
+        findOneData(dataId, sid, done);
+    });
+    it('删除商户。', function(done) {
+        deleteData(dataId, sid, done);
     });
 });

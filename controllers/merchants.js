@@ -17,7 +17,7 @@ var getNow=function(){
         now.getHours()+':'+now.getMinutes()+':'+now.getSeconds());
 };
 
-var queryInput = {'_id': '编号', 'short_name': '简称'};
+var queryInput = {'_id_01': '编号', 'short_name_01': '简称'};
 var showElement = ['_id', 'short_name', 'state', 'type', 'phone', 'create_time', 'due_time'];
 /**
  * 显示商户列表
@@ -171,7 +171,7 @@ exports.index = function(req,res,next){
             Merchant.findAll({where:where, start:start, limit:limit, sidx:sidx, sord:sord, bt:bt, et:et}, function(err, rs) {
                 if(err) { ep.unbind(); return next(err);}
                 if (!rs || rs == undefined) return ep.trigger('error', {status:400, where:where, error:'查询结果为空！'});
-                var jsonObj = {deals:rs};
+                var jsonObj = {merchants:rs};
                 feedback({status:200, error:'获取数据成功', jsonObj:jsonObj});
             });
         };
@@ -249,7 +249,7 @@ exports.index = function(req,res,next){
 //                //-------------------------------------------
 //
 //                var jsonStr = JSON.stringify(jsonObj);
-//                console.log('jsonStr:'+jsonStr);
+//                log.info('jsonStr:'+jsonStr);
 //                return res.json(jsonObj);
 //            });
 //        });
@@ -257,7 +257,7 @@ exports.index = function(req,res,next){
 //};
 
 exports.pageNew = function(req, res, next) {
-    console.log("新建弹出框。。。");
+    log.info("新建弹出框。。。");
     // 3个状态： 新增， 查看， 编辑
     // - 新增(pageState=0)： _id 为空，isReadonly=false, 所有输入框为空，显示：保存按钮
     // - 查看(pageState=1)： _id不为空，isReadonly=true， 输入框有数据，显示：关闭按钮
@@ -274,7 +274,7 @@ exports.pageNew = function(req, res, next) {
  * @return {*}
  */
 exports.pageView = function(req, res, next) {
-    console.log("开始 pageView 。。。");
+    log.info("开始 pageView 。。。");
     var _id = req.params._id;
     // 本页面有3个状态： 新增， 查看， 编辑
     // - 新增(pageState=0)： 所有输入框为空，显示：保存按钮
@@ -290,7 +290,7 @@ exports.pageView = function(req, res, next) {
 };
 
 exports.pageEdit = function(req, res, next) {
-    console.log("开始 pageEdit 。。。");
+    log.info("开始 pageEdit 。。。");
     var _id = req.params._id;
     // 本页面有3个状态： 新增， 查看， 编辑
     // - 新增(pageState=0)： 所有输入框为空，显示：保存按钮
@@ -312,7 +312,7 @@ exports.pageEdit = function(req, res, next) {
  * @param next
  */
 exports.findOne = function(req, res, next) {
-    console.log("开始 findOne 。。。");
+    log.info("开始 findOne 。。。");
     var _id = req.params._id;
 
     try {
@@ -344,14 +344,14 @@ exports.findOne = function(req, res, next) {
 //};
 
 exports.saveMerchant = function(req,res,next){
-    console.log("saveMerchant。。。");
+    log.info("saveMerchant。。。");
     if(!req.session.user.member) return res.json({error:'未登录!'}, 400);
 
     //开始校验输入数值的正确性
     var short_name = sanitize(req.body.short_name).trim();
     var full_name = sanitize(req.body.full_name).trim();
-    var state = sanitize(req.body.state).trim();
-    var type = sanitize(req.body.type).trim();
+    var state = req.body.state;
+    var type = req.body.type;
     var logo_img_path = sanitize(req.body.logo_img_path).ifNull("");
     var charter_num = sanitize(req.body.charter_num).trim();
     var charter_img_path = sanitize(req.body.charter_img_path).trim();
@@ -364,7 +364,7 @@ exports.saveMerchant = function(req,res,next){
     var self_intro = sanitize(req.body.self_intro).ifNull("");
     var member_intro = sanitize(req.body.member_intro).ifNull("");
     var district_code = sanitize(req.body.district_code).trim();
-    var merchant_level_id = sanitize(req.body.merchant_level_id).trim();
+    var merchant_level_id = req.body.merchant_level_id;
     var comment = sanitize(req.body.comment).ifNull("");
 
     try {
@@ -376,7 +376,7 @@ exports.saveMerchant = function(req,res,next){
         check(district_code, "保存失败，地区编号不能为空！").notNull();
         check(merchant_level_id, "保存失败，商户等级不能为空！").notNull();
 
-        var where = 'and short_name = '+short_name;
+        var where = "and short_name = '"+short_name + "'";
         Merchant.findAll({where: where}, function(err, rs) {
             if(err) return next(err);
             if(!rs) {
@@ -388,7 +388,7 @@ exports.saveMerchant = function(req,res,next){
                 Merchant.create(jsonObj, function(err, info){
                     if(err) return next(err);
                     if(!info || !info.insertId) return res.json({error:'数据入库出错!'}, 500);
-                    var returnObj = {merchant:{_id:info.insertId}};
+                    var returnObj = {_id:info.insertId};
                     return res.json(returnObj, 201);
                 });
             }
@@ -402,7 +402,7 @@ exports.saveMerchant = function(req,res,next){
 };
 
 //exports.create = function(req, res, next) {
-//    console.log("保存并新增商户数据******");
+//    log.info("保存并新增商户数据******");
 //    //开始校验输入数值的正确性
 //    /*
 //    var short_name = sanitize(req.body.short_name).trim();
@@ -443,7 +443,7 @@ exports.saveMerchant = function(req,res,next){
 //};
 
 exports.deleteMerchant = function(req,res,next) {
-    console.log("开始进行删除。。。。");
+    log.info("开始进行删除。。。。");
 //	var _ids = req.params.id;
 //	Merchant.delete(_ids, function(err, rs) {
 //		if(err) return next(err);
@@ -477,7 +477,7 @@ exports.deleteMerchant = function(req,res,next) {
 //};
 
 exports.updateMerchant = function(req,res,next){
-    console.log(" ---------开始 updateMerchant。。。");
+    log.info(" ---------开始 updateMerchant。。。");
 
     if(!req.session.user.member) return res.json({error:'未登录!'}, 400);
 
@@ -485,8 +485,8 @@ exports.updateMerchant = function(req,res,next){
     var _id = req.body._id;
     var short_name = sanitize(req.body.short_name).trim();
     var full_name = sanitize(req.body.full_name).trim();
-    var state = sanitize(req.body.state).trim();
-    var type = sanitize(req.body.type).trim();
+    var state = req.body.state;
+    var type = req.body.type;
     var logo_img_path = sanitize(req.body.logo_img_path).ifNull("");
     var charter_num = sanitize(req.body.charter_num).trim();
     var charter_img_path = sanitize(req.body.charter_img_path).trim();
@@ -499,7 +499,7 @@ exports.updateMerchant = function(req,res,next){
     var self_intro = sanitize(req.body.self_intro).ifNull("");
     var member_intro = sanitize(req.body.member_intro).ifNull("");
     var district_code = sanitize(req.body.district_code).trim();
-    var merchant_level_id = sanitize(req.body.merchant_level_id).trim();
+    var merchant_level_id = req.body.merchant_level_id;
     var comment = sanitize(req.body.comment).ifNull("");
     try {
         check(_id, "更新失败，数据流水号不能为空！").notNull();

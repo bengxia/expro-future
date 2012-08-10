@@ -45,7 +45,7 @@ function signin(data, done, ct) {
 };
 
 function count(sid, done) {
-    session.getData('/deal/count', sid)
+    session.getData('/deal/count?type=2&customer_id=155&et=2012-08-11&bt=2012-08-10', sid)
         .end(function(res) {
             res.statusCode.should.equal(200);
             res.should.be.json;

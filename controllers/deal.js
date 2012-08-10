@@ -395,7 +395,9 @@ exports.saveDeal = function(req,res,next){
         check(state, "保存失败，交易状态不能为空！").notNull();
         check(store_id, "保存失败，门店不能为空！").notNull();
         var postObj = {type:type, state:state, store_id:store_id, payment:payment, cash:cash, point:point,
-            pay_type:pay_type, deal_items:deal_items, repeal_id:repeal_id, customer_id:customer_id, create_time:getNow()};
+            pay_type:pay_type, deal_items:deal_items, repeal_id:repeal_id, customer_id:customer_id, create_time:getNow(),
+            dealer_id:req.session.user.member._id};
+
         if(type == 2 || type == 3){
             check(customer_id, "会员ID不能为空！").notNull();
             check(cash, "储值金额不能为空！").notNull();
@@ -448,7 +450,8 @@ exports.saverRepealDeal = function(req,res,next){
         check(store_id, "保存失败，门店不能为空！").notNull();
         check(repeal_id, "保存失败，退款关联交易单不能为空！").notNull();
         var postObj = {type:type, state:state, store_id:store_id, payment:payment, cash:cash, point:point,
-            pay_type:pay_type, deal_items:deal_items, repeal_id:repeal_id, customer_id:customer_id, create_time:getNow()};
+            pay_type:pay_type, deal_items:deal_items, repeal_id:repeal_id, customer_id:customer_id, create_time:getNow(),
+            dealer_id:req.session.user.member._id};
         saveDealAndDealItems(postObj,res,next);
     }catch(e){
         return res.json({status:400, error:e.message}, 400);

@@ -3,6 +3,7 @@ node_modules
 config.js
 .naeindex
 public/user_data
+public/logs
 
 .npmignore
 .monitor

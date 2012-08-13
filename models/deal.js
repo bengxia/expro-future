@@ -4,6 +4,7 @@ var SimpleDO = require('../libs/simpleDO');
 //var Log = require('../log.js');
 //var log = Log.create(Log.INFO, {'file':'public/node.debug'});
 
+
 function create() {
     return new Deal();
 };
@@ -107,6 +108,7 @@ Deal.prototype.count = function(opt, cb) {
     if(opt.bt) sql += " and create_time >= '"+ opt.bt + "' ";
     if(opt.et) sql += " and create_time <= '"+ opt.et + "' ";
     console.log(sql);
+
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);
         if(!rs.length) return cb(err);

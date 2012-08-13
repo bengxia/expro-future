@@ -45,7 +45,6 @@ var showElement = ['_id', 'deal_id', 'goods_name', 'num', 'closing_cost', 'total
 exports.index = function(req,res,next){
     console.log("查询指定交易的一批交易明细");
     var _id = req.params._id;
-    console.log("_id:"+_id);
     if(!_id) return next('error', {status:400, error:'交易ID不能为空！'});
 
     if(req.accepts('html')) {

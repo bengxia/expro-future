@@ -41,7 +41,7 @@ exports.index = function(req,res,next){
     if(req.accepts('html')) {
         res.render('stores/index', {queryInput:queryInput});
     }else{
-        console.log("获取所有门店信息。。。");
+        log.info("获取所有门店信息。。。");
         //start=起始行数&limit=每页显示行数&bt=交易发生时间起点&et=交易发生时间的截至时间&sidx=排序字段名&sord=排序方式asc,desc
         var page = req.query.page; // 取得当前页数,注意这是jqgrid自身的参数
         var start = req.query.start;//起始行数
@@ -205,17 +205,19 @@ exports.index = function(req,res,next){
 
                 //定义rows 数组，保存所有rows数据
                 rs.forEach(function(store) {
-                    var ep2 = EventProxy.create();
-
-                    ep2.assign('WarehouseDone', function(warehouseEvent) {
-                        ep.trigger('storeDone');
-                    });
-
+//                    var ep2 = EventProxy.create();
+//
+//                    ep2.assign('WarehouseDone', function(warehouseEvent) {
+//                        ep.trigger('storeDone');
+//                    });
+                    //查询门店仓库
                     Warehouse.findOne({'_id':store.warehouse_id}, function(err, data) {
-                        if(err) { ep2.unbind(); return next(err);}
-                        if (!data || data == undefined) return ep2.trigger('error', {status:400, error:'查询Warehouse结果为空！'});
-                        store.warehouse_name = data.name;
-                        ep2.trigger('WarehouseDone', data);
+                        if(err) { return next(err);}
+                        if (!data || data == undefined){ //return ep.trigger('error', {status:400, error:'查询Warehouse结果为空！'});
+                            store.warehouse_name = "";
+                        }else
+                            store.warehouse_name = data.name;
+                        ep.trigger('storeDone');
                     });
                 });
             });
@@ -294,8 +296,11 @@ exports.findOne = function(req, res, next) {
             if(!store.warehouse_id) return res.json({status:400, error:"关联仓库为空!"}, 400);
             Warehouse.findOne({"_id":store.warehouse_id}, function(err,warehouse){
                 if(err) return next(err);
-                if(!warehouse) return res.json({status:400, error:"查询仓库结果为空!"}, 400);
-                store.warehouse_name = warehouse.name;
+                if(!warehouse) {//return res.json({status:400, error:"查询仓库结果为空!"}, 400);
+                    store.warehouse_name = "";
+                }else{
+                    store.warehouse_name = warehouse.name;
+                }
                 var jsonObj = {store:store};
                 res.json(jsonObj, 200);
             });

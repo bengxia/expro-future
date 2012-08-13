@@ -10,6 +10,9 @@ var EventProxy = require('eventproxy').EventProxy;
 
 var Log = require('../log.js');
 var log = Log.create(Log.INFO, {'file':'public/node.debug'});
+//var Log = require('log'),
+//    log = new Log('info');
+
 var MQClient = require('../libs/mq_client.js');
 
 var getNow=function(){
@@ -131,6 +134,7 @@ exports.count = function(req,res,next){
  * @param next
  */
 exports.index = function(req,res,next){
+    log.info('exports.index~~~~~~~~~~~');
     if(req.accepts('html')) {
         res.render('deal/index', {queryInput:queryInput});
     }else{

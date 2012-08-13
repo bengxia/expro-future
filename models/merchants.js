@@ -19,9 +19,9 @@ Merchant.prototype.findGoods = function(query, cb) {
     });
 };
 
-Merchant.prototype.save = function(obj, cb) {
-    console.log("Merchant Save``````````````````");
-};
+//Merchant.prototype.save = function(obj, cb) {
+//    console.log("Merchant Save``````````````````");
+//};
 
 Merchant.prototype.findOne = function(opt, cb) {
     var sql = "SELECT * FROM `ef_merchant` WHERE `_id` = '"+opt._id+"'";

@@ -1,8 +1,8 @@
 var mysql = require('../libs/mysql.js');
 var SimpleDO = require('../libs/simpleDO');
 
-var Log = require('../log.js');
-var log = Log.create(Log.INFO, {'file':'public/node.debug'});
+//var Log = require('../log.js');
+//var log = Log.create(Log.INFO, {'file':'public/node.debug'});
 
 function create() {
     return new Deal();
@@ -106,7 +106,6 @@ Deal.prototype.count = function(opt, cb) {
         +opt.where;
     if(opt.bt) sql += " and create_time >= '"+ opt.bt + "' ";
     if(opt.et) sql += " and create_time <= '"+ opt.et + "' ";
-    //log.info(sql);
     console.log(sql);
     mysql.query(sql, function(err, rs) {
         if(err) return cb(err);

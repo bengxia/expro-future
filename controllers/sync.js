@@ -12,8 +12,8 @@ var WarehouseWarrant = models.WarehouseWarrant;
 var check = require('validator').check,
     sanitize = require('validator').sanitize;
 var EventProxy = require('eventproxy').EventProxy;
-var Log = require('../log.js');
-var log = Log.create(Log.INFO, {'file':'public/node.debug'});
+//var Log = require('../log.js');
+//var log = Log.create(Log.INFO, {'file':'public/node.debug'});
 var MQClient = require('../libs/mq_client.js');
 
 exports.restrict = function(req, res, next) {

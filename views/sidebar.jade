@@ -2,6 +2,59 @@
     .panel
         .header
             span.col_fade 您好：#{locals.current_user?locals.current_user.name:"匿名用户"}
+            input#orgId(type='hidden', name='orgId', value='#{locals.current_user?locals.current_user.member.org_id:''}')
+            br
+            table
+                tr
+                    td
+                        您的商户名称是：
+                    td
+                        label#short_name
+                tr
+                    td
+                        您的商户Logo：
+                    td
+                        img#logo_img_path_show(height="60", width="60")
         .inner
             p #{config.description}
             p 泛盈商汇：构建商户与会员的桥梁。
+script(type='text/javascript')
+    var aliyunOssUrl = "http://storage.aliyun.com/";
+    $(function(){
+        var orgId = $("#orgId").val();
+        if(orgId){
+            $.ajax({
+                type: "get",
+                url: '/merchant/'+orgId,
+                dataType: "json",
+                global: false,
+                async: false,
+                success: function (data, textStatus) {
+                    console.log("data:"+JSON.stringify(data));
+                    if(data && data.merchant){
+                        var merchant = data.merchant;
+
+                        $("#short_name").text(merchant.short_name);
+                        //$("#full_name").val(merchant.full_name);
+
+                        //$("#logo_img_path").val(merchant.logo_img_path);
+                        $("#logo_img_path_show").attr("src",aliyunOssUrl+merchant.logo_img_path);
+
+                        //$("#create_time").val(merchant.create_time);
+                        //$("#due_time").val(merchant.due_time);
+                        //$("#address").val(merchant.address);
+                        //$("#website").val(merchant.website);
+                        //$("#phone").val(merchant.phone);
+                        //$("#fax").val(merchant.fax);
+
+                    }else{
+                        $().message("获取数据失败,返回数据格式错误！");
+                    }
+                },
+                error: function () {
+                    $().message("获取信息失败！");
+                }
+            });
+        }
+    });
+

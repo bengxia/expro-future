@@ -1,3 +1,5 @@
+var aliyunOssUrl = "http://storage.aliyun.com/";
+
 //页面初始化时调用，设置按钮显示，输入框是否只读等属性。
 var pageInit = function(){
 
@@ -15,8 +17,11 @@ var pageInit = function(){
     }else if(1 == pageState){
         //查看
         $(".allowInput").attr("readonly","readonly");
+
         $("#save").hide();//启动时隐藏保存按钮
         $("#update").hide();
+        $("#logo_img_path_file_uploader").hide();
+        $("#charter_img_path_file_uploader").hide();
         showContent();
     }else if(2 == pageState){
         //编辑
@@ -37,6 +42,42 @@ var pageInit = function(){
     }
 
 };
+
+var createUploader = function(){
+//        var uploader = new qq.FileUploader({
+//            element: document.getElementById('file-uploader-demo1'),
+//            action: 'do-nothing.htm',
+//            debug: true,
+//            extraDropzones: [qq.getByClass(document, 'qq-upload-extra-drop-area')[0]]
+//        });
+    var logo_img_pathUploader = new qq.FileUploader({
+        // pass the dom node (ex. $(selector)[0] for jQuery users)
+        element: document.getElementById('logo_img_path_file_uploader'),
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+        // path to server-side upload script
+        action: '/upload',
+        debug: true,
+        onComplete: function(id, fileName, responseJSON){
+            //console.log("responseJSON:"+responseJSON.fid);
+            $("#logo_img_path_show").attr("src",aliyunOssUrl+responseJSON.fid);
+            $("#logo_img_path").val(responseJSON.fid);
+        }
+    });
+
+    var charter_img_pathUploader = new qq.FileUploader({
+        // pass the dom node (ex. $(selector)[0] for jQuery users)
+        element: document.getElementById('charter_img_path_file_uploader'),
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+        // path to server-side upload script
+        action: '/upload',
+        debug: true,
+        onComplete: function(id, fileName, responseJSON){
+            //console.log("responseJSON:"+responseJSON.fid);
+            $("#charter_img_path_show").attr("src",aliyunOssUrl+responseJSON.fid);
+            $("#charter_img_path").val(responseJSON.fid);
+        }
+    });
+}
 
 var merchantLevelInit = function() {
     $.ajax({
@@ -78,8 +119,10 @@ var showContent = function(){
                     $("#state").val(merchant.state);
                     $("#type").val(merchant.type);
                     $("#logo_img_path").val(merchant.logo_img_path);
+                    $("#logo_img_path_show").attr("src",aliyunOssUrl+merchant.logo_img_path);
                     $("#charter_num").val(merchant.charter_num);
                     $("#charter_img_path").val(merchant.charter_img_path);
+                    $("#charter_img_path_show").attr("src",aliyunOssUrl+merchant.charter_img_path);
                     $("#create_time").val(merchant.create_time);
                     $("#due_time").val(merchant.due_time);
                     $("#address").val(merchant.address);
@@ -107,6 +150,7 @@ $(function(){
      *              初始化页面显示
      *******************************************/
     pageInit();
+    createUploader();
 
     /*******************************************
      *                    事件响应
@@ -250,4 +294,11 @@ $(function(){
 //        }
 //    };
 });
+
+
+
+
+// in your app create uploader as soon as the DOM is ready
+// don't wait for the window to load
+//window.onload = createUploader;
 

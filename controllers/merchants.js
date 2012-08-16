@@ -10,6 +10,8 @@ var Log = require('../log.js');
 var log = Log.create(Log.INFO, {'file':'public/node.debug'});
 var MQClient = require('../libs/mq_client.js');
 
+var formidable = require('formidable');
+
 var getNow=function(){
     var now = new Date();
     var year = now.getFullYear();
@@ -19,6 +21,7 @@ var getNow=function(){
 
 var queryInput = {'_id_01': '编号', 'short_name_01': '简称'};
 var showElement = ['_id', 'short_name', 'state', 'type', 'phone', 'create_time', 'due_time'];
+
 /**
  * 显示商户列表
  * @param req

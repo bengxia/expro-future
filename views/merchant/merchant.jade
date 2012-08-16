@@ -39,14 +39,33 @@ script(type='text/javascript', src='/javascripts/views/merchant/merchant.js')
                         - var str = "<option value='"+types[i].id+"' >"+types[i].value + " </option>"
                         |!{str}
             div
-                label         商户LOGO路径：
-                input#logo_img_path.allowInput(type='text', name='logo_img_path')
+                table(border='0')
+                    tr
+                        td
+                            label         商户LOGO：
+                            input#logo_img_path.allowInput(type='hidden', name='logo_img_path')
+                        td(width="150")
+                            img#logo_img_path_show(height="60", width="60")
+                        td(valign="bottom")
+                            #logo_img_path_file_uploader
+                                noscript
+                                    p Please enable JavaScript to use file uploader.
+
             div
                 label.error   营业执照号：
                 input#charter_num.allowInput(type='text', name='charter_num')
             div
-                label   营业执照图片上传：
-                input#charter_img_path.allowInput(type='text', name='charter_img_path')
+                table(border='0')
+                    tr
+                        td
+                            label   营业执照图片上传：
+                            input#charter_img_path.allowInput(type='hidden', name='charter_img_path')
+                        td(width="150")
+                            img#charter_img_path_show(height="60", width="60")
+                        td(valign="bottom")
+                            #charter_img_path_file_uploader
+                                noscript
+                                    p Please enable JavaScript to use file uploader.
             div
                 label   详细地址：
                 input#address.allowInput(type='text', name='address')

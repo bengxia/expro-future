@@ -4,6 +4,7 @@ config.js
 .naeindex
 public/user_data
 public/logs
+userfiles
 
 .npmignore
 .monitor

@@ -88,7 +88,7 @@ $(function(){
         autoOpen: false,
         modal: true,
         height: 800,
-        width: 600
+        width: 800
     });
 
     $("#add_btn").click(function(){
